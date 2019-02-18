@@ -1,13 +1,14 @@
 package com.example.flashcardapp;
 
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
-public class DeckEditActivity extends AppCompatActivity {
+public class DeckEditActivity extends SingleFragmentActivity {
+
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_deck_edit_activitiy);
+    protected Fragment createFragment() {
+        return new DeckEditFragment();
     }
 }
