@@ -3,14 +3,12 @@ package com.example.flashcardapp;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
 
-public class MainFragment extends Fragment {
+public class DeckHomeFragment extends Fragment {
     private Button deckViewButton;
 
     @Override
@@ -20,7 +18,7 @@ public class MainFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.fragment_main, container, false);
+        View v = inflater.inflate(R.layout.fragment_deck_home, container, false);
         deckViewButton = (Button) v.findViewById(R.id.LaunchDeckButton);
         deckViewButton.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -1,5 +1,17 @@
 <resources>
     <string name="app_name">Hello</string>
     <string name="DeckLaunchButtonText">Open Deck View</string>
-    <string name="DeckTitleText">Deck Title</string>
+    <string name="DeckNameLabel">Edit Deck Name</string>
+    <string name="ProfessorNameLabel">Edit Professor Name</string>
+    <string name="AddProfessorLabel">+ Add Professor</string>
+    <string name="CategoryNameLabel">Edit Category Name</string>
+    <string name="AddCategoryLabel">+ Add Category</string>
+    <string name="SaveString">Save</string>
+    <string name="CourseNameLabel">Edit Course Name</string>
+    <string name="SchoolNameLabel">Edit School Name</string>
+    <string name="CourseString">Course Name</string>
+    <string name="SchoolString">School Name</string>
+    <string name="CategoryString">Category Name</string>
+    <string name="ProfessorString">Professor Name</string>
+    <string name="NameString">Deck Name</string>
 </resources>

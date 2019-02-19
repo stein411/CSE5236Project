@@ -10,7 +10,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".DeckEditActivity"></activity>
-        <activity android:name=".MainActivity">
+        <activity android:name=".DeckHomeActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
