@@ -9,8 +9,6 @@ import android.view.View;
 import android.widget.Button;
 
 public class DeckHomeActivity extends SingleFragmentActivity {
-    private Button deckViewButton;
-
     @Override
     protected Fragment createFragment() {
         return new DeckHomeFragment();

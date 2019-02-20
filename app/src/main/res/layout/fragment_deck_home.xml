@@ -75,52 +75,62 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/professor_name_label" />
 
-        <android.support.constraint.ConstraintLayout
-            android:id="@+id/flashcard_layout"
-            android:layout_width="match_parent"
+        <LinearLayout
+            android:id="@+id/flashcards_container"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="80dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="64dp"
+            android:layout_marginEnd="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/LaunchDeckButton"
-            tools:layout_editor_absoluteX="0dp"
-            android:background="@android:color/darker_gray">
+            android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/flashcard_label"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="16dp"
-                android:text="1"
-                android:textSize="18sp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@id/flashcard_layout" />
+            <android.support.constraint.ConstraintLayout
+                android:id="@+id/flashcard_layout"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:background="@android:color/darker_gray">
 
-            <EditText
-                android:id="@+id/flashcard_term"
-                android:layout_width="160dp"
-                android:layout_height="match_parent"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="8dp"
-                android:hint="@string/TermString"
-                android:inputType="text"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/flashcard_label"
-                app:layout_constraintTop_toTopOf="parent" />
+                <TextView
+                    android:id="@+id/flashcard_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="16dp"
+                    android:text="1"
+                    android:textSize="18sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@id/flashcard_layout" />
 
-            <EditText
-                android:id="@+id/flashcard_definition"
-                android:layout_width="160dp"
-                android:layout_height="match_parent"
-                android:layout_marginStart="40dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="8dp"
-                android:hint="@string/DefinitionString"
-                android:inputType="text"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toEndOf="@id/flashcard_term"
-                app:layout_constraintTop_toTopOf="parent" />
-        </android.support.constraint.ConstraintLayout>
+                <EditText
+                    android:id="@+id/flashcard_term"
+                    android:layout_width="160dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="8dp"
+                    android:hint="@string/TermString"
+                    android:inputType="text"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/flashcard_label"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <EditText
+                    android:id="@+id/flashcard_definition"
+                    android:layout_width="160dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="40dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="8dp"
+                    android:hint="@string/DefinitionString"
+                    android:inputType="text"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/flashcard_term"
+                    app:layout_constraintTop_toTopOf="parent" />
+            </android.support.constraint.ConstraintLayout>
+        </LinearLayout>
 
         <Button
             android:id="@+id/add_flashcard_button"
@@ -131,8 +141,9 @@
             android:layout_marginEnd="8dp"
             android:text="@string/AddFlashcardLabel"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.497"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/flashcard_layout" />
+            app:layout_constraintTop_toBottomOf="@+id/flashcards_container" />
 
         <Button
             android:id="@+id/back_button"
