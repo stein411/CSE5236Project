@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Hello</string>
-    <string name="DeckLaunchButtonText">Open Deck View</string>
+    <string name="DeckMetadataButtonText">Edit Deck Information</string>
     <string name="DeckNameLabel">Edit Deck Name</string>
     <string name="ProfessorNameLabel">Edit Professor Name</string>
     <string name="AddProfessorLabel">+ Add Professor</string>
@@ -14,4 +14,12 @@
     <string name="CategoryString">Category Name</string>
     <string name="ProfessorString">Professor Name</string>
     <string name="NameString">Deck Name</string>
+    <string name="AddFlashcardLabel">+ Add Flashcard</string>
+    <string name="TermString">Term</string>
+    <string name="DefinitionString">Definition</string>
+    <string name="Deck1String">Deck 1</string>
+    <string name="Deck2String">Deck 2</string>
+    <string name="AddDeckString">+ Add Deck</string>
+    <string name="BackButton">Back</string>
+    <string name="Username">Username\'s Decks</string>
 </resources>

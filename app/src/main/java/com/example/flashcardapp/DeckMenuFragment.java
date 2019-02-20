@@ -7,10 +7,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.Toast;
 
-public class DeckEditFragment extends Fragment {
-    private Button saveChangesButton;
+public class DeckMenuFragment extends Fragment {
+    private Button addDeckButton;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -19,15 +18,14 @@ public class DeckEditFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.fragment_deck_edit, container, false);
-        saveChangesButton = (Button) v.findViewById(R.id.save_changes_button);
-        saveChangesButton.setOnClickListener(new View.OnClickListener() {
+        View v = inflater.inflate(R.layout.fragment_deck_menu, container, false);
+        addDeckButton = (Button) v.findViewById(R.id.add_deck_button);
+        addDeckButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (getActivity() != null) {
-                    getActivity().finish();
+                    getActivity().startActivity(new Intent(getActivity(), DeckHomeActivity.class));
                 }
-                Toast.makeText(getContext(), "Changes saved successfully", Toast.LENGTH_LONG).show();
             }
         });
         return v;

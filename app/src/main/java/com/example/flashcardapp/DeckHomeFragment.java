@@ -10,6 +10,7 @@ import android.widget.Button;
 
 public class DeckHomeFragment extends Fragment {
     private Button deckViewButton;
+    private Button backButton;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -25,6 +26,15 @@ public class DeckHomeFragment extends Fragment {
             public void onClick(View v) {
                 if (getActivity() != null) {
                     getActivity().startActivity(new Intent(getActivity(), DeckEditActivity.class));
+                }
+            }
+        });
+        backButton = (Button) v.findViewById(R.id.back_button);
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (getActivity() != null) {
+                    getActivity().finish();
                 }
             }
         });
