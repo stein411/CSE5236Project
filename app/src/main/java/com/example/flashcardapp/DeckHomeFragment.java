@@ -55,66 +55,6 @@ public class DeckHomeFragment extends Fragment {
         return v;
     }
 
-    /*
-
-        addFlashcardButton = (Button) getView().findViewById(R.id.add_flashcard_button);
-        addFlashcardButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                LinearLayout ll = (LinearLayout) v.findViewById(R.id.flashcards_container);
-                TextView txt = new TextView(getContext());
-                txt.setText("Hello");
-                ll.addView(txt);
-                // Create a new layout
-//                ConstraintLayout layout = new ConstraintLayout(getContext());
-//                int layoutId = View.generateViewId();
-//                layout.setId(layoutId);
-//
-//                // Setup the widgets
-//                TextView lbl = new TextView(getContext());
-//                lbl.setText(Integer.toString(++flashcardCount));
-//                int lblId = View.generateViewId();
-//                lbl.setId(lblId);
-//
-//                EditText term = new EditText(getContext());
-//                term.setHint(R.string.TermString);
-//                int termId = View.generateViewId();
-//                term.setId(termId);
-//
-//                EditText definition = new EditText(getContext());
-//                definition.setHint(R.string.DefinitionString);
-//                int defId = View.generateViewId();
-//                definition.setId(defId);
-//
-//                // Add widgets to layout
-//                layout.addView(lbl);
-//                layout.addView(term);
-//                layout.addView(definition);
-//
-//                // Add constraints so widgets line up correctly
-//                ConstraintSet constraintSet = new ConstraintSet();
-//                constraintSet.clone(layout);
-//                // Set top and bottom layouts of all widgets
-//                int[] idList = {lblId, termId, defId};
-//                for (int i = 0; i < idList.length; i++) {
-//                    constraintSet.connect(idList[i], ConstraintSet.TOP, layoutId, ConstraintSet.TOP);
-//                    constraintSet.connect(idList[i], ConstraintSet.BOTTOM, layoutId, ConstraintSet.BOTTOM);
-//                }
-//                // Set horizontal constraints
-//                constraintSet.connect(lblId, ConstraintSet.START, layoutId, ConstraintSet.START, 8);
-//                constraintSet.connect(termId, ConstraintSet.START, lblId, ConstraintSet.END, 8);
-//                constraintSet.connect(defId, ConstraintSet.START, termId, ConstraintSet.END, 40);
-//                // Apply constraints
-//                constraintSet.applyTo(layout);
-//
-//                // Add the constraint layout to the linear layout
-//                LinearLayout ll = v.findViewById(R.id.flashcards_container);
-//                ll.addView(layout);
-            }
-        });
-     */
-
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         addFlashcardButton = (Button) view.findViewById(R.id.add_flashcard_button);
