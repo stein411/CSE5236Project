@@ -81,90 +81,124 @@
             app:layout_constraintTop_toBottomOf="@+id/school_name_label"
             android:hint="@string/SchoolString"/>
 
-        <TextView
-            android:id="@+id/professor_name_label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="8dp"
-            android:labelFor="@id/edit_professor_name"
-            android:text="@string/ProfessorNameLabel"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/edit_school_name" />
-
-        <EditText
-            android:id="@+id/edit_professor_name"
+        <LinearLayout
+            android:id="@+id/professor_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
             android:layout_marginTop="8dp"
-            android:layout_marginEnd="16dp"
-            android:inputType="text"
+            android:orientation="vertical"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/professor_name_label"
-            android:hint="@string/ProfessorString"/>
+            app:layout_constraintTop_toBottomOf="@+id/edit_school_name">
 
+            <android.support.constraint.ConstraintLayout
+                android:id="@+id/professor_1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/professor_name_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="8dp"
+                    android:labelFor="@id/edit_professor_name"
+                    android:text="@string/ProfessorNameLabel"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <EditText
+                    android:id="@+id/edit_professor_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="16dp"
+                    android:hint="@string/ProfessorString"
+                    android:inputType="text"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/professor_name_label" />
+            </android.support.constraint.ConstraintLayout>
+        </LinearLayout>
+        
         <Button
             android:id="@+id/add_professor"
             android:layout_width="match_parent"
             android:layout_height="40dp"
             android:layout_marginStart="24dp"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="8dp"
             android:layout_marginEnd="24dp"
             android:text="@string/AddProfessorLabel"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/edit_professor_name" />
+            app:layout_constraintTop_toBottomOf="@+id/professor_container" />
 
-        <TextView
-            android:id="@+id/category_name_label"
-            android:layout_width="wrap_content"
-            android:layout_height="0dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="8dp"
-            android:text="@string/CategoryNameLabel"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/add_professor"
-            android:labelFor="@id/edit_category"/>
-
-        <EditText
-            android:id="@+id/edit_category"
+        <LinearLayout
+            android:id="@+id/category_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
             android:layout_marginTop="8dp"
-            android:layout_marginEnd="16dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/category_name_label"
-            android:inputType="text"
-            android:hint="@string/CategoryString"/>
+            android:orientation="vertical"
+            app:layout_constraintTop_toBottomOf="@+id/add_professor">
+
+            <android.support.constraint.ConstraintLayout
+                android:id="@+id/category_1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/category_name_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="8dp"
+                    android:labelFor="@id/edit_category"
+                    android:text="@string/CategoryNameLabel"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <EditText
+                    android:id="@+id/edit_category"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="16dp"
+                    android:hint="@string/CategoryString"
+                    android:inputType="text"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/category_name_label" />
+            </android.support.constraint.ConstraintLayout>
+        </LinearLayout>
+
 
         <Button
             android:id="@+id/add_category"
             android:layout_width="match_parent"
             android:layout_height="40dp"
             android:layout_marginStart="24dp"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="8dp"
             android:layout_marginEnd="24dp"
             android:text="@string/AddCategoryLabel"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/edit_category" />
+            app:layout_constraintTop_toBottomOf="@+id/category_container" />
 
         <Button
             android:id="@+id/save_changes_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="80dp"
+            android:layout_marginTop="40dp"
             android:layout_marginEnd="8dp"
-            android:layout_marginBottom="64dp"
+            android:layout_marginBottom="40dp"
             android:text="@string/SaveString"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.498"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/add_category" />
     </android.support.constraint.ConstraintLayout>
