@@ -22,4 +22,5 @@
     <string name="AddDeckString">+ Add Deck</string>
     <string name="BackButton">Back</string>
     <string name="Username">Username\'s Decks</string>
+    <string name="UserWelcome">Welcome to Our App!</string>
 </resources>
