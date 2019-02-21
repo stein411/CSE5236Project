@@ -25,5 +25,7 @@
     <string name="UserWelcome">Welcome to Our App!</string>
     <string name="MyDecksButton">My Decks</string>
     <string name="NearbyDecksButton">Find Nearby Decks</string>
-    <string name="SearchDecksButton">Search for Decks</string>
+    <string name="SearchDecksString">Search for Decks</string>
+    <string name="DeckNameString">Deck Name</string>
+    <string name="SearchString">Search</string>
 </resources>
