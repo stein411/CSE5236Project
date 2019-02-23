@@ -21,11 +21,16 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class DeckHomeFragment extends Fragment {
     private Button deckViewButton;
     private Button backButton;
     private Button addFlashcardButton;
-    private int flashcardCount = 1;
+    private int flashcardCount = 0;
+    private List<Integer> cardLayouts;
+    private List<Integer> cardLabels;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -35,6 +40,8 @@ public class DeckHomeFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_deck_home, container, false);
+        cardLayouts = new ArrayList<>();
+        cardLabels = new ArrayList<>();
         deckViewButton = (Button) v.findViewById(R.id.LaunchDeckButton);
         deckViewButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -67,18 +74,19 @@ public class DeckHomeFragment extends Fragment {
                 if (ll != null) {
                     // Create a new layout
                     ConstraintLayout layout = new ConstraintLayout(getContext());
-                    int layoutId = View.generateViewId();
+                    final int layoutId = View.generateViewId();
                     layout.setId(layoutId);
+                    cardLayouts.add(layoutId);
 
                     // Setup the widgets
                     TextView lbl = new TextView(getContext());
                     lbl.setText(Integer.toString(++flashcardCount));
-                    lbl.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
                     ViewGroup.LayoutParams lblParams = new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
                     ((ConstraintLayout.LayoutParams) lblParams).setMargins(toDp(16), toDp(12),0,0);
                     lbl.setLayoutParams(lblParams);
                     int lblId = View.generateViewId();
                     lbl.setId(lblId);
+                    cardLabels.add(lblId);
 
                     EditText term = new EditText(getContext());
                     term.setHint(R.string.TermString);
@@ -103,6 +111,40 @@ public class DeckHomeFragment extends Fragment {
                     deleteIcon.setLayoutParams(iconParams);
                     int iconId = View.generateViewId();
                     deleteIcon.setId(iconId);
+                    deleteIcon.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            // Get the constraint layout and its parent
+                            ConstraintLayout cl = getView().findViewById(layoutId);
+                            LinearLayout container = getView().findViewById(R.id.flashcards_container);
+
+                            // Clear the constraint layout
+                            cl.removeAllViews();
+
+                            // Remove the constraint layout
+                            container.removeView(cl);
+
+                            // Need to fix all the flashcards that come below
+                            int index = cardLayouts.indexOf(layoutId);
+                            cardLayouts.remove(index);
+                            cardLabels.remove(index);
+                            flashcardCount--;
+                            for (int i = index; i < cardLayouts.size(); i++) {
+                                // Fix index number
+                                TextView label = getView().findViewById(cardLabels.get(i));
+                                label.setText(Integer.toString(i + 1));
+
+                                // Fix background color
+                                ConstraintLayout l = getView().findViewById(cardLayouts.get(i));
+                                if (i % 2 == 1) {
+                                    l.setBackgroundResource(android.R.color.background_light);
+                                } else {
+                                    l.setBackgroundResource(android.R.color.darker_gray);
+                                }
+                            }
+                        }
+                    });
+
 
                     // Add widgets to layout
                     layout.addView(lbl);
