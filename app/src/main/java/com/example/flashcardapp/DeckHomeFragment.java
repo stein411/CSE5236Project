@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -81,7 +82,7 @@ public class DeckHomeFragment extends Fragment {
 
                     EditText term = new EditText(getContext());
                     term.setHint(R.string.TermString);
-                    ViewGroup.LayoutParams termParams = new ConstraintLayout.LayoutParams(toDp(160), ViewGroup.LayoutParams.MATCH_PARENT);
+                    ViewGroup.LayoutParams termParams = new ConstraintLayout.LayoutParams(toDp(140), ViewGroup.LayoutParams.MATCH_PARENT);
                     ((ConstraintLayout.LayoutParams) termParams).setMargins(toDp(8), toDp(8), 0, toDp(8));
                     term.setLayoutParams(termParams);
                     int termId = View.generateViewId();
@@ -89,22 +90,31 @@ public class DeckHomeFragment extends Fragment {
 
                     EditText definition = new EditText(getContext());
                     definition.setHint(R.string.DefinitionString);
-                    ViewGroup.LayoutParams defParams = new ConstraintLayout.LayoutParams(toDp(160), ViewGroup.LayoutParams.MATCH_PARENT);
-                    ((ConstraintLayout.LayoutParams) defParams).setMargins(toDp(40), toDp(8), 0, toDp(8));
+                    ViewGroup.LayoutParams defParams = new ConstraintLayout.LayoutParams(toDp(140), ViewGroup.LayoutParams.MATCH_PARENT);
+                    ((ConstraintLayout.LayoutParams) defParams).setMargins(toDp(8), toDp(8), 0, toDp(8));
                     definition.setLayoutParams(defParams);
                     int defId = View.generateViewId();
                     definition.setId(defId);
+
+                    ImageView deleteIcon = new ImageView(getContext());
+                    deleteIcon.setImageResource(android.R.drawable.ic_delete);
+                    ViewGroup.LayoutParams iconParams = new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                    ((ConstraintLayout.LayoutParams) iconParams).setMargins(toDp(10), toDp(8), toDp(8), toDp(8));
+                    deleteIcon.setLayoutParams(iconParams);
+                    int iconId = View.generateViewId();
+                    deleteIcon.setId(iconId);
 
                     // Add widgets to layout
                     layout.addView(lbl);
                     layout.addView(term);
                     layout.addView(definition);
+                    layout.addView(deleteIcon);
 
                     // Add constraints so widgets line up correctly
                     ConstraintSet constraintSet = new ConstraintSet();
                     constraintSet.clone(layout);
                     // Set top and bottom layouts of all widgets
-                    int[] idList = {lblId, termId, defId};
+                    int[] idList = {lblId, termId, defId, iconId};
                     for (int i = 0; i < idList.length; i++) {
                         constraintSet.connect(idList[i], ConstraintSet.TOP, layoutId, ConstraintSet.TOP);
                         constraintSet.connect(idList[i], ConstraintSet.BOTTOM, layoutId, ConstraintSet.BOTTOM);
@@ -113,6 +123,9 @@ public class DeckHomeFragment extends Fragment {
                     constraintSet.connect(lblId, ConstraintSet.START, layoutId, ConstraintSet.START);
                     constraintSet.connect(termId, ConstraintSet.START, lblId, ConstraintSet.END);
                     constraintSet.connect(defId, ConstraintSet.START, termId, ConstraintSet.END);
+                    constraintSet.connect(iconId, ConstraintSet.START, defId, ConstraintSet.END);
+                    constraintSet.connect(iconId, ConstraintSet.END, layoutId, ConstraintSet.END);
+
                     // Apply constraints
                     constraintSet.applyTo(layout);
 
