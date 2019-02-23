@@ -29,7 +29,7 @@
     <string name="DeckNameString">Deck Name</string>
     <string name="SearchString">Search</string>
     <string name="SearchResultsString">Search Results</string>
-    <string name="title_activity_login">Sign in</string>
+    <string name="title_activity_login">Sign In</string>
     <!-- Strings related to login -->
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Password (optional)</string>
@@ -42,4 +42,10 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
+    <string name="forgot_password"><u>Forgot Password?</u></string>
+    <string name="new_account_prompt">Need an Account?</string>
+    <string name="sign_up"><u>Sign Up</u></string>
+    <string name="title_activity_signup">Sign Up</string>
+    <string name="account_exists_prompt">Already have an Account?</string>
+    <string name="login_prompt"><u>Sign In</u></string>
 </resources>

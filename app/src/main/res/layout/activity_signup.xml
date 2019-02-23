@@ -9,7 +9,7 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingBottom="@dimen/activity_vertical_margin"
-    tools:context=".LoginActivity">
+    tools:context=".SignupActivity">
 
     <!-- Login progress -->
     <ProgressBar
@@ -70,31 +70,25 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="@string/action_sign_in_short"
+                android:text="@string/sign_up"
                 android:textStyle="bold" />
-            <TextView
-                android:id="@+id/forgot_password"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/forgot_password"
-                android:layout_marginTop="16dp"/>
 
             <LinearLayout
-                android:layout_width="match_parent"
+                android:id="@+id/login_prompt_container"
                 android:layout_height="wrap_content"
+                android:layout_width="match_parent"
                 android:orientation="horizontal"
-                android:id="@+id/new_account_prompt_container"
                 android:layout_marginTop="16dp">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/new_account_prompt"
-                    android:id="@+id/new_account_prompt"/>
                 <TextView 
-                    android:layout_width="wrap_content"
+                    android:id="@+id/login_prompt"
                     android:layout_height="wrap_content"
-                    android:text="@string/sign_up"
-                    android:id="@+id/sign_up"
+                    android:layout_width="wrap_content"
+                    android:text="@string/account_exists_prompt" />
+                <TextView
+                    android:id="@+id/login_link"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:text="@string/login_prompt"
                     android:layout_marginLeft="4dp"/>
             </LinearLayout>
 
