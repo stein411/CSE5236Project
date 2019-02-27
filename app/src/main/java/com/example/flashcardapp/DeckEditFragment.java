@@ -1,5 +1,6 @@
 package com.example.flashcardapp;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.constraint.ConstraintLayout;
@@ -18,11 +19,19 @@ import android.widget.Toast;
 
 import org.w3c.dom.Text;
 
+import java.util.ArrayList;
+
 public class DeckEditFragment extends Fragment {
     private static final String TAG = "DeckEditFragment";
     private Button saveChangesButton;
     private Button addProfessorButton;
     private Button addCategoryButton;
+    private Intent mIntent;
+    private ArrayList<Integer> professorIds;
+    private ArrayList<Integer> categoryIds;
+    private EditText deckName;
+    private EditText courseName;
+    private EditText schoolName;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -34,11 +43,51 @@ public class DeckEditFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         Log.d(TAG, "onCreateView(LayoutInflater, ViewGroup, Bundle) called");
         View v = inflater.inflate(R.layout.fragment_deck_edit, container, false);
+
+        mIntent = new Intent();
+
+        deckName = (EditText) v.findViewById(R.id.edit_deck_name);
+        courseName = (EditText) v.findViewById(R.id.edit_course_name);
+        schoolName = (EditText) v.findViewById(R.id.edit_school_name);
+
         saveChangesButton = (Button) v.findViewById(R.id.save_changes_button);
         saveChangesButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (getActivity() != null) {
+                    // Put the deck, course and school name into the intent
+                    String deckTitle = deckName.getText().toString();
+                    String courseTitle = courseName.getText().toString();
+                    String schoolTitle = schoolName.getText().toString();
+
+                    String deckKey = getResources().getString(R.string.NameString);
+                    String courseKey = getResources().getString(R.string.CourseString);
+                    String schoolKey = getResources().getString(R.string.SchoolString);
+
+                    if (deckTitle.length() > 0) {
+                        // TODO add more title validation checks
+                        mIntent.putExtra(deckKey, deckTitle);
+                    } else {
+                        // Put the default (Deck Name)
+                        mIntent.putExtra(deckKey, deckKey);
+                    }
+                    if (courseTitle.length() > 0) {
+                        // TODO add more title validation checks
+                        mIntent.putExtra(courseKey, courseTitle);
+                    } else {
+                        // Put the default (Course Name)
+                        mIntent.putExtra(courseKey, courseKey);
+                    }
+                    if (schoolTitle.length() > 0) {
+                        mIntent.putExtra(schoolKey, schoolTitle);
+                    } else {
+                        // Put the default (School Name)
+                        mIntent.putExtra(schoolKey, schoolKey);
+                    }
+
+                    // Put the professor names into the intent
+
+                    getActivity().setResult(Activity.RESULT_OK, mIntent);
                     getActivity().finish();
                 }
                 Toast.makeText(getContext(), "Changes saved successfully", Toast.LENGTH_LONG).show();
@@ -77,6 +126,7 @@ public class DeckEditFragment extends Fragment {
                     prof.setLayoutParams(profParams);
                     int profId = View.generateViewId();
                     prof.setId(profId);
+                    professorIds.add(profId);
 
                     lbl.setLabelFor(profId);
 
@@ -130,6 +180,7 @@ public class DeckEditFragment extends Fragment {
                     category.setLayoutParams(categoryParams);
                     int categoryId = View.generateViewId();
                     category.setId(categoryId);
+                    categoryIds.add(categoryId);
 
                     lbl.setLabelFor(categoryId);
 

@@ -48,4 +48,8 @@
     <string name="title_activity_signup">Sign Up</string>
     <string name="account_exists_prompt">Already have an Account?</string>
     <string name="login_prompt"><u>Sign In</u></string>
+    <string name="first_name">First Name</string>
+    <string name="last_name">Last Name</string>
+    <string name="retrieve_password">Retrieve Password</string>
+    <string name="password_retrieval_confirmation">An email containing the password you used was sent to the given email account</string>
 </resources>

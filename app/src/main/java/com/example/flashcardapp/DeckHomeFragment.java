@@ -21,6 +21,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,6 +33,9 @@ public class DeckHomeFragment extends Fragment {
     private int flashcardCount = 0;
     private List<Integer> cardLayouts;
     private List<Integer> cardLabels;
+    private TextView deckName;
+    private TextView courseName;
+    private TextView schoolName;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -47,7 +52,7 @@ public class DeckHomeFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if (getActivity() != null) {
-                    getActivity().startActivity(new Intent(getActivity(), DeckEditActivity.class));
+                    startActivityForResult(new Intent(getActivity(), DeckEditActivity.class), 0);
                 }
             }
         });
@@ -60,7 +65,30 @@ public class DeckHomeFragment extends Fragment {
                 }
             }
         });
+        deckName = (TextView) v.findViewById(R.id.deck_name_label);
+        courseName = (TextView) v.findViewById(R.id.course_name_label);
+        schoolName = (TextView) v.findViewById(R.id.school_name_label);
+
         return v;
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Bundle extras = data.getExtras();
+
+        // Set the deck title based on the entered string
+        String deckTitle = extras.get(getResources().getString(R.string.NameString)).toString();
+        deckName.setText(deckTitle);
+
+        // Set the course title based on the entered string
+        String courseTitle = extras.get(getResources().getString(R.string.CourseString)).toString();
+        courseName.setText(courseTitle);
+
+        // Set the school title based on the entered string
+        String schoolTitle = extras.get(getResources().getString(R.string.SchoolString)).toString();
+        schoolName.setText(schoolTitle);
+
+        // Set the professor names based on the given strings
     }
 
     @Override
