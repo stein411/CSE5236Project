@@ -37,6 +37,10 @@ public class DeckEditFragment extends Fragment {
     private String deckKey;
     private String courseKey;
     private String schoolKey;
+    private String professorKey;
+    private String categoryKey;
+    private ArrayList<String> professorNames;
+    private ArrayList<String> categoryNames;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -51,6 +55,8 @@ public class DeckEditFragment extends Fragment {
 
         professorIds = new ArrayList<>();
         categoryIds = new ArrayList<>();
+        professorNames = new ArrayList<>();
+        categoryNames = new ArrayList<>();
 
         mIntent = new Intent();
         sourceIntent = getActivity().getIntent();
@@ -58,6 +64,8 @@ public class DeckEditFragment extends Fragment {
         deckKey = getResources().getString(R.string.NameString);
         courseKey = getResources().getString(R.string.CourseString);
         schoolKey = getResources().getString(R.string.SchoolString);
+        professorKey = getResources().getString(R.string.ProfessorString);
+        categoryKey = getResources().getString(R.string.CategoryString);
 
         deckName = (EditText) v.findViewById(R.id.edit_deck_name);
         courseName = (EditText) v.findViewById(R.id.edit_course_name);
@@ -114,7 +122,34 @@ public class DeckEditFragment extends Fragment {
                         mIntent.putExtra(schoolKey, schoolKey);
                     }
 
-                    // Put the professor names into the intent
+                    for (int i = 0; i < professorIds.size(); i++) {
+                        int profId = professorIds.get(i);
+
+                        EditText prof = v.findViewById(profId);
+                        if (prof != null) {
+                            // Add the professor text to the array list of professor names
+                            String text = prof.getText().toString();
+                            if (text != null && text.length() > 0 && !text.equals(professorKey)) {
+                                professorNames.add(text);
+                            }
+                        }
+                    }
+
+                    for (int i = 0; i < categoryIds.size(); i++) {
+                        int categoryId = categoryIds.get(i);
+
+                        EditText category = v.findViewById(categoryId);
+                        if (category != null) {
+                            // Add the category text to the array list of category names
+                            String text = category.getText().toString();
+                            if (text != null && text.length() > 0 && !text.equals(categoryKey)) {
+                                categoryNames.add(text);
+                            }
+                        }
+                    }
+
+                    mIntent.putStringArrayListExtra(professorKey, professorNames);
+                    mIntent.putStringArrayListExtra(categoryKey, categoryNames);
 
                     getActivity().setResult(Activity.RESULT_OK, mIntent);
                     getActivity().finish();
@@ -144,6 +179,18 @@ public class DeckEditFragment extends Fragment {
         });
     }
 
+    /**
+     * Additional method used when the on click listener is called for adding a new
+     * professor or category to the deck. Helps setup and inject the new widgets
+     *
+     * @param isProf
+     *          true if the addProfessor button method was called, false if addCategory button
+     *          method was called
+     * @param v
+     *          the activity view to inject the widgets into
+     * @param context
+     *          the context for the activity
+     */
     public void addProfOrCategoryButton(boolean isProf, View v, Context context) {
         int linearLayoutId;
         int lblTxtKey;

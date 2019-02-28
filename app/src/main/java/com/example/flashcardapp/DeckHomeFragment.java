@@ -11,6 +11,7 @@ import android.support.constraint.ConstraintSet;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.text.Layout;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -36,9 +37,17 @@ public class DeckHomeFragment extends Fragment {
     private TextView deckName;
     private TextView courseName;
     private TextView schoolName;
+    private TextView profName;
+    private TextView categoryName;
     private String deckKey;
     private String courseKey;
     private String schoolKey;
+    private String professorKey;
+    private String categoryKey;
+    private List<String> profNames;
+    private List<String> categoryNames;
+    private int profIndex;
+    private int categoryIndex;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -53,13 +62,19 @@ public class DeckHomeFragment extends Fragment {
         deckKey = getResources().getString(R.string.NameString);
         courseKey = getResources().getString(R.string.CourseString);
         schoolKey = getResources().getString(R.string.SchoolString);
+        professorKey = getResources().getString(R.string.ProfessorString);
+        categoryKey = getResources().getString(R.string.CategoryString);
         cardLayouts = new ArrayList<>();
         cardLabels = new ArrayList<>();
+        profIndex = 0;
+        categoryIndex = 0;
 
         // Get references to text view widgets
         deckName = (TextView) v.findViewById(R.id.deck_name_label);
         courseName = (TextView) v.findViewById(R.id.course_name_label);
         schoolName = (TextView) v.findViewById(R.id.school_name_label);
+        profName = (TextView) v.findViewById(R.id.professor_name_label);
+        categoryName = (TextView) v.findViewById(R.id.category_name_label);
 
         // Button click listeners
         deckViewButton = (Button) v.findViewById(R.id.LaunchDeckButton);
@@ -81,6 +96,31 @@ public class DeckHomeFragment extends Fragment {
             public void onClick(View v) {
                 if (getActivity() != null) {
                     getActivity().finish();
+                }
+            }
+        });
+
+        // TODO debug these two
+        profName.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d("", "profNameClick");
+                if (profNames != null && categoryNames.size() > 0) {
+                    profName.setText(profNames.get(profIndex));
+                    profIndex++;
+                    profIndex %= profNames.size();
+                }
+            }
+        });
+
+        categoryName.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d("", "categoryNameClick");
+                if (categoryNames != null && categoryNames.size() > 0) {
+                    categoryName.setText(profNames.get(categoryIndex));
+                    categoryIndex++;
+                    categoryIndex %= categoryNames.size();
                 }
             }
         });
@@ -111,7 +151,14 @@ public class DeckHomeFragment extends Fragment {
                 schoolName.setText(schoolTitle);
             }
 
-            // Set the professor names based on the given strings
+            // Set the professor and category names based on the given strings
+            if (extras.getStringArrayList(professorKey) != null) {
+                profNames = extras.getStringArrayList(professorKey);
+            }
+            if (extras.getStringArrayList(categoryKey) != null) {
+                categoryNames = extras.getStringArrayList(categoryKey);
+            }
+
         }
     }
 
