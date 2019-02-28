@@ -21,6 +21,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.w3c.dom.Text;
 
@@ -44,8 +45,8 @@ public class DeckHomeFragment extends Fragment {
     private String schoolKey;
     private String professorKey;
     private String categoryKey;
-    private List<String> profNames;
-    private List<String> categoryNames;
+    private ArrayList<String> profNames;
+    private ArrayList<String> categoryNames;
     private int profIndex;
     private int categoryIndex;
 
@@ -86,6 +87,14 @@ public class DeckHomeFragment extends Fragment {
                     sendData.putExtra(deckKey, deckName.getText());
                     sendData.putExtra(courseKey, courseName.getText());
                     sendData.putExtra(schoolKey, schoolName.getText());
+
+                    // Send the prof and category names
+                    if (profNames != null && profNames.size() > 0) {
+                        sendData.putStringArrayListExtra(professorKey, profNames);
+                    }
+                    if (categoryNames != null && categoryNames.size() > 0) {
+                        sendData.putStringArrayListExtra(categoryKey, categoryNames);
+                    }
                     startActivityForResult(sendData, 0);
                 }
             }
@@ -96,31 +105,6 @@ public class DeckHomeFragment extends Fragment {
             public void onClick(View v) {
                 if (getActivity() != null) {
                     getActivity().finish();
-                }
-            }
-        });
-
-        // TODO debug these two
-        profName.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d("", "profNameClick");
-                if (profNames != null && categoryNames.size() > 0) {
-                    profName.setText(profNames.get(profIndex));
-                    profIndex++;
-                    profIndex %= profNames.size();
-                }
-            }
-        });
-
-        categoryName.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d("", "categoryNameClick");
-                if (categoryNames != null && categoryNames.size() > 0) {
-                    categoryName.setText(profNames.get(categoryIndex));
-                    categoryIndex++;
-                    categoryIndex %= categoryNames.size();
                 }
             }
         });
@@ -279,6 +263,29 @@ public class DeckHomeFragment extends Fragment {
                     // Set layout height
                     layout.setLayoutParams(new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, toDp(56)));
                     ll.addView(layout);
+                }
+            }
+        });
+
+        // TODO debug these two
+        profName.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (profNames != null && profNames.size() > 0) {
+                    profName.setText(profNames.get(profIndex));
+                    profIndex++;
+                    profIndex %= profNames.size();
+                }
+            }
+        });
+
+        categoryName.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (categoryNames != null && categoryNames.size() > 0) {
+                    categoryName.setText(categoryNames.get(categoryIndex));
+                    categoryIndex++;
+                    categoryIndex %= categoryNames.size();
                 }
             }
         });

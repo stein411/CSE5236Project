@@ -52,4 +52,6 @@
     <string name="last_name">Last Name</string>
     <string name="retrieve_password">Retrieve Password</string>
     <string name="password_retrieval_confirmation">An email containing the password you used was sent to the given email account</string>
+    <string name="prof_deck_home_prompt">Cycle Professor Names</string>
+    <string name="category_deck_home_prompt">Cycle Category Names</string>
 </resources>

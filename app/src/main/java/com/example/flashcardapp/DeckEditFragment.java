@@ -20,6 +20,7 @@ import android.widget.Toast;
 
 import org.w3c.dom.Text;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class DeckEditFragment extends Fragment {
@@ -90,7 +91,28 @@ public class DeckEditFragment extends Fragment {
             }
         }
 
-        saveChangesButton = (Button) v.findViewById(R.id.save_changes_button);
+        return v;
+    }
+
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        addProfessorButton = view.findViewById(R.id.add_professor);
+        addProfessorButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                addProfOrCategoryButton(true, getView(), getContext());
+            }
+        });
+
+        addCategoryButton = view.findViewById(R.id.add_category);
+        addCategoryButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                addProfOrCategoryButton(false, getView(), getContext());
+            }
+        });
+
+        saveChangesButton = (Button) view.findViewById(R.id.save_changes_button);
         saveChangesButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -125,7 +147,7 @@ public class DeckEditFragment extends Fragment {
                     for (int i = 0; i < professorIds.size(); i++) {
                         int profId = professorIds.get(i);
 
-                        EditText prof = v.findViewById(profId);
+                        EditText prof = getView().findViewById(profId);
                         if (prof != null) {
                             // Add the professor text to the array list of professor names
                             String text = prof.getText().toString();
@@ -138,7 +160,7 @@ public class DeckEditFragment extends Fragment {
                     for (int i = 0; i < categoryIds.size(); i++) {
                         int categoryId = categoryIds.get(i);
 
-                        EditText category = v.findViewById(categoryId);
+                        EditText category = getView().findViewById(categoryId);
                         if (category != null) {
                             // Add the category text to the array list of category names
                             String text = category.getText().toString();
@@ -157,26 +179,28 @@ public class DeckEditFragment extends Fragment {
                 Toast.makeText(getContext(), "Changes saved successfully", Toast.LENGTH_LONG).show();
             }
         });
-        return v;
-    }
 
-    @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        addProfessorButton = view.findViewById(R.id.add_professor);
-        addProfessorButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        // Set the professor values given from the parent activity
+        if (sourceIntent.getStringArrayListExtra(professorKey) != null) {
+            ArrayList<String> professors = sourceIntent.getStringArrayListExtra(professorKey);
+            for (int i = 0; i < professors.size(); i++) {
+                String professor = professors.get(i);
                 addProfOrCategoryButton(true, getView(), getContext());
+                int id = professorIds.get(i);
+                EditText editText = getView().findViewById(id);
+                editText.setText(professor);
             }
-        });
-
-        addCategoryButton = view.findViewById(R.id.add_category);
-        addCategoryButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        }
+        if (sourceIntent.getStringArrayListExtra(categoryKey) != null) {
+            ArrayList<String> categories = sourceIntent.getStringArrayListExtra(categoryKey);
+            for (int i = 0; i < categories.size(); i++) {
+                String category = categories.get(i);
                 addProfOrCategoryButton(false, getView(), getContext());
+                int id = categoryIds.get(i);
+                EditText editText = getView().findViewById(id);
+                editText.setText(category);
             }
-        });
+        }
     }
 
     /**
