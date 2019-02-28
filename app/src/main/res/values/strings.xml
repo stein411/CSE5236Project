@@ -54,4 +54,6 @@
     <string name="password_retrieval_confirmation">An email containing the password you used was sent to the given email account</string>
     <string name="prof_deck_home_prompt">Cycle Professor Names</string>
     <string name="category_deck_home_prompt">Cycle Category Names</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="study_deck_prompt">Study Deck</string>
 </resources>

@@ -32,7 +32,7 @@
         app:layout_constraintTop_toBottomOf="@+id/user_welcome" />
 
     <Button
-        android:id="@+id/button"
+        android:id="@+id/find_decks_button"
         android:layout_width="160dp"
         android:layout_height="80dp"
         android:layout_marginStart="8dp"
@@ -53,5 +53,5 @@
         android:text="@string/SearchDecksString"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button" />
+        app:layout_constraintTop_toBottomOf="@+id/find_decks_button" />
 </android.support.constraint.ConstraintLayout>

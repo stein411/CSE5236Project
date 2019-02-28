@@ -267,7 +267,6 @@ public class DeckHomeFragment extends Fragment {
             }
         });
 
-        // TODO debug these two
         profName.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

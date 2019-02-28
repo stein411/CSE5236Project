@@ -10,6 +10,8 @@ import android.widget.Button;
 
 public class UserHomeFragment extends Fragment {
     private Button myDecksButton;
+    private Button searchDecksButton;
+    private Button mapsButton;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -20,6 +22,24 @@ public class UserHomeFragment extends Fragment {
             public void onClick(View v) {
                 if (getActivity() != null) {
                     getActivity().startActivity(new Intent(getContext(), DeckMenuActivity.class));
+                }
+            }
+        });
+        searchDecksButton = (Button) v.findViewById(R.id.search_decks_button);
+        searchDecksButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (getActivity() != null) {
+                    getActivity().startActivity(new Intent(getContext(), SearchActivity.class));
+                }
+            }
+        });
+        mapsButton = (Button) v.findViewById(R.id.find_decks_button);
+        mapsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (getActivity() != null) {
+                    getActivity().startActivity(new Intent(getContext(), MapsActivity.class));
                 }
             }
         });
