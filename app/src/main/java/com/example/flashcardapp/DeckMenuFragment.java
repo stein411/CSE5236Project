@@ -25,7 +25,7 @@ public class DeckMenuFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if (getActivity() != null) {
-                    getActivity().startActivity(new Intent(getActivity(), DeckHomeActivity.class));
+                    getActivity().startActivity(new Intent(getContext(), DeckHomeActivity.class));
                 }
             }
         });

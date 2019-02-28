@@ -27,11 +27,15 @@ public class DeckEditFragment extends Fragment {
     private Button addProfessorButton;
     private Button addCategoryButton;
     private Intent mIntent;
+    private Intent sourceIntent;
     private ArrayList<Integer> professorIds;
     private ArrayList<Integer> categoryIds;
     private EditText deckName;
     private EditText courseName;
     private EditText schoolName;
+    private String deckKey;
+    private String courseKey;
+    private String schoolKey;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -45,10 +49,34 @@ public class DeckEditFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_deck_edit, container, false);
 
         mIntent = new Intent();
+        sourceIntent = getActivity().getIntent();
+
+        deckKey = getResources().getString(R.string.NameString);
+        courseKey = getResources().getString(R.string.CourseString);
+        schoolKey = getResources().getString(R.string.SchoolString);
 
         deckName = (EditText) v.findViewById(R.id.edit_deck_name);
         courseName = (EditText) v.findViewById(R.id.edit_course_name);
         schoolName = (EditText) v.findViewById(R.id.edit_school_name);
+
+        // Set the edit text values
+        Bundle extras = sourceIntent.getExtras();
+        if (extras != null) {
+            String deckTitle = extras.getString(deckKey);
+            if (deckTitle != null && !deckTitle.equals(deckKey)) {
+                deckName.setText(deckTitle);
+            }
+
+            String courseTitle = extras.getString(courseKey);
+            if (courseTitle != null && !courseTitle.equals(courseKey)) {
+                courseName.setText(courseTitle);
+            }
+
+            String schoolTitle = extras.getString(schoolKey);
+            if (schoolTitle != null && !schoolTitle.equals(schoolKey)) {
+                schoolName.setText(schoolTitle);
+            }
+        }
 
         saveChangesButton = (Button) v.findViewById(R.id.save_changes_button);
         saveChangesButton.setOnClickListener(new View.OnClickListener() {
@@ -59,10 +87,6 @@ public class DeckEditFragment extends Fragment {
                     String deckTitle = deckName.getText().toString();
                     String courseTitle = courseName.getText().toString();
                     String schoolTitle = schoolName.getText().toString();
-
-                    String deckKey = getResources().getString(R.string.NameString);
-                    String courseKey = getResources().getString(R.string.CourseString);
-                    String schoolKey = getResources().getString(R.string.SchoolString);
 
                     if (deckTitle.length() > 0) {
                         // TODO add more title validation checks
@@ -79,6 +103,7 @@ public class DeckEditFragment extends Fragment {
                         mIntent.putExtra(courseKey, courseKey);
                     }
                     if (schoolTitle.length() > 0) {
+                        // TODO add more title validation checks
                         mIntent.putExtra(schoolKey, schoolTitle);
                     } else {
                         // Put the default (School Name)

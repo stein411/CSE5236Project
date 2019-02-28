@@ -19,7 +19,7 @@ public class UserHomeFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if (getActivity() != null) {
-                    getActivity().startActivity(new Intent(getActivity(), DeckMenuActivity.class));
+                    getActivity().startActivity(new Intent(getContext(), DeckMenuActivity.class));
                 }
             }
         });

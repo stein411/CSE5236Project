@@ -36,6 +36,9 @@ public class DeckHomeFragment extends Fragment {
     private TextView deckName;
     private TextView courseName;
     private TextView schoolName;
+    private String deckKey;
+    private String courseKey;
+    private String schoolKey;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -45,14 +48,30 @@ public class DeckHomeFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_deck_home, container, false);
+
+        // Setup constants
+        deckKey = getResources().getString(R.string.NameString);
+        courseKey = getResources().getString(R.string.CourseString);
+        schoolKey = getResources().getString(R.string.SchoolString);
         cardLayouts = new ArrayList<>();
         cardLabels = new ArrayList<>();
+
+        // Get references to text view widgets
+        deckName = (TextView) v.findViewById(R.id.deck_name_label);
+        courseName = (TextView) v.findViewById(R.id.course_name_label);
+        schoolName = (TextView) v.findViewById(R.id.school_name_label);
+
+        // Button click listeners
         deckViewButton = (Button) v.findViewById(R.id.LaunchDeckButton);
         deckViewButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (getActivity() != null) {
-                    startActivityForResult(new Intent(getActivity(), DeckEditActivity.class), 0);
+                    Intent sendData = new Intent(getContext(), DeckEditActivity.class);
+                    sendData.putExtra(deckKey, deckName.getText());
+                    sendData.putExtra(courseKey, courseName.getText());
+                    sendData.putExtra(schoolKey, schoolName.getText());
+                    startActivityForResult(sendData, 0);
                 }
             }
         });
@@ -65,9 +84,6 @@ public class DeckHomeFragment extends Fragment {
                 }
             }
         });
-        deckName = (TextView) v.findViewById(R.id.deck_name_label);
-        courseName = (TextView) v.findViewById(R.id.course_name_label);
-        schoolName = (TextView) v.findViewById(R.id.school_name_label);
 
         return v;
     }
@@ -76,19 +92,27 @@ public class DeckHomeFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         Bundle extras = data.getExtras();
 
-        // Set the deck title based on the entered string
-        String deckTitle = extras.get(getResources().getString(R.string.NameString)).toString();
-        deckName.setText(deckTitle);
+        if (extras != null) {
+            // Set the deck title based on the entered string
+            String deckTitle = extras.getString(deckKey);
+            if (deckTitle != null) {
+                deckName.setText(deckTitle);
+            }
 
-        // Set the course title based on the entered string
-        String courseTitle = extras.get(getResources().getString(R.string.CourseString)).toString();
-        courseName.setText(courseTitle);
+            // Set the course title based on the entered string
+            String courseTitle = extras.getString(courseKey);
+            if (courseTitle != null) {
+                courseName.setText(courseTitle);
+            }
 
-        // Set the school title based on the entered string
-        String schoolTitle = extras.get(getResources().getString(R.string.SchoolString)).toString();
-        schoolName.setText(schoolTitle);
+            // Set the school title based on the entered string
+            String schoolTitle = extras.getString(schoolKey);
+            if (schoolTitle != null) {
+                schoolName.setText(schoolTitle);
+            }
 
-        // Set the professor names based on the given strings
+            // Set the professor names based on the given strings
+        }
     }
 
     @Override
