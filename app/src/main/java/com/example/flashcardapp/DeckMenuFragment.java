@@ -11,6 +11,7 @@ import android.widget.Button;
 public class DeckMenuFragment extends Fragment {
     private Button addDeckButton;
     private Button backButton;
+    private Button deck1Button;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -35,6 +36,15 @@ public class DeckMenuFragment extends Fragment {
             public void onClick(View v) {
                 if (getActivity() != null) {
                     getActivity().finish();
+                }
+            }
+        });
+        deck1Button = (Button) v.findViewById(R.id.deck_1_button);
+        deck1Button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (getActivity() != null) {
+                    getActivity().startActivity(new Intent(getContext(), UneditableDeckActivity.class));
                 }
             }
         });
