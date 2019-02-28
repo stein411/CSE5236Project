@@ -1,6 +1,7 @@
 package com.example.flashcardapp;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.constraint.ConstraintLayout;
@@ -47,6 +48,9 @@ public class DeckEditFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         Log.d(TAG, "onCreateView(LayoutInflater, ViewGroup, Bundle) called");
         View v = inflater.inflate(R.layout.fragment_deck_edit, container, false);
+
+        professorIds = new ArrayList<>();
+        categoryIds = new ArrayList<>();
 
         mIntent = new Intent();
         sourceIntent = getActivity().getIntent();
@@ -127,53 +131,7 @@ public class DeckEditFragment extends Fragment {
         addProfessorButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                LinearLayout ll = (LinearLayout) getView().findViewById(R.id.professor_container);
-                if (ll != null) {
-                    // Create a new layout
-                    ConstraintLayout layout = new ConstraintLayout(getContext());
-                    layout.setLayoutParams(new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-                    int layoutId = View.generateViewId();
-                    layout.setId(layoutId);
-
-                    // Setup the widgets
-                    TextView lbl = new TextView(getContext());
-                    lbl.setText(R.string.ProfessorNameLabel);
-                    ViewGroup.LayoutParams lblParams = new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                    ((ConstraintLayout.LayoutParams) lblParams).setMargins(toDp(16), toDp(16), 0, 0);
-                    lbl.setLayoutParams(lblParams);
-                    int lblId = View.generateViewId();
-                    lbl.setId(lblId);
-
-                    EditText prof = new EditText(getContext());
-                    prof.setHint(R.string.ProfessorString);
-                    ViewGroup.LayoutParams profParams = new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                    ((ConstraintLayout.LayoutParams) profParams).setMargins(toDp(16), toDp(8), toDp(16), 0);
-                    prof.setLayoutParams(profParams);
-                    int profId = View.generateViewId();
-                    prof.setId(profId);
-                    professorIds.add(profId);
-
-                    lbl.setLabelFor(profId);
-
-                    layout.addView(lbl);
-                    layout.addView(prof);
-
-                    // Add constraints
-                    ConstraintSet constraintSet = new ConstraintSet();
-                    constraintSet.clone(layout);
-                    constraintSet.connect(lblId, ConstraintSet.TOP, layoutId, ConstraintSet.TOP);
-                    constraintSet.connect(lblId, ConstraintSet.START, layoutId, ConstraintSet.START);
-                    constraintSet.connect(profId, ConstraintSet.BOTTOM, layoutId, ConstraintSet.BOTTOM);
-                    constraintSet.connect(profId, ConstraintSet.START, layoutId, ConstraintSet.START);
-                    constraintSet.connect(profId, ConstraintSet.END, layoutId, ConstraintSet.END);
-                    constraintSet.connect(profId, ConstraintSet.TOP, lblId, ConstraintSet.BOTTOM);
-
-                    // Apply constraints
-                    constraintSet.applyTo(layout);
-
-                    // Add layout
-                    ll.addView(layout);
-                }
+                addProfOrCategoryButton(true, getView(), getContext());
             }
         });
 
@@ -181,55 +139,78 @@ public class DeckEditFragment extends Fragment {
         addCategoryButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                LinearLayout ll = (LinearLayout) getView().findViewById(R.id.category_container);
-                if (ll != null) {
-                    // Create a new layout
-                    ConstraintLayout layout = new ConstraintLayout(getContext());
-                    layout.setLayoutParams(new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-                    int layoutId = View.generateViewId();
-                    layout.setId(layoutId);
-
-                    // Setup the widgets
-                    TextView lbl = new TextView(getContext());
-                    lbl.setText(R.string.CategoryNameLabel);
-                    ViewGroup.LayoutParams lblParams = new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                    ((ConstraintLayout.LayoutParams) lblParams).setMargins(toDp(16), toDp(16), 0, 0);
-                    lbl.setLayoutParams(lblParams);
-                    int lblId = View.generateViewId();
-                    lbl.setId(lblId);
-
-                    EditText category = new EditText(getContext());
-                    category.setHint(R.string.CategoryString);
-                    ViewGroup.LayoutParams categoryParams = new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                    ((ConstraintLayout.LayoutParams) categoryParams).setMargins(toDp(16), toDp(8), toDp(16), 0);
-                    category.setLayoutParams(categoryParams);
-                    int categoryId = View.generateViewId();
-                    category.setId(categoryId);
-                    categoryIds.add(categoryId);
-
-                    lbl.setLabelFor(categoryId);
-
-                    layout.addView(lbl);
-                    layout.addView(category);
-
-                    // Add constraints
-                    ConstraintSet constraintSet = new ConstraintSet();
-                    constraintSet.clone(layout);
-                    constraintSet.connect(lblId, ConstraintSet.TOP, layoutId, ConstraintSet.TOP);
-                    constraintSet.connect(lblId, ConstraintSet.START, layoutId, ConstraintSet.START);
-                    constraintSet.connect(categoryId, ConstraintSet.BOTTOM, layoutId, ConstraintSet.BOTTOM);
-                    constraintSet.connect(categoryId, ConstraintSet.START, layoutId, ConstraintSet.START);
-                    constraintSet.connect(categoryId, ConstraintSet.END, layoutId, ConstraintSet.END);
-                    constraintSet.connect(categoryId, ConstraintSet.TOP, lblId, ConstraintSet.BOTTOM);
-
-                    // Apply constraints
-                    constraintSet.applyTo(layout);
-
-                    // Add layout
-                    ll.addView(layout);
-                }
+                addProfOrCategoryButton(false, getView(), getContext());
             }
         });
+    }
+
+    public void addProfOrCategoryButton(boolean isProf, View v, Context context) {
+        int linearLayoutId;
+        int lblTxtKey;
+        int hintTxtKey;
+
+        if (isProf) {
+            linearLayoutId = R.id.professor_container;
+            lblTxtKey = R.string.ProfessorNameLabel;
+            hintTxtKey = R.string.ProfessorString;
+        } else {
+            linearLayoutId = R.id.category_container;
+            lblTxtKey = R.string.CategoryNameLabel;
+            hintTxtKey = R.string.CategoryString;
+        }
+
+        LinearLayout ll = (LinearLayout) v.findViewById(linearLayoutId);
+        if (ll != null) {
+            // Create a new layout
+            ConstraintLayout layout = new ConstraintLayout(context);
+            layout.setLayoutParams(new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+            int layoutId = View.generateViewId();
+            layout.setId(layoutId);
+
+            // Setup the widgets
+            TextView lbl = new TextView(context);
+            lbl.setText(lblTxtKey);
+            ViewGroup.LayoutParams lblParams = new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            ((ConstraintLayout.LayoutParams) lblParams).setMargins(toDp(16), toDp(16), 0, 0);
+            lbl.setLayoutParams(lblParams);
+            int lblId = View.generateViewId();
+            lbl.setId(lblId);
+
+            EditText editText = new EditText(context);
+            editText.setHint(hintTxtKey);
+            ViewGroup.LayoutParams layoutParams = new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            ((ConstraintLayout.LayoutParams) layoutParams).setMargins(toDp(16), toDp(8), toDp(16), 0);
+            editText.setLayoutParams(layoutParams);
+            int editTxtId = View.generateViewId();
+            editText.setId(editTxtId);
+
+            if (isProf) {
+                professorIds.add(editTxtId);
+            } else {
+                categoryIds.add(editTxtId);
+            }
+
+            lbl.setLabelFor(editTxtId);
+
+            layout.addView(lbl);
+            layout.addView(editText);
+
+            // Add constraints
+            ConstraintSet constraintSet = new ConstraintSet();
+            constraintSet.clone(layout);
+            constraintSet.connect(lblId, ConstraintSet.TOP, layoutId, ConstraintSet.TOP);
+            constraintSet.connect(lblId, ConstraintSet.START, layoutId, ConstraintSet.START);
+            constraintSet.connect(editTxtId, ConstraintSet.BOTTOM, layoutId, ConstraintSet.BOTTOM);
+            constraintSet.connect(editTxtId, ConstraintSet.START, layoutId, ConstraintSet.START);
+            constraintSet.connect(editTxtId, ConstraintSet.END, layoutId, ConstraintSet.END);
+            constraintSet.connect(editTxtId, ConstraintSet.TOP, lblId, ConstraintSet.BOTTOM);
+
+            // Apply constraints
+            constraintSet.applyTo(layout);
+
+            // Add layout
+            ll.addView(layout);
+        }
     }
 
     /**
