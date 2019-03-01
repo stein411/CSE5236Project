@@ -56,4 +56,6 @@
     <string name="category_deck_home_prompt">Cycle Category Names</string>
     <string name="title_activity_maps">Map</string>
     <string name="study_deck_prompt">Study Deck</string>
+    <string name="prompt_username">Username</string>
+    <string name="prompt_name">Name</string>
 </resources>
