@@ -1,5 +1,6 @@
 package com.example.flashcardapp;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
@@ -30,7 +31,7 @@ import java.util.List;
 
 public class DeckHomeFragment extends Fragment {
     private Button deckViewButton;
-    private Button backButton;
+    private Button saveButton;
     private Button addFlashcardButton;
     private int flashcardCount = 0;
     private List<Integer> cardLayouts;
@@ -49,6 +50,11 @@ public class DeckHomeFragment extends Fragment {
     private ArrayList<String> categoryNames;
     private int profIndex;
     private int categoryIndex;
+    private String completedDeckKey;
+    private String deckNameKey;
+    private Intent mIntent;
+    private Intent sourceIntent;
+    private String isNewDeckKey;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -69,6 +75,11 @@ public class DeckHomeFragment extends Fragment {
         cardLabels = new ArrayList<>();
         profIndex = 0;
         categoryIndex = 0;
+        completedDeckKey = getString(R.string.completed_deck_key);
+        deckNameKey = getString(R.string.deck_name_key);
+        sourceIntent = getActivity().getIntent();
+        isNewDeckKey = getString(R.string.is_new_deck_key);
+
 
         // Get references to text view widgets
         deckName = (TextView) v.findViewById(R.id.deck_name_label);
@@ -99,11 +110,17 @@ public class DeckHomeFragment extends Fragment {
                 }
             }
         });
-        backButton = (Button) v.findViewById(R.id.back_button);
-        backButton.setOnClickListener(new View.OnClickListener() {
+        saveButton = (Button) v.findViewById(R.id.save_changes_button);
+        saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (getActivity() != null) {
+                    mIntent = new Intent();
+                    mIntent.putExtra(completedDeckKey, true);
+                    mIntent.putExtra(deckNameKey, deckName.getText());
+                    getActivity().setResult(Activity.RESULT_OK, mIntent);
+                    updateDatabase(sourceIntent.getBooleanExtra(isNewDeckKey, true));
+                    Toast.makeText(getContext(), "Changes saved successfully", Toast.LENGTH_LONG).show();
                     getActivity().finish();
                 }
             }
@@ -112,8 +129,16 @@ public class DeckHomeFragment extends Fragment {
         return v;
     }
 
+    /**
+     * Updates the local database by either inserting a new deck or updating the existing deck.
+     */
+    public void updateDatabase(boolean isNewDeck) {
+        //TODO add database accesses here
+    }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
         Bundle extras = data.getExtras();
 
         if (extras != null) {

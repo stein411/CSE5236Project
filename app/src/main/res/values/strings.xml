@@ -58,4 +58,7 @@
     <string name="study_deck_prompt">Study Deck</string>
     <string name="prompt_username">Username</string>
     <string name="prompt_name">Name</string>
+    <string name="completed_deck_key">DeckComplete</string>
+    <string name="deck_name_key">DeckName</string>
+    <string name="is_new_deck_key">IsNewDeck</string>
 </resources>
