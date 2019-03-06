@@ -200,6 +200,13 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
 
         } else {
             // TODO update operations
+            final String dName = deckName.getText().toString();
+            String coName = courseName.getText().toString();
+            String sName = schoolName.getText().toString();
+            final Deck deck = new Deck(dName);
+            deck.setCourse(coName);
+            deck.setSchool(sName);
+            mDeckViewModel.update(deck);
             updatedDb = true;
         }
     }

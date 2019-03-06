@@ -33,6 +33,24 @@ public class DeckRepository {
         new deleteAllAsyncTask(mDeckDao);
     }
 
+    public void update(Deck deck) {
+        new updateAsyncTask(mDeckDao).execute(deck);
+    }
+
+    private static class updateAsyncTask extends AsyncTask<Deck, Void, Void> {
+        private DeckDao mAsyncTaskDao;
+
+        updateAsyncTask(DeckDao dao) {
+            mAsyncTaskDao = dao;
+        }
+
+        @Override
+        protected Void doInBackground(final Deck... decks) {
+            mAsyncTaskDao.update(decks[0]);
+            return null;
+        }
+    }
+
     private static class deleteAllAsyncTask extends AsyncTask<Deck, Void, Void> {
         private DeckDao mAsyncTaskDao;
 
