@@ -1,24 +1,15 @@
 package com.example.flashcardapp;
 
 import android.app.Activity;
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.MediatorLiveData;
 import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.constraint.ConstraintSet;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
-import android.text.Layout;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,12 +21,10 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.w3c.dom.Text;
-
 import java.util.ArrayList;
 import java.util.List;
 
-public class DeckHomeFragment extends Fragment {
+public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
     private Button deckViewButton;
     private Button saveButton;
     private Button addFlashcardButton;
@@ -71,30 +60,13 @@ public class DeckHomeFragment extends Fragment {
     private Button mBackButton;
     private String cName;
     private String sName;
-    private MediatorLiveData<List<Deck>> selectedDecks = new MediatorLiveData<>();
+    private Deck mDeck;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         mDeckViewModel = ViewModelProviders.of(this).get(DeckViewModel.class);
-    }
-
-    private LiveData<List<Deck>> getSelectedDecks(String name) {
-        final LiveData<List<Deck>> list = mDeckViewModel.getSelectDecks(name);
-
-        selectedDecks.addSource(list, new Observer<List<Deck>>() {
-            @Override
-            public void onChanged(@Nullable List<Deck> decks) {
-                if(decks == null || decks.isEmpty()) {
-                    // Fetch data from API
-                }else{
-                    selectedDecks.removeSource(list);
-                    selectedDecks.setValue(decks);
-                }
-            }
-        });
-        return list;
     }
 
     @Override
@@ -182,10 +154,22 @@ public class DeckHomeFragment extends Fragment {
             }
         });
 
+
+
+        boolean isNewDeck = sourceIntent.getBooleanExtra(isNewDeckKey, true);
+        if (!isNewDeck) {
+            // Need to populate the text fields
+            dName = sourceIntent.getStringExtra(deckNameKey);
+            if (dName != null) {
+                deckName.setText(dName);
+
+                // Update text fields
+                mDeckViewModel.getSelectDecks(dName).observe(this, this);
+            }
+        }
+
         return v;
     }
-
-    // TODO populate text fields with data from database
 
     /**
      * Updates the local database by either inserting a new deck or updating the existing deck.
@@ -263,17 +247,6 @@ public class DeckHomeFragment extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
-        boolean isNewDeck = sourceIntent.getBooleanExtra(isNewDeckKey, true);
-        if (!isNewDeck) {
-            // Need to populate the text fields
-            dName = sourceIntent.getStringExtra(deckNameKey);
-            if (dName != null) {
-                deckName.setText(dName);
-
-                // Pull deck object from database
-                // TODO pull deck object from database
-            }
-        }
 
         addFlashcardButton = (Button) view.findViewById(R.id.add_flashcard_button);
         addFlashcardButton.setOnClickListener(new View.OnClickListener() {
@@ -430,5 +403,25 @@ public class DeckHomeFragment extends Fragment {
      */
     public int toDp(int value) {
         return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value, getResources().getDisplayMetrics());
+    }
+
+    /**
+     * On changed method for observing changes made to an already existing deck.
+     * This method accesses an already existing deck with the name provided in the
+     * query called by onCreateView() when the new activity is created. This provided
+     * name allows for population of the course and school fields.
+     *
+     * @param decks
+     *          list of decks returned by the following query (should only be one):
+     *              SELECT * FROM deck_name WHERE name = :dName;
+     *          Note that dName is equivalent to the name provided by onCreateView()
+     */
+    @Override
+    public void onChanged(@Nullable List<Deck> decks) {
+        if (decks != null && decks.size() > 0) {
+            mDeck = decks.get(0);
+            schoolName.setText(mDeck.getSchool());
+            courseName.setText(mDeck.getCourse());
+        }
     }
 }

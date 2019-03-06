@@ -87,7 +87,6 @@ public class DeckMenuFragment extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        //populateDecks();
         addDeckButton = (Button) getView().findViewById(R.id.add_deck_button);
         addDeckButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -99,7 +98,6 @@ public class DeckMenuFragment extends Fragment {
                 }
             }
         });
-
     }
 
     private void populateDecks() {
@@ -144,6 +142,14 @@ public class DeckMenuFragment extends Fragment {
                 }
             });
             decksContainer.addView(newDeck);
+        }
+
+        /*
+         * Temporary workaround to allow for view & database to update.
+         * By doing this, the TextViews will be populated when we start the DeckHomeActivity.
+         */
+        if (getActivity() != null) {
+            getActivity().recreate();
         }
     }
 
