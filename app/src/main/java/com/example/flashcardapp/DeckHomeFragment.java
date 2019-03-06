@@ -61,6 +61,7 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
     private String cName;
     private String sName;
     private Deck mDeck;
+    private Button deleteButton;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -154,7 +155,28 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
             }
         });
 
+        deleteButton = v.findViewById(R.id.delete_button);
+        deleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final String dName = deckName.getText().toString();
+                String coName = courseName.getText().toString();
+                String sName = schoolName.getText().toString();
+                final Deck deck = new Deck(dName);
+                deck.setCourse(coName);
+                deck.setSchool(sName);
 
+                mDeckViewModel.delete(deck);
+
+                mIntent = new Intent();
+                mIntent.putExtra(completedDeckKey, true);
+                mIntent.putExtra(deckNameKey, deckName.getText());
+                getActivity().setResult(Activity.RESULT_OK, mIntent);
+
+                Toast.makeText(getContext(), "Deck was deleted successfully", Toast.LENGTH_LONG).show();
+                getActivity().finish();
+            }
+        });
 
         boolean isNewDeck = sourceIntent.getBooleanExtra(isNewDeckKey, true);
         if (!isNewDeck) {
@@ -166,7 +188,11 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
                 // Update text fields
                 mDeckViewModel.getSelectDecks(dName).observe(this, this);
             }
+        } else {
+            deleteButton.setEnabled(false);
         }
+
+
 
         return v;
     }

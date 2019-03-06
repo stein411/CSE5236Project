@@ -36,4 +36,8 @@ public class DeckViewModel extends AndroidViewModel {
     public void update(Deck deck) {
         mRepository.update(deck);
     }
+
+    public void delete(Deck deck) {
+        mRepository.delete(deck);
+    }
 }
