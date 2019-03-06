@@ -1,12 +1,18 @@
 package com.example.flashcardapp;
 
 import android.app.Activity;
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MediatorLiveData;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProvider;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.constraint.ConstraintSet;
 import android.support.v4.app.Fragment;
@@ -55,10 +61,40 @@ public class DeckHomeFragment extends Fragment {
     private Intent mIntent;
     private Intent sourceIntent;
     private String isNewDeckKey;
+    private DeckViewModel mDeckViewModel;
+    private List<Integer> termIds;
+    private List<Integer> defIds;
+    private String dName;
+    private boolean updatedDb;
+    private List<Deck> mSelectedDecks;
+    private boolean mJustChanged;
+    private Button mBackButton;
+    private String cName;
+    private String sName;
+    private MediatorLiveData<List<Deck>> selectedDecks = new MediatorLiveData<>();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mDeckViewModel = ViewModelProviders.of(this).get(DeckViewModel.class);
+    }
+
+    private LiveData<List<Deck>> getSelectedDecks(String name) {
+        final LiveData<List<Deck>> list = mDeckViewModel.getSelectDecks(name);
+
+        selectedDecks.addSource(list, new Observer<List<Deck>>() {
+            @Override
+            public void onChanged(@Nullable List<Deck> decks) {
+                if(decks == null || decks.isEmpty()) {
+                    // Fetch data from API
+                }else{
+                    selectedDecks.removeSource(list);
+                    selectedDecks.setValue(decks);
+                }
+            }
+        });
+        return list;
     }
 
     @Override
@@ -79,6 +115,8 @@ public class DeckHomeFragment extends Fragment {
         deckNameKey = getString(R.string.deck_name_key);
         sourceIntent = getActivity().getIntent();
         isNewDeckKey = getString(R.string.is_new_deck_key);
+        termIds = new ArrayList<>();
+        defIds = new ArrayList<>();
 
 
         // Get references to text view widgets
@@ -87,6 +125,7 @@ public class DeckHomeFragment extends Fragment {
         schoolName = (TextView) v.findViewById(R.id.school_name_label);
         profName = (TextView) v.findViewById(R.id.professor_name_label);
         categoryName = (TextView) v.findViewById(R.id.category_name_label);
+        dName = "";
 
         // Button click listeners
         deckViewButton = (Button) v.findViewById(R.id.LaunchDeckButton);
@@ -115,12 +154,29 @@ public class DeckHomeFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if (getActivity() != null) {
-                    mIntent = new Intent();
-                    mIntent.putExtra(completedDeckKey, true);
-                    mIntent.putExtra(deckNameKey, deckName.getText());
-                    getActivity().setResult(Activity.RESULT_OK, mIntent);
                     updateDatabase(sourceIntent.getBooleanExtra(isNewDeckKey, true));
-                    Toast.makeText(getContext(), "Changes saved successfully", Toast.LENGTH_LONG).show();
+
+                    if (updatedDb) {
+                        // TODO debug situation where adding new deck need to click twice
+                        mIntent = new Intent();
+                        mIntent.putExtra(completedDeckKey, true);
+                        mIntent.putExtra(deckNameKey, deckName.getText());
+                        getActivity().setResult(Activity.RESULT_OK, mIntent);
+                        Toast.makeText(getContext(), "Changes saved successfully", Toast.LENGTH_LONG).show();
+                        getActivity().finish();
+                    }
+                }
+            }
+        });
+
+        mBackButton = v.findViewById(R.id.back_button);
+        mBackButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (getActivity() != null) {
+                    mIntent = new Intent();
+                    mIntent.putExtra(completedDeckKey, false);
+                    getActivity().setResult(Activity.RESULT_OK, mIntent);
                     getActivity().finish();
                 }
             }
@@ -129,11 +185,45 @@ public class DeckHomeFragment extends Fragment {
         return v;
     }
 
+    // TODO populate text fields with data from database
+
     /**
      * Updates the local database by either inserting a new deck or updating the existing deck.
      */
     public void updateDatabase(boolean isNewDeck) {
         //TODO add database accesses here
+        if (isNewDeck) {
+            final String dName = deckName.getText().toString();
+            String coName = courseName.getText().toString();
+            String sName = schoolName.getText().toString();
+            final Deck deck = new Deck(dName);
+            deck.setCourse(coName);
+            deck.setSchool(sName);
+
+            mDeckViewModel.getSelectDecks(dName).observe(this, new Observer<List<Deck>>() {
+                @Override
+                public void onChanged(@Nullable List<Deck> decks) {
+                    mSelectedDecks = decks;
+                    if (mSelectedDecks != null && mSelectedDecks.size() == 0) {
+                        onSelectedDeckUpdated(deck, dName);
+                    } else if (!mJustChanged){
+                        Toast.makeText(getContext(), "The deck with the name " + dName + " already "
+                                + "exists. Please choose a different name", Toast.LENGTH_LONG).show();
+                        mJustChanged = false;
+                    }
+                }
+            });
+
+        } else {
+            // TODO update operations
+            updatedDb = true;
+        }
+    }
+
+    private void onSelectedDeckUpdated(Deck deck, String dName) {
+        mDeckViewModel.insert(deck);
+        updatedDb = true;
+        mJustChanged = true;
     }
 
     @Override
@@ -173,6 +263,18 @@ public class DeckHomeFragment extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
+        boolean isNewDeck = sourceIntent.getBooleanExtra(isNewDeckKey, true);
+        if (!isNewDeck) {
+            // Need to populate the text fields
+            dName = sourceIntent.getStringExtra(deckNameKey);
+            if (dName != null) {
+                deckName.setText(dName);
+
+                // Pull deck object from database
+                // TODO pull deck object from database
+            }
+        }
+
         addFlashcardButton = (Button) view.findViewById(R.id.add_flashcard_button);
         addFlashcardButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -203,6 +305,7 @@ public class DeckHomeFragment extends Fragment {
                     term.setLayoutParams(termParams);
                     int termId = View.generateViewId();
                     term.setId(termId);
+                    termIds.add(termId);
 
                     EditText definition = new EditText(getContext());
                     definition.setHint(R.string.DefinitionString);
@@ -211,6 +314,7 @@ public class DeckHomeFragment extends Fragment {
                     definition.setLayoutParams(defParams);
                     int defId = View.generateViewId();
                     definition.setId(defId);
+                    defIds.add(defId);
 
                     ImageView deleteIcon = new ImageView(getContext());
                     deleteIcon.setImageResource(android.R.drawable.ic_delete);
@@ -236,6 +340,8 @@ public class DeckHomeFragment extends Fragment {
                             int index = cardLayouts.indexOf(layoutId);
                             cardLayouts.remove(index);
                             cardLabels.remove(index);
+                            termIds.remove(index);
+                            defIds.remove(index);
                             flashcardCount--;
                             for (int i = index; i < cardLayouts.size(); i++) {
                                 // Fix index number
