@@ -33,4 +33,8 @@ public class FlashcardViewModel extends AndroidViewModel {
     LiveData<List<Flashcard>> getAllFlashcardsFromDeck(String dName) {
         return mFlashcardRepository.getAllFlashcardsFromDeck(dName);
     }
+
+    public void deleteAllFlashcardsInDeck(String dName) {
+        mFlashcardRepository.deleteAllFlashcardsInDeck(dName);
+    }
 }

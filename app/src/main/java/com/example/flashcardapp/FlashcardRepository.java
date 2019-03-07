@@ -60,6 +60,24 @@ public class FlashcardRepository {
         }
     }
 
+    public void deleteAllFlashcardsInDeck(String dName) {
+        new FlashcardRepository.deleteAllFlashcardsInDeckAsyncTask(mFlashcardDao).execute(dName);
+    }
+
+    private class deleteAllFlashcardsInDeckAsyncTask extends AsyncTask<String, Void, Void> {
+        private FlashcardDao mFlashcardDao;
+
+        public deleteAllFlashcardsInDeckAsyncTask(FlashcardDao flashcardDao) {
+            mFlashcardDao = flashcardDao;
+        }
+
+        @Override
+        protected Void doInBackground(String... strings) {
+            mFlashcardDao.deleteAllFlashcardsInDeck(strings[0]);
+            return null;
+        }
+    }
+
     public void update(Flashcard flashcard) {
         new FlashcardRepository.updateAsyncTask(mFlashcardDao).execute(flashcard);
     }

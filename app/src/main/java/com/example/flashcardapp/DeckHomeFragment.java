@@ -21,6 +21,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -65,6 +67,7 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
     private ProfessorViewModel mProfessorViewModel;
     private boolean mNeedToAddProfs;
     private boolean mNeedToUpdateProf;
+    private FlashcardViewModel mFlashcardViewModel;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -72,6 +75,7 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
 
         mDeckViewModel = ViewModelProviders.of(this).get(DeckViewModel.class);
         mProfessorViewModel = ViewModelProviders.of(this).get(ProfessorViewModel.class);
+        mFlashcardViewModel = ViewModelProviders.of(this).get(FlashcardViewModel.class);
     }
 
     @Override
@@ -171,6 +175,7 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
                 deck.setCourse(coName);
                 deck.setSchool(sName);
 
+                mFlashcardViewModel.deleteAllFlashcardsInDeck(dName);
                 mDeckViewModel.delete(deck);
 
                 mIntent = new Intent();
@@ -193,6 +198,7 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
                 // Update text fields
                 mDeckViewModel.getSelectDecks(dName).observe(this, this);
                 mProfessorViewModel.getAllProfessorsFromDeck(dName).observe(this, new ProfessorObserver());
+                mFlashcardViewModel.getAllFlashcardsFromDeck(dName).observe(this, new FlashcardObserver());
             }
         } else {
             deleteButton.setEnabled(false);
@@ -201,6 +207,15 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
 
 
         return v;
+    }
+
+    private class FlashcardObserver implements Observer<List<Flashcard>> {
+        @Override
+        public void onChanged(@Nullable List<Flashcard> flashcards) {
+            for (Flashcard flashcard : flashcards) {
+                addFlashcard(flashcard.getTerm(), flashcard.getDefinition());
+            }
+        }
     }
 
     private class ProfessorObserver implements Observer<List<Professor>> {
@@ -248,8 +263,6 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
             deck.setCourse(coName);
             deck.setSchool(sName);
 
-            mDeckViewModel.update(deck, oldDeck);
-
             for (String prof : profNames) {
                 final Professor professor = new Professor();
                 professor.setProfessorName(prof);
@@ -270,6 +283,21 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
                 }
             }
 
+            mFlashcardViewModel.deleteAllFlashcardsInDeck(oldDeck.getName());
+
+            mDeckViewModel.update(deck, oldDeck);
+
+            for (int i = 0; i < termIds.size(); i++) {
+                String termTxt = ((TextView) getView().findViewById(termIds.get(i))).getText().toString();
+                String defTxt = ((TextView) getView().findViewById(defIds.get(i))).getText().toString();
+                Flashcard flashcard = new Flashcard();
+                flashcard.setDeckName(dName);
+                flashcard.setTerm(termTxt);
+                flashcard.setDefinition(defTxt);
+                mFlashcardViewModel.insert(flashcard);
+            }
+
+
             updatedDb = true;
         }
     }
@@ -285,6 +313,16 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
                 professor.setProfessorName(prof);
                 professor.setDeckName(dName);
                 mProfessorViewModel.insert(professor);
+            }
+
+            for (int i = 0; i < termIds.size(); i++) {
+                String termTxt = ((TextView) getView().findViewById(termIds.get(i))).getText().toString();
+                String defTxt = ((TextView) getView().findViewById(defIds.get(i))).getText().toString();
+                Flashcard flashcard = new Flashcard();
+                flashcard.setDeckName(dName);
+                flashcard.setTerm(termTxt);
+                flashcard.setDefinition(defTxt);
+                mFlashcardViewModel.insert(flashcard);
             }
         }
     }
@@ -324,6 +362,128 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
         }
     }
 
+    public void addFlashcard(String termTxt, String defTxt) {
+
+
+        LinearLayout ll = (LinearLayout) getView().findViewById(R.id.flashcards_container);
+        if (ll != null) {
+            // Create a new layout
+            ConstraintLayout layout = new ConstraintLayout(getContext());
+            final int layoutId = View.generateViewId();
+            layout.setId(layoutId);
+            cardLayouts.add(layoutId);
+
+            // Setup the widgets
+            TextView lbl = new TextView(getContext());
+            lbl.setText(Integer.toString(++flashcardCount));
+            ViewGroup.LayoutParams lblParams = new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            ((ConstraintLayout.LayoutParams) lblParams).setMargins(toDp(16), toDp(12), 0, 0);
+            lbl.setLayoutParams(lblParams);
+            int lblId = View.generateViewId();
+            lbl.setId(lblId);
+            cardLabels.add(lblId);
+
+            EditText term = new EditText(getContext());
+            term.setHint(R.string.TermString);
+            ViewGroup.LayoutParams termParams = new ConstraintLayout.LayoutParams(toDp(140), ViewGroup.LayoutParams.MATCH_PARENT);
+            ((ConstraintLayout.LayoutParams) termParams).setMargins(toDp(8), toDp(8), 0, toDp(8));
+            term.setLayoutParams(termParams);
+            int termId = View.generateViewId();
+            term.setId(termId);
+            termIds.add(termId);
+            term.setText(termTxt);
+
+            EditText definition = new EditText(getContext());
+            definition.setHint(R.string.DefinitionString);
+            ViewGroup.LayoutParams defParams = new ConstraintLayout.LayoutParams(toDp(140), ViewGroup.LayoutParams.MATCH_PARENT);
+            ((ConstraintLayout.LayoutParams) defParams).setMargins(toDp(8), toDp(8), 0, toDp(8));
+            definition.setLayoutParams(defParams);
+            int defId = View.generateViewId();
+            definition.setId(defId);
+            defIds.add(defId);
+            definition.setText(defTxt);
+
+            ImageView deleteIcon = new ImageView(getContext());
+            deleteIcon.setImageResource(android.R.drawable.ic_delete);
+            ViewGroup.LayoutParams iconParams = new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            ((ConstraintLayout.LayoutParams) iconParams).setMargins(toDp(10), toDp(8), toDp(8), toDp(8));
+            deleteIcon.setLayoutParams(iconParams);
+            int iconId = View.generateViewId();
+            deleteIcon.setId(iconId);
+            deleteIcon.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // Get the constraint layout and its parent
+                    ConstraintLayout cl = getView().findViewById(layoutId);
+                    LinearLayout container = getView().findViewById(R.id.flashcards_container);
+
+                    // Clear the constraint layout
+                    cl.removeAllViews();
+
+                    // Remove the constraint layout
+                    container.removeView(cl);
+
+                    // Need to fix all the flashcards that come below
+                    int index = cardLayouts.indexOf(layoutId);
+                    cardLayouts.remove(index);
+                    cardLabels.remove(index);
+                    termIds.remove(index);
+                    defIds.remove(index);
+                    flashcardCount--;
+                    for (int i = index; i < cardLayouts.size(); i++) {
+                        // Fix index number
+                        TextView label = getView().findViewById(cardLabels.get(i));
+                        label.setText(Integer.toString(i + 1));
+
+                        // Fix background color
+                        ConstraintLayout l = getView().findViewById(cardLayouts.get(i));
+                        if (i % 2 == 1) {
+                            l.setBackgroundResource(android.R.color.background_light);
+                        } else {
+                            l.setBackgroundResource(android.R.color.darker_gray);
+                        }
+                    }
+                }
+            });
+
+
+            // Add widgets to layout
+            layout.addView(lbl);
+            layout.addView(term);
+            layout.addView(definition);
+            layout.addView(deleteIcon);
+
+            // Add constraints so widgets line up correctly
+            ConstraintSet constraintSet = new ConstraintSet();
+            constraintSet.clone(layout);
+            // Set top and bottom layouts of all widgets
+            int[] idList = {lblId, termId, defId, iconId};
+            for (int i = 0; i < idList.length; i++) {
+                constraintSet.connect(idList[i], ConstraintSet.TOP, layoutId, ConstraintSet.TOP);
+                constraintSet.connect(idList[i], ConstraintSet.BOTTOM, layoutId, ConstraintSet.BOTTOM);
+            }
+            // Set horizontal constraints
+            constraintSet.connect(lblId, ConstraintSet.START, layoutId, ConstraintSet.START);
+            constraintSet.connect(termId, ConstraintSet.START, lblId, ConstraintSet.END);
+            constraintSet.connect(defId, ConstraintSet.START, termId, ConstraintSet.END);
+            constraintSet.connect(iconId, ConstraintSet.START, defId, ConstraintSet.END);
+            constraintSet.connect(iconId, ConstraintSet.END, layoutId, ConstraintSet.END);
+
+            // Apply constraints
+            constraintSet.applyTo(layout);
+
+            if (flashcardCount % 2 == 0) {
+                layout.setBackgroundResource(android.R.color.background_light);
+            } else {
+                layout.setBackgroundResource(android.R.color.darker_gray);
+            }
+
+            // Set layout height
+            layout.setLayoutParams(new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, toDp(56)));
+            ll.addView(layout);
+        }
+    }
+
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
 
@@ -331,122 +491,7 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
         addFlashcardButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(@NonNull View v) {
-
-                LinearLayout ll = (LinearLayout) getView().findViewById(R.id.flashcards_container);
-                if (ll != null) {
-                    // Create a new layout
-                    ConstraintLayout layout = new ConstraintLayout(getContext());
-                    final int layoutId = View.generateViewId();
-                    layout.setId(layoutId);
-                    cardLayouts.add(layoutId);
-
-                    // Setup the widgets
-                    TextView lbl = new TextView(getContext());
-                    lbl.setText(Integer.toString(++flashcardCount));
-                    ViewGroup.LayoutParams lblParams = new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                    ((ConstraintLayout.LayoutParams) lblParams).setMargins(toDp(16), toDp(12),0,0);
-                    lbl.setLayoutParams(lblParams);
-                    int lblId = View.generateViewId();
-                    lbl.setId(lblId);
-                    cardLabels.add(lblId);
-
-                    EditText term = new EditText(getContext());
-                    term.setHint(R.string.TermString);
-                    ViewGroup.LayoutParams termParams = new ConstraintLayout.LayoutParams(toDp(140), ViewGroup.LayoutParams.MATCH_PARENT);
-                    ((ConstraintLayout.LayoutParams) termParams).setMargins(toDp(8), toDp(8), 0, toDp(8));
-                    term.setLayoutParams(termParams);
-                    int termId = View.generateViewId();
-                    term.setId(termId);
-                    termIds.add(termId);
-
-                    EditText definition = new EditText(getContext());
-                    definition.setHint(R.string.DefinitionString);
-                    ViewGroup.LayoutParams defParams = new ConstraintLayout.LayoutParams(toDp(140), ViewGroup.LayoutParams.MATCH_PARENT);
-                    ((ConstraintLayout.LayoutParams) defParams).setMargins(toDp(8), toDp(8), 0, toDp(8));
-                    definition.setLayoutParams(defParams);
-                    int defId = View.generateViewId();
-                    definition.setId(defId);
-                    defIds.add(defId);
-
-                    ImageView deleteIcon = new ImageView(getContext());
-                    deleteIcon.setImageResource(android.R.drawable.ic_delete);
-                    ViewGroup.LayoutParams iconParams = new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                    ((ConstraintLayout.LayoutParams) iconParams).setMargins(toDp(10), toDp(8), toDp(8), toDp(8));
-                    deleteIcon.setLayoutParams(iconParams);
-                    int iconId = View.generateViewId();
-                    deleteIcon.setId(iconId);
-                    deleteIcon.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            // Get the constraint layout and its parent
-                            ConstraintLayout cl = getView().findViewById(layoutId);
-                            LinearLayout container = getView().findViewById(R.id.flashcards_container);
-
-                            // Clear the constraint layout
-                            cl.removeAllViews();
-
-                            // Remove the constraint layout
-                            container.removeView(cl);
-
-                            // Need to fix all the flashcards that come below
-                            int index = cardLayouts.indexOf(layoutId);
-                            cardLayouts.remove(index);
-                            cardLabels.remove(index);
-                            termIds.remove(index);
-                            defIds.remove(index);
-                            flashcardCount--;
-                            for (int i = index; i < cardLayouts.size(); i++) {
-                                // Fix index number
-                                TextView label = getView().findViewById(cardLabels.get(i));
-                                label.setText(Integer.toString(i + 1));
-
-                                // Fix background color
-                                ConstraintLayout l = getView().findViewById(cardLayouts.get(i));
-                                if (i % 2 == 1) {
-                                    l.setBackgroundResource(android.R.color.background_light);
-                                } else {
-                                    l.setBackgroundResource(android.R.color.darker_gray);
-                                }
-                            }
-                        }
-                    });
-
-
-                    // Add widgets to layout
-                    layout.addView(lbl);
-                    layout.addView(term);
-                    layout.addView(definition);
-                    layout.addView(deleteIcon);
-
-                    // Add constraints so widgets line up correctly
-                    ConstraintSet constraintSet = new ConstraintSet();
-                    constraintSet.clone(layout);
-                    // Set top and bottom layouts of all widgets
-                    int[] idList = {lblId, termId, defId, iconId};
-                    for (int i = 0; i < idList.length; i++) {
-                        constraintSet.connect(idList[i], ConstraintSet.TOP, layoutId, ConstraintSet.TOP);
-                        constraintSet.connect(idList[i], ConstraintSet.BOTTOM, layoutId, ConstraintSet.BOTTOM);
-                    }
-                    // Set horizontal constraints
-                    constraintSet.connect(lblId, ConstraintSet.START, layoutId, ConstraintSet.START);
-                    constraintSet.connect(termId, ConstraintSet.START, lblId, ConstraintSet.END);
-                    constraintSet.connect(defId, ConstraintSet.START, termId, ConstraintSet.END);
-                    constraintSet.connect(iconId, ConstraintSet.START, defId, ConstraintSet.END);
-                    constraintSet.connect(iconId, ConstraintSet.END, layoutId, ConstraintSet.END);
-
-                    // Apply constraints
-                    constraintSet.applyTo(layout);
-
-                    if (flashcardCount % 2 == 0) {
-                        layout.setBackgroundResource(android.R.color.background_light);
-                    } else {
-                        layout.setBackgroundResource(android.R.color.darker_gray);
-                    }
-
-                    // Set layout height
-                    layout.setLayoutParams(new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, toDp(56)));
-                    ll.addView(layout);
-                }
+                addFlashcard("", "");
             }
         });
 

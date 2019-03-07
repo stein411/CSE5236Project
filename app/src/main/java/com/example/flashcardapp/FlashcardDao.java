@@ -27,4 +27,7 @@ public interface FlashcardDao {
 
     @Query("SELECT * FROM flashcard_table WHERE deck_name = :dName")
     LiveData<List<Flashcard>> getAllFlashcardsFromDeck(String dName);
+
+    @Query("DELETE FROM flashcard_table WHERE deck_name = :dName")
+    void deleteAllFlashcardsInDeck(String dName);
 }
