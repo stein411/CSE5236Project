@@ -8,10 +8,11 @@ import android.arch.persistence.room.migration.Migration;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
-@Database(entities = {Deck.class, Professor.class, Flashcard.class}, version = 4)
+@Database(entities = {Deck.class, Professor.class, Category.class,Flashcard.class}, version = 5)
 public abstract class DeckRoomDatabase extends RoomDatabase {
     public abstract DeckDao deckDao();
     public abstract ProfessorDao professorDao();
+    public abstract CategoryDao categoryDao();
     public abstract FlashcardDao flashcardDao();
 
     private static volatile DeckRoomDatabase INSTANCE;
@@ -23,7 +24,7 @@ public abstract class DeckRoomDatabase extends RoomDatabase {
                     // Create database here
                     INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
                             DeckRoomDatabase.class, "deck_database")
-                            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4).build();
+                            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5).build();
                 }
             }
         }
@@ -55,6 +56,16 @@ public abstract class DeckRoomDatabase extends RoomDatabase {
             database.execSQL("DROP TABLE IF EXISTS `flashcard_table`");
             database.execSQL("CREATE TABLE `flashcard_table` (`term` TEXT NOT NULL, `definition` TEXT NOT NULL, " +
                     "`deck_name` TEXT NOT NULL, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," +
+                    "FOREIGN KEY(`deck_name`) REFERENCES `deck_table`(`name`) ON DELETE CASCADE)");
+        }
+    };
+
+    static final Migration MIGRATION_4_5 = new Migration(4,5) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            database.execSQL("DROP TABLE IF EXISTS `category_table`");
+            database.execSQL("CREATE TABLE `category_table` (`category_name` TEXT NOT NULL, " +
+                    "`deck_name` TEXT NOT NULL," + "`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," +
                     "FOREIGN KEY(`deck_name`) REFERENCES `deck_table`(`name`) ON DELETE CASCADE)");
         }
     };

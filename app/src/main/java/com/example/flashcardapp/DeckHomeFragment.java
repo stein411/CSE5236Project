@@ -67,6 +67,7 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
     private ProfessorViewModel mProfessorViewModel;
     private boolean mNeedToAddProfs;
     private boolean mNeedToUpdateProf;
+    private CategoryViewModel mCategoryViewModel;
     private FlashcardViewModel mFlashcardViewModel;
 
     @Override
@@ -75,6 +76,7 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
 
         mDeckViewModel = ViewModelProviders.of(this).get(DeckViewModel.class);
         mProfessorViewModel = ViewModelProviders.of(this).get(ProfessorViewModel.class);
+        mCategoryViewModel = ViewModelProviders.of(this).get(CategoryViewModel.class);
         mFlashcardViewModel = ViewModelProviders.of(this).get(FlashcardViewModel.class);
     }
 
@@ -100,6 +102,7 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
         defIds = new ArrayList<>();
         mNeedToAddProfs = true;
         profNames = new ArrayList<>();
+        categoryNames = new ArrayList<>();
 
         // Get references to text view widgets
         deckName = (TextView) v.findViewById(R.id.deck_name_label);
@@ -198,6 +201,7 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
                 // Update text fields
                 mDeckViewModel.getSelectDecks(dName).observe(this, this);
                 mProfessorViewModel.getAllProfessorsFromDeck(dName).observe(this, new ProfessorObserver());
+                mCategoryViewModel.getAllCategoriesFromDeck(dName).observe(this, new CategoryObserver());
                 mFlashcardViewModel.getAllFlashcardsFromDeck(dName).observe(this, new FlashcardObserver());
             }
         } else {
@@ -223,6 +227,15 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
         public void onChanged(@Nullable List<Professor> professors) {
             for (Professor professor : professors) {
                 profNames.add(professor.getProfessorName());
+            }
+        }
+    }
+
+    private class CategoryObserver implements Observer<List<Category>> {
+        @Override
+        public void onChanged(@Nullable List<Category> categories) {
+            for (Category category : categories) {
+                categoryNames.add(category.getCategoryName());
             }
         }
     }
@@ -265,6 +278,7 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
 
             mFlashcardViewModel.deleteAllFlashcardsInDeck(oldDeck.getName());
             mProfessorViewModel.deleteAllProfessorsInDeck(oldDeck.getName());
+            mCategoryViewModel.deleteAllCategoriesInDeck(oldDeck.getName());
 
             mDeckViewModel.update(deck, oldDeck);
 
@@ -273,6 +287,13 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
                 professor.setProfessorName(prof);
                 professor.setDeckName(dName);
                 mProfessorViewModel.insert(professor);
+            }
+
+            for (String cat : categoryNames) {
+                final Category category = new Category();
+                category.setCategoryName(cat);
+                category.setDeckName(dName);
+                mCategoryViewModel.insert(category);
             }
 
             for (int i = 0; i < termIds.size(); i++) {
@@ -301,6 +322,12 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
                 professor.setProfessorName(prof);
                 professor.setDeckName(dName);
                 mProfessorViewModel.insert(professor);
+            }
+            for (String cat : categoryNames) {
+                final Category category = new Category();
+                category.setCategoryName(cat);
+                category.setDeckName(dName);
+                mCategoryViewModel.insert(category);
             }
 
             for (int i = 0; i < termIds.size(); i++) {
