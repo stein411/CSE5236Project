@@ -25,8 +25,9 @@ public interface DeckDao {
     @Query("SELECT * FROM deck_table WHERE name = :dName")
     LiveData<List<Deck>> getDeckWithGivenName(String dName);
 
-    @Update(onConflict = REPLACE)
-    void update(Deck deck);
+    @Query("UPDATE deck_table SET name = :deckName, course = :courseName, school = :schoolName WHERE name = :oldDeckName")
+    void update(String deckName, String courseName, String schoolName, String oldDeckName);
+
 
     @Delete
     void delete(Deck deck);

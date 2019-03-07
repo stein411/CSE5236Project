@@ -62,12 +62,16 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
     private String sName;
     private Deck mDeck;
     private Button deleteButton;
+    private ProfessorViewModel mProfessorViewModel;
+    private boolean mNeedToAddProfs;
+    private boolean mNeedToUpdateProf;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         mDeckViewModel = ViewModelProviders.of(this).get(DeckViewModel.class);
+        mProfessorViewModel = ViewModelProviders.of(this).get(ProfessorViewModel.class);
     }
 
     @Override
@@ -90,7 +94,8 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
         isNewDeckKey = getString(R.string.is_new_deck_key);
         termIds = new ArrayList<>();
         defIds = new ArrayList<>();
-
+        mNeedToAddProfs = true;
+        profNames = new ArrayList<>();
 
         // Get references to text view widgets
         deckName = (TextView) v.findViewById(R.id.deck_name_label);
@@ -187,6 +192,7 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
 
                 // Update text fields
                 mDeckViewModel.getSelectDecks(dName).observe(this, this);
+                mProfessorViewModel.getAllProfessorsFromDeck(dName).observe(this, new ProfessorObserver());
             }
         } else {
             deleteButton.setEnabled(false);
@@ -197,11 +203,19 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
         return v;
     }
 
+    private class ProfessorObserver implements Observer<List<Professor>> {
+        @Override
+        public void onChanged(@Nullable List<Professor> professors) {
+            for (Professor professor : professors) {
+                profNames.add(professor.getProfessorName());
+            }
+        }
+    }
+
     /**
      * Updates the local database by either inserting a new deck or updating the existing deck.
      */
     public void updateDatabase(boolean isNewDeck) {
-        //TODO add database accesses here
         if (isNewDeck) {
             final String dName = deckName.getText().toString();
             String coName = courseName.getText().toString();
@@ -215,24 +229,48 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
                 public void onChanged(@Nullable List<Deck> decks) {
                     mSelectedDecks = decks;
                     if (mSelectedDecks != null && mSelectedDecks.size() == 0) {
+                        mNeedToAddProfs = true;
                         onSelectedDeckUpdated(deck, dName);
                     } else if (!mJustChanged){
                         Toast.makeText(getContext(), "The deck with the name " + dName + " already "
                                 + "exists. Please choose a different name", Toast.LENGTH_LONG).show();
+                        mNeedToAddProfs = false;
                         mJustChanged = false;
                     }
                 }
             });
-
         } else {
-            // TODO update operations
+            final Deck oldDeck = new Deck(dName);
             final String dName = deckName.getText().toString();
             String coName = courseName.getText().toString();
             String sName = schoolName.getText().toString();
             final Deck deck = new Deck(dName);
             deck.setCourse(coName);
             deck.setSchool(sName);
-            mDeckViewModel.update(deck);
+
+            mDeckViewModel.update(deck, oldDeck);
+
+            for (String prof : profNames) {
+                final Professor professor = new Professor();
+                professor.setProfessorName(prof);
+                professor.setDeckName(dName);
+                mProfessorViewModel.getProfessorByName(prof, dName).observe(this, new Observer<List<Professor>>() {
+                    @Override
+                    public void onChanged(@Nullable List<Professor> professors) {
+                        if (professors != null && professors.size() > 0 && !mNeedToUpdateProf) {
+                            mNeedToUpdateProf = true;
+                        } else {
+                            mNeedToUpdateProf = false;
+                        }
+                    }
+                });
+
+                if (mNeedToUpdateProf)
+                    mProfessorViewModel.update(professor);
+                else
+                    mProfessorViewModel.insert(professor);
+            }
+
             updatedDb = true;
         }
     }
@@ -241,6 +279,15 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
         mDeckViewModel.insert(deck);
         updatedDb = true;
         mJustChanged = true;
+
+        if (mNeedToAddProfs) {
+            for (String prof : profNames) {
+                final Professor professor = new Professor();
+                professor.setProfessorName(prof);
+                professor.setDeckName(dName);
+                mProfessorViewModel.insert(professor);
+            }
+        }
     }
 
     @Override

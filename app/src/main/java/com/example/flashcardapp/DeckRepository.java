@@ -33,8 +33,8 @@ public class DeckRepository {
         new deleteAllAsyncTask(mDeckDao);
     }
 
-    public void update(Deck deck) {
-        new updateAsyncTask(mDeckDao).execute(deck);
+    public void update(Deck deck, Deck oldDeck) {
+        new updateAsyncTask(mDeckDao).execute(deck, oldDeck);
     }
 
     public void delete(Deck deck) {
@@ -64,7 +64,9 @@ public class DeckRepository {
 
         @Override
         protected Void doInBackground(final Deck... decks) {
-            mAsyncTaskDao.update(decks[0]);
+            Deck newDeck = decks[0];
+            Deck oldDeck = decks[1];
+            mAsyncTaskDao.update(newDeck.getName(), newDeck.getCourse(), newDeck.getSchool(), oldDeck.getName());
             return null;
         }
     }
