@@ -263,29 +263,17 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
             deck.setCourse(coName);
             deck.setSchool(sName);
 
+            mFlashcardViewModel.deleteAllFlashcardsInDeck(oldDeck.getName());
+            mProfessorViewModel.deleteAllProfessorsInDeck(oldDeck.getName());
+
+            mDeckViewModel.update(deck, oldDeck);
+
             for (String prof : profNames) {
                 final Professor professor = new Professor();
                 professor.setProfessorName(prof);
                 professor.setDeckName(dName);
-                mProfessorViewModel.getProfessorByName(prof, dName).observe(this, new Observer<List<Professor>>() {
-                    @Override
-                    public void onChanged(@Nullable List<Professor> professors) {
-                        // TODO possibly change or remove this condition
-                        mNeedToUpdateProf = (professors != null && professors.size() > 0);
-                    }
-                });
-
-                if (mNeedToUpdateProf) {
-                    mProfessorViewModel.update(professor);
-                } else {
-                    // TODO prevent extra inserts
-                    mProfessorViewModel.insert(professor);
-                }
+                mProfessorViewModel.insert(professor);
             }
-
-            mFlashcardViewModel.deleteAllFlashcardsInDeck(oldDeck.getName());
-
-            mDeckViewModel.update(deck, oldDeck);
 
             for (int i = 0; i < termIds.size(); i++) {
                 String termTxt = ((TextView) getView().findViewById(termIds.get(i))).getText().toString();

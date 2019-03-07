@@ -27,4 +27,7 @@ public interface ProfessorDao {
 
     @Query("SELECT * FROM professor_table WHERE deck_name = :dName")
     LiveData<List<Professor>> getAllProfessorsFromDeck(String dName);
+
+    @Query("DELETE FROM professor_table WHERE deck_name = :dName")
+    void deleteAllProfessorsInDeck(String dName);
 }

@@ -78,4 +78,22 @@ public class ProfessorRepository {
             return null;
         }
     }
+
+    public void deleteAllProfessorsInDeck(String dName) {
+        new deleteAllProfessorsInDeckAsyncTask(mProfessorDao).execute(dName);
+    }
+
+    private class deleteAllProfessorsInDeckAsyncTask extends AsyncTask<String, Void, Void> {
+        private ProfessorDao mProfessorDao;
+
+        public deleteAllProfessorsInDeckAsyncTask(ProfessorDao professorDao) {
+            mProfessorDao = professorDao;
+        }
+
+        @Override
+        protected Void doInBackground(String... strings) {
+            mProfessorDao.deleteAllProfessorsInDeck(strings[0]);
+            return null;
+        }
+    }
 }

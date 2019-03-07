@@ -34,4 +34,8 @@ public class ProfessorViewModel extends AndroidViewModel {
     LiveData<List<Professor>> getAllProfessorsFromDeck(String dName) {
         return mProfessorRepository.getAllProfessorsFromDeck(dName);
     }
+
+    public void deleteAllProfessorsInDeck(String dName) {
+        mProfessorRepository.deleteAllProfessorsInDeck(dName);
+    }
 }
