@@ -257,18 +257,17 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
                 mProfessorViewModel.getProfessorByName(prof, dName).observe(this, new Observer<List<Professor>>() {
                     @Override
                     public void onChanged(@Nullable List<Professor> professors) {
-                        if (professors != null && professors.size() > 0 && !mNeedToUpdateProf) {
-                            mNeedToUpdateProf = true;
-                        } else {
-                            mNeedToUpdateProf = false;
-                        }
+                        // TODO possibly change or remove this condition
+                        mNeedToUpdateProf = (professors != null && professors.size() > 0);
                     }
                 });
 
-                if (mNeedToUpdateProf)
+                if (mNeedToUpdateProf) {
                     mProfessorViewModel.update(professor);
-                else
+                } else {
+                    // TODO prevent extra inserts
                     mProfessorViewModel.insert(professor);
+                }
             }
 
             updatedDb = true;
