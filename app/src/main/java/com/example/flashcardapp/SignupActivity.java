@@ -32,10 +32,18 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+
 import org.w3c.dom.Text;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
@@ -70,6 +78,11 @@ public class SignupActivity extends AppCompatActivity implements LoaderCallbacks
     private View mLoginFormView;
     private TextView mLoginLink;
 
+    /*
+    * Will set later when creating user
+    */
+    private DocumentReference user;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -95,6 +108,7 @@ public class SignupActivity extends AppCompatActivity implements LoaderCallbacks
             @Override
             public void onClick(View view) {
                 attemptLogin();
+
             }
         });
 
@@ -158,6 +172,26 @@ public class SignupActivity extends AppCompatActivity implements LoaderCallbacks
         }
     }
 
+    public void addToFirebase(String name, String email, String password, String username){
+        user = FirebaseFirestore.getInstance().collection("users").document(username);
+        Map<String, Object> new_user = new HashMap<String, Object>();
+        new_user.put("name", name);
+        new_user.put("email", email);
+        new_user.put("password", password);
+        new_user.put("username", username);
+        user.set(new_user).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Log.d("Success", "Document was successfully added");
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.w("Failed to save to firestore", e);
+            }
+        });
+    }
+
 
     /**
      * Attempts to sign in or register the account specified by the login form.
@@ -217,6 +251,7 @@ public class SignupActivity extends AppCompatActivity implements LoaderCallbacks
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
+            addToFirebase(name, email, password, username);
             mAuthTask = new UserLoginTask(email, password);
             mAuthTask.execute((Void) null);
         }
@@ -330,6 +365,7 @@ public class SignupActivity extends AppCompatActivity implements LoaderCallbacks
 
         private final String mEmail;
         private final String mPassword;
+
 
         UserLoginTask(String email, String password) {
             mEmail = email;
