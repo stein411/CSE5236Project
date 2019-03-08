@@ -414,5 +414,11 @@ public class SignupActivity extends AppCompatActivity implements LoaderCallbacks
             showProgress(false);
         }
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        startActivity(new Intent(getApplicationContext(), LoginActivity.class));
+    }
 }
 
