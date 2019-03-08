@@ -345,6 +345,9 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode != Activity.RESULT_OK) {
+            return;
+        }
         Bundle extras = data.getExtras();
 
         if (extras != null) {
