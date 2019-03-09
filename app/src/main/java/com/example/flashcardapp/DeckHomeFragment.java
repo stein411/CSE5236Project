@@ -154,7 +154,7 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
             }
         });
 
-        mBackButton = v.findViewById(R.id.back_button);
+/*        mBackButton = v.findViewById(R.id.back_button);
         mBackButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -165,7 +165,7 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
                     getActivity().finish();
                 }
             }
-        });
+        });*/
 
         deleteButton = v.findViewById(R.id.delete_button);
         deleteButton.setOnClickListener(new View.OnClickListener() {
