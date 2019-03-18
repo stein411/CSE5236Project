@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.constraint.ConstraintSet;
 import android.support.v4.app.Fragment;
@@ -18,10 +19,18 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+
 import org.w3c.dom.Text;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class DeckEditFragment extends Fragment {
     private static final String TAG = "DeckEditFragment";
@@ -42,6 +51,8 @@ public class DeckEditFragment extends Fragment {
     private String categoryKey;
     private ArrayList<String> professorNames;
     private ArrayList<String> categoryNames;
+    private DocumentReference deck;
+    private CollectionReference deckFlashcards;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -201,6 +212,29 @@ public class DeckEditFragment extends Fragment {
                 editText.setText(category);
             }
         }
+    }
+
+    /**
+     * Adding to firebase
+     */
+    private void addDeckInfoToFirebase(String deckName, String owner, String[] professor, int rating, String schoolName) {
+        deck = FirebaseFirestore.getInstance().collection("decks").document(deckName);
+        Map<String, Object> deckInfo = new HashMap<String, Object>();
+        deckInfo.put("owner", owner);
+        deckInfo.put("name", deckName);
+        deckInfo.put("professor", professor);
+        deckInfo.put("rating", rating);
+        deck.set(deckInfo).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Log.d("Success", "Document was successfully added");
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.w("Failed to save to firestore", e);
+            }
+        });
     }
 
     /**
