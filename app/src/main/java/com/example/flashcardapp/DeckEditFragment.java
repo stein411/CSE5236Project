@@ -224,6 +224,7 @@ public class DeckEditFragment extends Fragment {
         deckInfo.put("name", deckName);
         deckInfo.put("professor", professor);
         deckInfo.put("rating", rating);
+        deckInfo.put("school", schoolName);
         deck.set(deckInfo).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
