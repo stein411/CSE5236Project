@@ -1,6 +1,11 @@
 package com.example.flashcardapp;
 
 import android.app.Activity;
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModel;
+import android.arch.lifecycle.ViewModelProvider;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -15,6 +20,8 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import java.util.List;
+
 public class DeckMenuFragment extends Fragment {
     private Button addDeckButton;
     private Button backButton;
@@ -25,10 +32,28 @@ public class DeckMenuFragment extends Fragment {
     private LinearLayout decksContainer;
     private Intent resultOfExistingDeck;
     private String isNewDeckKey;
+    private DeckViewModel mDeckViewModel;
+    private List<Deck> mAllDecks;
+    private boolean mJustChanged;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mJustChanged = false;
+
+        mDeckViewModel = ViewModelProviders.of(this).get(DeckViewModel.class);
+        mDeckViewModel.getAllDecks().observe(this, new Observer<List<Deck>>() {
+            @Override
+            public void onChanged(@Nullable final List<Deck> decks) {
+                mAllDecks = decks;
+                if (!mJustChanged) {
+                    populateDecks();
+                } else {
+                    mJustChanged = false;
+                }
+            }
+        });
     }
 
     @Override
@@ -75,9 +100,35 @@ public class DeckMenuFragment extends Fragment {
         });
     }
 
+    private void populateDecks() {
+        if (mAllDecks != null) {
+            for (Deck deck : mAllDecks) {
+                Button launchDeckButton = new Button(getContext());
+                final String dName = deck.getName();
+                launchDeckButton.setText(dName);
+                ViewGroup.LayoutParams layoutParams = new LinearLayout.LayoutParams(toDp(200), ViewGroup.LayoutParams.WRAP_CONTENT);
+                launchDeckButton.setLayoutParams(layoutParams);
+                launchDeckButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        resultOfExistingDeck = new Intent(getContext(), DeckHomeActivity.class);
+                        resultOfExistingDeck.putExtra(isNewDeckKey, false);
+                        resultOfExistingDeck.putExtra(deckNameKey, dName);
+                        startActivityForResult(resultOfExistingDeck, 1);
+                    }
+                });
+                decksContainer.addView(launchDeckButton);
+            }
+        }
+        mJustChanged = true;
+    }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode != Activity.RESULT_OK) {
+            return;
+        }
         Bundle extras = data.getExtras();
         if (requestCode == 0 && extras.getBoolean(completedDeckKey)) {
             Button newDeck = new Button(getContext());
@@ -94,6 +145,14 @@ public class DeckMenuFragment extends Fragment {
                 }
             });
             decksContainer.addView(newDeck);
+        }
+
+        /*
+         * Temporary workaround to allow for view & database to update.
+         * By doing this, the TextViews will be populated when we start the DeckHomeActivity.
+         */
+        if (getActivity() != null) {
+            getActivity().recreate();
         }
     }
 
