@@ -52,7 +52,6 @@ public class DeckEditFragment extends Fragment {
     private ArrayList<String> professorNames;
     private ArrayList<String> categoryNames;
     private DocumentReference deck;
-    private CollectionReference deckFlashcards;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

@@ -26,8 +26,16 @@ import android.widget.Toast;
 
 import org.w3c.dom.Text;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class DeckHomeFragment extends Fragment {
     private Button deckViewButton;
@@ -55,6 +63,7 @@ public class DeckHomeFragment extends Fragment {
     private Intent mIntent;
     private Intent sourceIntent;
     private String isNewDeckKey;
+    private DocumentReference deck;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -111,6 +120,7 @@ public class DeckHomeFragment extends Fragment {
             }
         });
         saveButton = (Button) v.findViewById(R.id.save_changes_button);
+        final String deckTitle = deckName.getText().toString();
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -119,6 +129,7 @@ public class DeckHomeFragment extends Fragment {
                     mIntent.putExtra(completedDeckKey, true);
                     mIntent.putExtra(deckNameKey, deckName.getText());
                     getActivity().setResult(Activity.RESULT_OK, mIntent);
+                    addFlashcardToFirebase(deckTitle);
                     updateDatabase(sourceIntent.getBooleanExtra(isNewDeckKey, true));
                     Toast.makeText(getContext(), "Changes saved successfully", Toast.LENGTH_LONG).show();
                     getActivity().finish();
@@ -131,7 +142,15 @@ public class DeckHomeFragment extends Fragment {
     /*
      * adds flashcards to firebase firestore
      */
-    private void addFlashcardToFirebase(String deckName){
+    private void addFlashcardToFirebase(String deckTitle){
+        //getting the deck reference
+        deck = FirebaseFirestore.getInstance().collection("decks").document(deckTitle);
+
+        /*
+         *This map should contain a key called "flashcards", with an object of an ArrayList of
+         * maps that contain each individual flashcard
+         */
+        Map<String, Object> flashcards = new HashMap<String, Object>();
 
     }
 
