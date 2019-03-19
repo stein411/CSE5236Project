@@ -128,6 +128,12 @@ public class DeckHomeFragment extends Fragment {
 
         return v;
     }
+    /*
+     * adds flashcards to firebase firestore
+     */
+    private void addFlashcardToFirebase(String deckName){
+
+    }
 
     /**
      * Updates the local database by either inserting a new deck or updating the existing deck.

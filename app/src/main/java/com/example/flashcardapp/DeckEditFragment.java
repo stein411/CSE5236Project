@@ -220,15 +220,11 @@ public class DeckEditFragment extends Fragment {
     private void addDeckInfoToFirebase(String deckName, String owner, ArrayList<String> professor, int rating, String schoolName) {
         deck = FirebaseFirestore.getInstance().collection("decks").document(deckName);
         Map<String, Object> deckInfo = new HashMap<String, Object>();
-        Map<String, Object[]> deckInfo2 = new HashMap<String, Object[]>();
         deckInfo.put("owner", owner);
         deckInfo.put("name", deckName);
-
         deckInfo.put("professor", professor);
-
         deckInfo.put("rating", rating);
         deckInfo.put("school", schoolName);
-
         deck.set(deckInfo).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
