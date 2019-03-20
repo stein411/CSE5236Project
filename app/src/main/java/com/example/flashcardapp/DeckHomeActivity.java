@@ -18,9 +18,9 @@ public class DeckHomeActivity extends SingleFragmentActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Toolbar myToolbar = findViewById(R.id.my_toolbar);
+        Toolbar toolbar = findViewById(R.id.my_toolbar);
         //TODO reference deck title, "New Deck" as default
-        myToolbar.setTitle("New Deck");
-        setSupportActionBar(myToolbar);
+        toolbar.setTitle("New Deck");
+        setSupportActionBar(toolbar);
     }
 }
