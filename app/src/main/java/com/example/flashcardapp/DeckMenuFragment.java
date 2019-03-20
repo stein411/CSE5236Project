@@ -156,6 +156,11 @@ public class DeckMenuFragment extends Fragment {
             getActivity().finish();
             startActivity(i);
         }
+//        getFragmentManager()
+//                .beginTransaction()
+//                .detach(DeckMenuFragment.this)
+//                .attach(DeckMenuFragment.this)
+//                .commit();
     }
 
     /**
