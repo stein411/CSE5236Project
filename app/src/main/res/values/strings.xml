@@ -48,4 +48,18 @@
     <string name="title_activity_signup">Sign Up</string>
     <string name="account_exists_prompt">Already have an Account?</string>
     <string name="login_prompt"><u>Sign In</u></string>
+    <string name="first_name">First Name</string>
+    <string name="last_name">Last Name</string>
+    <string name="retrieve_password">Retrieve Password</string>
+    <string name="password_retrieval_confirmation">An email containing the password you used was sent to the given email account</string>
+    <string name="prof_deck_home_prompt">Cycle Professor Names</string>
+    <string name="category_deck_home_prompt">Cycle Category Names</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="study_deck_prompt">Study Deck</string>
+    <string name="prompt_username">Username</string>
+    <string name="prompt_name">Name</string>
+    <string name="completed_deck_key">DeckComplete</string>
+    <string name="deck_name_key">DeckName</string>
+    <string name="is_new_deck_key">IsNewDeck</string>
+    <string name="delete">Delete</string>
 </resources>

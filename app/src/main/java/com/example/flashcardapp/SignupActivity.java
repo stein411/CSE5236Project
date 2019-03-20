@@ -3,6 +3,7 @@ package com.example.flashcardapp;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.arch.persistence.room.Room;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
@@ -31,10 +32,18 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+
 import org.w3c.dom.Text;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
@@ -62,10 +71,17 @@ public class SignupActivity extends AppCompatActivity implements LoaderCallbacks
 
     // UI references.
     private AutoCompleteTextView mEmailView;
+    private EditText mNameView;
+    private EditText mUsernameView;
     private EditText mPasswordView;
     private View mProgressView;
     private View mLoginFormView;
     private TextView mLoginLink;
+
+    /*
+    * Will set later when creating user
+    */
+    private DocumentReference user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,6 +108,7 @@ public class SignupActivity extends AppCompatActivity implements LoaderCallbacks
             @Override
             public void onClick(View view) {
                 attemptLogin();
+
             }
         });
 
@@ -106,6 +123,10 @@ public class SignupActivity extends AppCompatActivity implements LoaderCallbacks
                 finish();
             }
         });
+
+        mUsernameView = (EditText) findViewById(R.id.username);
+        mNameView = (EditText) findViewById(R.id.name);
+
     }
 
     private void populateAutoComplete() {
@@ -151,6 +172,26 @@ public class SignupActivity extends AppCompatActivity implements LoaderCallbacks
         }
     }
 
+    public void addToFirebase(String name, String email, String password, String username){
+        user = FirebaseFirestore.getInstance().collection("users").document(username);
+        Map<String, Object> new_user = new HashMap<String, Object>();
+        new_user.put("name", name);
+        new_user.put("email", email);
+        new_user.put("password", password);
+        new_user.put("username", username);
+        user.set(new_user).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Log.d("Success", "Document was successfully added");
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.w("Failed to save to firestore", e);
+            }
+        });
+    }
+
 
     /**
      * Attempts to sign in or register the account specified by the login form.
@@ -165,10 +206,14 @@ public class SignupActivity extends AppCompatActivity implements LoaderCallbacks
         // Reset errors.
         mEmailView.setError(null);
         mPasswordView.setError(null);
+        mNameView.setError(null);
+        mUsernameView.setError(null);
 
         // Store values at the time of the login attempt.
         String email = mEmailView.getText().toString();
         String password = mPasswordView.getText().toString();
+        String username = mUsernameView.getText().toString();
+        String name = mNameView.getText().toString();
 
         boolean cancel = false;
         View focusView = null;
@@ -191,6 +236,13 @@ public class SignupActivity extends AppCompatActivity implements LoaderCallbacks
             cancel = true;
         }
 
+        //TODO check if username is valid and unique
+        if (TextUtils.isEmpty(username)) {
+            mUsernameView.setError(getString(R.string.error_field_required));
+            focusView = mUsernameView;
+            cancel = true;
+        }
+
         if (cancel) {
             // There was an error; don't attempt login and focus the first
             // form field with an error.
@@ -199,6 +251,7 @@ public class SignupActivity extends AppCompatActivity implements LoaderCallbacks
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
+            addToFirebase(name, email, password, username);
             mAuthTask = new UserLoginTask(email, password);
             mAuthTask.execute((Void) null);
         }
@@ -313,6 +366,7 @@ public class SignupActivity extends AppCompatActivity implements LoaderCallbacks
         private final String mEmail;
         private final String mPassword;
 
+
         UserLoginTask(String email, String password) {
             mEmail = email;
             mPassword = password;
@@ -359,6 +413,12 @@ public class SignupActivity extends AppCompatActivity implements LoaderCallbacks
             mAuthTask = null;
             showProgress(false);
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        startActivity(new Intent(getApplicationContext(), LoginActivity.class));
     }
 }
 

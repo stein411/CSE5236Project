@@ -30,6 +30,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.google.firebase.firestore.FirebaseFirestore;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -63,6 +65,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private View mProgressView;
     private View mLoginFormView;
     private TextView mSignupLink;
+    private TextView mForgotPassword;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,6 +107,14 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             public void onClick(View view) {
                 startActivity(new Intent(getApplicationContext(), SignupActivity.class));
                 finish();
+            }
+        });
+
+        mForgotPassword = (TextView) findViewById(R.id.forgot_password);
+        mForgotPassword.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(getApplicationContext(), ForgotPasswordActivity.class));
             }
         });
     }

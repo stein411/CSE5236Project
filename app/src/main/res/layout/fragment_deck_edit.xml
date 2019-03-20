@@ -95,30 +95,6 @@
                 android:id="@+id/professor_1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
-
-                <TextView
-                    android:id="@+id/professor_name_label"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginTop="8dp"
-                    android:labelFor="@id/edit_professor_name"
-                    android:text="@string/ProfessorNameLabel"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <EditText
-                    android:id="@+id/edit_professor_name"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginEnd="16dp"
-                    android:hint="@string/ProfessorString"
-                    android:inputType="text"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/professor_name_label" />
             </android.support.constraint.ConstraintLayout>
         </LinearLayout>
         
@@ -143,34 +119,11 @@
             android:orientation="vertical"
             app:layout_constraintTop_toBottomOf="@+id/add_professor">
 
+
             <android.support.constraint.ConstraintLayout
                 android:id="@+id/category_1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
-
-                <TextView
-                    android:id="@+id/category_name_label"
-                    android:layout_width="wrap_content"
-                    android:layout_height="0dp"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginTop="8dp"
-                    android:labelFor="@id/edit_category"
-                    android:text="@string/CategoryNameLabel"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <EditText
-                    android:id="@+id/edit_category"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginEnd="16dp"
-                    android:hint="@string/CategoryString"
-                    android:inputType="text"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/category_name_label" />
             </android.support.constraint.ConstraintLayout>
         </LinearLayout>
 
