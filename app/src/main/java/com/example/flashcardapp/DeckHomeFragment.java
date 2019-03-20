@@ -69,6 +69,7 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
     private boolean mNeedToUpdateProf;
     private CategoryViewModel mCategoryViewModel;
     private FlashcardViewModel mFlashcardViewModel;
+    private Button studyDeckButton;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -191,6 +192,16 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
             }
         });
 
+        studyDeckButton = v.findViewById(R.id.study_deck_button);
+        studyDeckButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getContext(), StudyDeckActivity.class);
+                intent.putExtra(deckNameKey, deckName.getText().toString());
+                getActivity().startActivity(intent);
+            }
+        });
+
         boolean isNewDeck = sourceIntent.getBooleanExtra(isNewDeckKey, true);
         if (!isNewDeck) {
             // Need to populate the text fields
@@ -206,6 +217,7 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
             }
         } else {
             deleteButton.setEnabled(false);
+            studyDeckButton.setEnabled(false);
         }
 
 

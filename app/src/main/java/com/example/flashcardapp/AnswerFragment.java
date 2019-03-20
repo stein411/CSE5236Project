@@ -1,6 +1,5 @@
 package com.example.flashcardapp;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -10,30 +9,20 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-public class StudyDeckFragment extends Fragment {
+public class AnswerFragment extends Fragment {
     private Button backButton;
-    private Button answerWithTermOrDefButton;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.fragment_study_deck, container, false);
-        backButton = (Button) v.findViewById(R.id.back_button);
+        View v = inflater.inflate(R.layout.fragment_answer, container, false);
+        backButton = v.findViewById(R.id.back_button);
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (getActivity() != null) {
                     getActivity().finish();
                 }
-            }
-        });
-        answerWithTermOrDefButton = (Button) v.findViewById(R.id.answer_term_def_button);
-        answerWithTermOrDefButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getContext(), AnswerActivity.class);
-                //intent.putExtra()
-                getActivity().startActivity(intent);
             }
         });
         return v;
