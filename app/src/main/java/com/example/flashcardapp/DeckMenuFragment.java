@@ -152,7 +152,9 @@ public class DeckMenuFragment extends Fragment {
          * By doing this, the TextViews will be populated when we start the DeckHomeActivity.
          */
         if (getActivity() != null) {
-            getActivity().recreate();
+            Intent i = getActivity().getIntent();
+            getActivity().finish();
+            startActivity(i);
         }
     }
 
