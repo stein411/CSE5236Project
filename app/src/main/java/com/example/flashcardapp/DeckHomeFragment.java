@@ -196,9 +196,6 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
                     mIntent = new Intent();
                     mIntent.putExtra(completedDeckKey, false);
                     getActivity().setResult(Activity.RESULT_OK, mIntent);
-                    updateDatabase(sourceIntent.getBooleanExtra(isNewDeckKey, true));
-                    Toast.makeText(getContext(), "Changes saved successfully", Toast.LENGTH_LONG).show();
-
                     getActivity().finish();
                 }
             }
