@@ -20,6 +20,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -29,13 +30,20 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import static android.Manifest.permission.READ_CONTACTS;
+
 
 /**
  * A login screen that offers login via email/password.
@@ -46,7 +54,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      * Id to identity READ_CONTACTS permission request.
      */
     private static final int REQUEST_READ_CONTACTS = 0;
-
+    private boolean login;
+    private DocumentReference user;
     /**
      * A dummy authentication store containing known user names and passwords.
      * TODO: remove after connecting to a real authentication system.
@@ -66,6 +75,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private View mLoginFormView;
     private TextView mSignupLink;
     private TextView mForgotPassword;
+    private Task<DocumentSnapshot> documentSnapshotTask;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -162,7 +172,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         }
     }
 
-
     /**
      * Attempts to sign in or register the account specified by the login form.
      * If there are form errors (invalid email, missing fields, etc.), the
@@ -215,8 +224,39 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         }
     }
 
+    private void firebaseLogin(String email, String password){
+        final String username = email;
+        final String pw = password;
+        login = false;
+        user = FirebaseFirestore.getInstance().collection("users").document(email);
+        user.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()){
+                    DocumentSnapshot doc = task.getResult();
+                    if (doc.exists()) {
+                        String docUsername = doc.get("username").toString();
+                        String docPassword = doc.get("password").toString();
+                        if (docUsername.equals(username) && docPassword.equals(pw)){
+                            login = true;
+                        }
+                        //compare to user and pass entered
+                        //login?
+                        Log.d("TAG", "user found");
+                    }
+                    else {
+                        Log.d("TAG", "no user");
+                    }
+                }
+                else {
+                    Log.d("TAG", "get failed with ", task.getException());
+                }
+            }
+        });
+    }
     private boolean isEmailValid(String email) {
         //TODO: Replace this with your own logic
+        //return email.length() > 1;
         return email.contains("@");
     }
 
