@@ -133,7 +133,6 @@ public class DeckMenuFragment extends Fragment {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.d(TAG, "onActivityResult() called");
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode != Activity.RESULT_OK) {
             return;
@@ -160,16 +159,16 @@ public class DeckMenuFragment extends Fragment {
          * Temporary workaround to allow for view & database to update.
          * By doing this, the TextViews will be populated when we start the DeckHomeActivity.
          */
-//        if (getActivity() != null) {
-//            Intent i = getActivity().getIntent();
-//            getActivity().finish();
-//            startActivity(i);
-//        }
-        getFragmentManager()
-                .beginTransaction()
-                .detach(DeckMenuFragment.this)
-                .attach(DeckMenuFragment.this)
-                .commit();
+        if (getActivity() != null) {
+            Intent i = getActivity().getIntent();
+            getActivity().finish();
+            startActivity(i);
+        }
+//        getFragmentManager()
+//                .beginTransaction()
+//                .detach(DeckMenuFragment.this)
+//                .attach(DeckMenuFragment.this)
+//                .commit();
     }
 
     /**
