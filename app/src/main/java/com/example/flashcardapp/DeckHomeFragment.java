@@ -197,7 +197,7 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getContext(), StudyDeckActivity.class);
-                intent.putExtra(deckNameKey, deckName.getText().toString());
+                intent.putExtra(deckKey, deckName.getText().toString());
                 getActivity().startActivity(intent);
             }
         });

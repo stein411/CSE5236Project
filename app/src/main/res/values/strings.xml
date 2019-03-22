@@ -66,4 +66,6 @@
     <string name="default_str">Default</string>
     <string name="check_answer">Check Answer</string>
     <string name="shuffle_deck">Shuffle Deck</string>
+    <string name="enter_term">Enter Term</string>
+    <string name="enter_def">Enter Definition</string>
 </resources>
