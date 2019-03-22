@@ -1,24 +1,23 @@
 package com.example.flashcardapp;
 
 import android.app.Activity;
-import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModel;
-import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.Toast;
+
+import com.example.flashcardapp.Activities.DeckHomeActivity;
+import com.example.flashcardapp.Activities.UneditableDeckActivity;
+import com.example.flashcardapp.RoomDatabase.Deck;
 
 import java.util.List;
 
@@ -156,6 +155,11 @@ public class DeckMenuFragment extends Fragment {
             getActivity().finish();
             startActivity(i);
         }
+//        getFragmentManager()
+//                .beginTransaction()
+//                .detach(DeckMenuFragment.this)
+//                .attach(DeckMenuFragment.this)
+//                .commit();
     }
 
     /**

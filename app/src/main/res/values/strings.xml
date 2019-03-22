@@ -62,4 +62,11 @@
     <string name="deck_name_key">DeckName</string>
     <string name="is_new_deck_key">IsNewDeck</string>
     <string name="delete">Delete</string>
+    <string name="answer_with_term_or_def">Answer with Term or Definition</string>
+    <string name="default_str">Default</string>
+    <string name="check_answer">Check Answer</string>
+    <string name="shuffle_deck">Shuffle Deck</string>
+    <string name="enter_term">Enter Term</string>
+    <string name="enter_def">Enter Definition</string>
+    <string name="study_flashcards">Study Flashcards</string>
 </resources>

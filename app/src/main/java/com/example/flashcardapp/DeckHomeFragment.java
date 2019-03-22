@@ -1,8 +1,10 @@
 package com.example.flashcardapp;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -22,7 +24,13 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.w3c.dom.Text;
+import com.example.flashcardapp.Activities.DeckEditActivity;
+import com.example.flashcardapp.Activities.DeckHomeActivity;
+import com.example.flashcardapp.Activities.StudyDeckActivity;
+import com.example.flashcardapp.RoomDatabase.Category;
+import com.example.flashcardapp.RoomDatabase.Deck;
+import com.example.flashcardapp.RoomDatabase.Flashcard;
+import com.example.flashcardapp.RoomDatabase.Professor;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -81,6 +89,7 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
     private boolean mNeedToUpdateProf;
     private CategoryViewModel mCategoryViewModel;
     private FlashcardViewModel mFlashcardViewModel;
+    private Button studyDeckButton;
 
 
     @Override
@@ -165,6 +174,14 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
                         mIntent.putExtra(deckNameKey, deckName.getText());
                         getActivity().setResult(Activity.RESULT_OK, mIntent);
                         Toast.makeText(getContext(), "Changes saved successfully", Toast.LENGTH_LONG).show();
+                        Intent intent = new Intent(getContext(), DeckHomeActivity.class);
+                        Bundle extras = sourceIntent.getExtras();
+                        extras.remove(deckNameKey);
+                        extras.putString(deckNameKey, deckName.getText().toString());
+                        extras.remove(isNewDeckKey);
+                        extras.putBoolean(isNewDeckKey, false);
+                        intent.putExtras(extras);
+                        startActivity(intent);
                         getActivity().finish();
                     }
                 }
@@ -191,23 +208,40 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final String dName = deckName.getText().toString();
-                String coName = courseName.getText().toString();
-                String sName = schoolName.getText().toString();
-                final Deck deck = new Deck(dName);
-                deck.setCourse(coName);
-                deck.setSchool(sName);
+                AlertDialog d = new AlertDialog.Builder(getContext()).setTitle("Flashcards")
+                    .setMessage("Are you sure you want to delete the deck " + dName + "?")
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                            final String dName = deckName.getText().toString();
+                            String coName = courseName.getText().toString();
+                            String sName = schoolName.getText().toString();
+                            final Deck deck = new Deck(dName);
+                            deck.setCourse(coName);
+                            deck.setSchool(sName);
 
-                mFlashcardViewModel.deleteAllFlashcardsInDeck(dName);
-                mDeckViewModel.delete(deck);
+                            mFlashcardViewModel.deleteAllFlashcardsInDeck(dName);
+                            mDeckViewModel.delete(deck);
 
-                mIntent = new Intent();
-                mIntent.putExtra(completedDeckKey, true);
-                mIntent.putExtra(deckNameKey, deckName.getText());
-                getActivity().setResult(Activity.RESULT_OK, mIntent);
+                            mIntent = new Intent();
+                            mIntent.putExtra(completedDeckKey, true);
+                            mIntent.putExtra(deckNameKey, deckName.getText());
+                            getActivity().setResult(Activity.RESULT_OK, mIntent);
 
-                Toast.makeText(getContext(), "Deck was deleted successfully", Toast.LENGTH_LONG).show();
-                getActivity().finish();
+                            Toast.makeText(getContext(), "Deck was deleted successfully", Toast.LENGTH_LONG).show();
+                            getActivity().finish();
+                        }
+                    }).setNegativeButton(android.R.string.no, null).show();
+            }
+        });
+
+        studyDeckButton = v.findViewById(R.id.study_deck_button);
+        studyDeckButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getContext(), StudyDeckActivity.class);
+                intent.putExtra(deckKey, deckName.getText().toString());
+                getActivity().startActivity(intent);
             }
         });
 
@@ -226,6 +260,7 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
             }
         } else {
             deleteButton.setEnabled(false);
+            studyDeckButton.setEnabled(false);
         }
 
 
@@ -371,7 +406,10 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
                 flashcard.setDeckName(dName);
                 flashcard.setTerm(termTxt);
                 flashcard.setDefinition(defTxt);
-                mFlashcardViewModel.insert(flashcard);
+                if (flashcard.getTerm().length() > 0) {
+                    // Don't allow flashcards with empty terms
+                    mFlashcardViewModel.insert(flashcard);
+                }
             }
 
 

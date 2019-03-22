@@ -1,4 +1,4 @@
-package com.example.flashcardapp;
+package com.example.flashcardapp.RoomDatabase;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.persistence.room.Dao;

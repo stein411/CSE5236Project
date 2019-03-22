@@ -1,4 +1,4 @@
-package com.example.flashcardapp;
+package com.example.flashcardapp.RoomDatabase;
 
 import android.app.Application;
 import android.arch.lifecycle.LiveData;
@@ -11,7 +11,7 @@ public class DeckRepository {
     private LiveData<List<Deck>> mAllDecks;
 
 
-    DeckRepository(Application application) {
+    public DeckRepository(Application application) {
         DeckRoomDatabase db = DeckRoomDatabase.getDatabase(application);
         mDeckDao = db.deckDao();
         mAllDecks = mDeckDao.getAllDecks();

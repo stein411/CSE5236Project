@@ -1,4 +1,4 @@
-package com.example.flashcardapp;
+package com.example.flashcardapp.RoomDatabase;
 
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;

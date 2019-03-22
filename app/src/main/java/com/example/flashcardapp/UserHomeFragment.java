@@ -8,6 +8,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import com.example.flashcardapp.Activities.DeckMenuActivity;
+import com.example.flashcardapp.Activities.MapsActivity;
+import com.example.flashcardapp.Activities.SearchActivity;
+
 public class UserHomeFragment extends Fragment {
     private Button myDecksButton;
     private Button searchDecksButton;
