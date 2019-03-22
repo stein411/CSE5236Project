@@ -3,7 +3,9 @@ package com.example.flashcardapp;
 import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.ViewModel;
+
+import com.example.flashcardapp.RoomDatabase.Professor;
+import com.example.flashcardapp.RoomDatabase.ProfessorRepository;
 
 import java.util.List;
 

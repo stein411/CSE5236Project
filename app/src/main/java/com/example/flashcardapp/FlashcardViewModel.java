@@ -4,6 +4,9 @@ import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
 
+import com.example.flashcardapp.RoomDatabase.Flashcard;
+import com.example.flashcardapp.RoomDatabase.FlashcardRepository;
+
 import java.util.List;
 
 public class FlashcardViewModel extends AndroidViewModel {

@@ -35,12 +35,12 @@
             android:value="@string/google_maps_key" />
 
         <activity
-            android:name=".MapsActivity"
+            android:name=".Activities.MapsActivity"
             android:label="@string/title_activity_maps"></activity>
         <activity
             android:name=".SignupActivity"
             android:label="@string/title_activity_signup" />
-        <activity android:name=".MainEmptyActivity">
+        <activity android:name=".Activities.MainEmptyActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -50,15 +50,15 @@
         <activity
             android:name=".LoginActivity"
             android:label="@string/title_activity_login" />
-        <activity android:name=".UserHomeActivity" />
-        <activity android:name=".DeckEditActivity" />
-        <activity android:name=".DeckMenuActivity" />
-        <activity android:name=".DeckHomeActivity" />
-        <activity android:name=".ForgotPasswordActivity" />
-        <activity android:name=".SearchActivity" />
-        <activity android:name=".UneditableDeckActivity" />
-        <activity android:name=".StudyDeckActivity" />
-        <activity android:name=".AnswerActivity" />
+        <activity android:name=".Activities.UserHomeActivity" />
+        <activity android:name=".Activities.DeckEditActivity" />
+        <activity android:name=".Activities.DeckMenuActivity" />
+        <activity android:name=".Activities.DeckHomeActivity" />
+        <activity android:name=".Activities.ForgotPasswordActivity" />
+        <activity android:name=".Activities.SearchActivity" />
+        <activity android:name=".Activities.UneditableDeckActivity" />
+        <activity android:name=".Activities.StudyDeckActivity" />
+        <activity android:name=".Activities.AnswerActivity" />
     </application>
 
 </manifest>

@@ -1,4 +1,4 @@
-package com.example.flashcardapp;
+package com.example.flashcardapp.RoomDatabase;
 
 import android.app.Application;
 import android.arch.lifecycle.LiveData;
@@ -9,7 +9,7 @@ import java.util.List;
 public class CategoryRepository {
     private CategoryDao mCategoryDao;
 
-    CategoryRepository(Application application) {
+    public CategoryRepository(Application application) {
         DeckRoomDatabase db = DeckRoomDatabase.getDatabase(application);
         mCategoryDao = db.categoryDao();
     }

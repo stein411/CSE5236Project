@@ -23,7 +23,13 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.w3c.dom.Text;
+import com.example.flashcardapp.Activities.DeckEditActivity;
+import com.example.flashcardapp.Activities.DeckHomeActivity;
+import com.example.flashcardapp.Activities.StudyDeckActivity;
+import com.example.flashcardapp.RoomDatabase.Category;
+import com.example.flashcardapp.RoomDatabase.Deck;
+import com.example.flashcardapp.RoomDatabase.Flashcard;
+import com.example.flashcardapp.RoomDatabase.Professor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -151,14 +157,6 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
                         mIntent.putExtra(deckNameKey, deckName.getText());
                         getActivity().setResult(Activity.RESULT_OK, mIntent);
                         Toast.makeText(getContext(), "Changes saved successfully", Toast.LENGTH_LONG).show();
-                        deleteButton.setEnabled(true);
-                        if (termIds.size() > 0) {
-                            // We now have flashcards, enable studying
-                            studyDeckButton.setEnabled(true);
-                        } else {
-                            // Empty deck, disable studying
-                            studyDeckButton.setEnabled(false);
-                        }
                         Intent intent = new Intent(getContext(), DeckHomeActivity.class);
                         Bundle extras = sourceIntent.getExtras();
                         extras.remove(deckNameKey);

@@ -1,9 +1,11 @@
-package com.example.flashcardapp;
+package com.example.flashcardapp.Activities;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
+
+import com.example.flashcardapp.R;
 
 public abstract class SingleFragmentActivity extends AppCompatActivity {
     protected abstract Fragment createFragment();

@@ -4,6 +4,9 @@ import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
 
+import com.example.flashcardapp.RoomDatabase.Deck;
+import com.example.flashcardapp.RoomDatabase.DeckRepository;
+
 import java.util.List;
 
 public class DeckViewModel extends AndroidViewModel {

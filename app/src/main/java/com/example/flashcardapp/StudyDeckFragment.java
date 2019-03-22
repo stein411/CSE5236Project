@@ -12,6 +12,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import com.example.flashcardapp.Activities.AnswerActivity;
+import com.example.flashcardapp.RoomDatabase.Flashcard;
+
 import java.util.List;
 
 public class StudyDeckFragment extends Fragment {
