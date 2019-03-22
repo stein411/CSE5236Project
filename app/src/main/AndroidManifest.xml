@@ -59,6 +59,7 @@
         <activity android:name=".Activities.UneditableDeckActivity" />
         <activity android:name=".Activities.StudyDeckActivity" />
         <activity android:name=".Activities.AnswerActivity" />
+        <activity android:name=".Activities.FlashcardsActivity" />
     </application>
 
 </manifest>

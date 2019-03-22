@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.example.flashcardapp.Activities.AnswerActivity;
+import com.example.flashcardapp.Activities.FlashcardsActivity;
 import com.example.flashcardapp.RoomDatabase.Flashcard;
 
 import java.util.List;
@@ -20,6 +21,7 @@ import java.util.List;
 public class StudyDeckFragment extends Fragment {
     private Button backButton;
     private Button answerWithTermOrDefButton;
+    private Button flashcardsButton;
     private String deckKey;
     private String deckName;
     private FlashcardViewModel mFlashcardViewModel;
@@ -50,18 +52,31 @@ public class StudyDeckFragment extends Fragment {
                 getActivity().startActivity(intent);
             }
         });
+        flashcardsButton = (Button) v.findViewById(R.id.flashcards_button);
+        flashcardsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getContext(), FlashcardsActivity.class);
+                if (deckName != null) {
+                    intent.putExtra(deckKey, deckName);
+                }
+                getActivity().startActivity(intent);
+            }
+        });
 
         if (deckName == null) {
             answerWithTermOrDefButton.setEnabled(false);
+            flashcardsButton.setEnabled(false);
         }
 
-        // Check if no flashcards (disable if that's the case)
+        // Check if no flashcards (disable all studying activities if that's the case)
         mFlashcardViewModel = ViewModelProviders.of(this).get(FlashcardViewModel.class);
         mFlashcardViewModel.getAllFlashcardsFromDeck(deckName).observe(this, new Observer<List<Flashcard>>() {
             @Override
             public void onChanged(@Nullable List<Flashcard> flashcards) {
                 if (flashcards.size() == 0) {
                     answerWithTermOrDefButton.setEnabled(false);
+                    flashcardsButton.setEnabled(false);
                 }
             }
         });
