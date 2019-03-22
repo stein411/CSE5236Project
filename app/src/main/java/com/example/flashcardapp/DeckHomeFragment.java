@@ -10,6 +10,7 @@ import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.constraint.ConstraintSet;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -154,6 +155,9 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
                 if (getActivity() != null) {
                     updateDatabase(sourceIntent.getBooleanExtra(isNewDeckKey, true));
 
+                    //I used deckTitle2 since deckTitle is "Deck Name" permanently for some reason
+                    final String deckTitle2 = deckName.getText().toString();
+                    addFlashcardToFirebase(deckTitle2);
                     if (updatedDb) {
                         // TODO debug situation where adding new deck need to click twice
                         mIntent = new Intent();
@@ -175,8 +179,6 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
                     mIntent = new Intent();
                     mIntent.putExtra(completedDeckKey, false);
                     getActivity().setResult(Activity.RESULT_OK, mIntent);
-
-                    addFlashcardToFirebase(deckTitle);
                     updateDatabase(sourceIntent.getBooleanExtra(isNewDeckKey, true));
                     Toast.makeText(getContext(), "Changes saved successfully", Toast.LENGTH_LONG).show();
 
@@ -239,9 +241,43 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
 
         /*
          *This map should contain a key called "flashcards", with an object of an ArrayList of
-         * maps that contain each individual flashcard
+         * maps that contain each individual flashcard.
+         * So, Map holds the arraylist which holds a bunch of maps
          */
         Map<String, Object> flashcards = new HashMap<String, Object>();
+
+        /*
+         * The arraylist to hold all the maps, each map is 1 flashcard
+         */
+        List<Map> allTheFlashcards = new ArrayList<>();
+
+        /*
+         * Getting flashcards and filling in each map in the arraylist
+         */
+        for (int i = 0; i < termIds.size(); i++) {
+
+            String termTxt = ((TextView) getView().findViewById(termIds.get(i))).getText().toString();
+            String defTxt = ((TextView) getView().findViewById(defIds.get(i))).getText().toString();
+            Map<String, String> flashcard = new HashMap<String, String>();
+            flashcard.put(termTxt, defTxt);
+            allTheFlashcards.add(flashcard);
+        }
+
+        /*
+         * Now I'm adding the arraylist to the map that I will add to firebase
+         */
+        flashcards.put("flashcards", allTheFlashcards);
+        deck.update(flashcards).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Log.d("Success", "Document was successfully added");
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.w("Failed to save to firestore", e);
+            }
+        });
 
     }
 
@@ -327,7 +363,7 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
                 category.setDeckName(dName);
                 mCategoryViewModel.insert(category);
             }
-
+            //edmond look here
             for (int i = 0; i < termIds.size(); i++) {
                 String termTxt = ((TextView) getView().findViewById(termIds.get(i))).getText().toString();
                 String defTxt = ((TextView) getView().findViewById(defIds.get(i))).getText().toString();
