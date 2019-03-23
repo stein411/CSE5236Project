@@ -20,11 +20,16 @@ public class UneditableDeckFragment extends Fragment {
     private int mRating;
     private Button studyDeckButton;
     private Button backButton;
+    private String deckKey;
+    private String deckName;
+    private TextView deckNameLabel;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_uneditable_deck, container, false);
+        deckKey = getString(R.string.NameString);
+        deckName = getActivity().getIntent().getStringExtra(deckKey);
         ratingsText = (TextView) v.findViewById(R.id.ratings_input);
         ratingsBar = (SeekBar) v.findViewById(R.id.ratings_bar);
         studyDeckButton = (Button) v.findViewById(R.id.study_deck_button);
@@ -45,6 +50,10 @@ public class UneditableDeckFragment extends Fragment {
                 }
             }
         });
+        deckNameLabel = (TextView) v.findViewById(R.id.deck_name_label);
+        if (deckName != null) {
+            deckNameLabel.setText(deckName);
+        }
         return v;
     }
 
