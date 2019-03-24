@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.view.menu.MenuView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -17,9 +18,17 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.flashcardapp.Activities.SearchActivity;
 import com.example.flashcardapp.Activities.UneditableDeckActivity;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 
 import java.util.ArrayList;
@@ -29,6 +38,8 @@ public class SearchFragment extends Fragment {
     private ListView decksList;
     private ArrayAdapter<String> adapter;
     private String deckKey;
+    private CollectionReference decksCollection;
+    private ArrayList<String> decks;
 
     @Nullable
     @Override
@@ -44,9 +55,21 @@ public class SearchFragment extends Fragment {
                 startActivity(intent);
             }
         });
-        ArrayList<String> decks = new ArrayList<>();
-        String[] dummyData = {"Deck1", "Deck2", "Deck3", "Deck4", "Deck5"};
-        decks.addAll(Arrays.asList(dummyData));
+        decks = new ArrayList<>();
+        decksCollection = FirebaseFirestore.getInstance().collection("decks");
+        decksCollection.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        if (document != null && document.get("name") != null) {
+                            decks.add(document.get("name").toString());
+                            decksList.requestLayout();
+                        }
+                    }
+                }
+            }
+        });
         adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1, decks);
         decksList.setAdapter(adapter);
         setHasOptionsMenu(true);
