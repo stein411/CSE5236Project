@@ -158,6 +158,7 @@ public class DeckEditFragment extends Fragment {
                         mIntent.putExtra(schoolKey, schoolKey);
                     }
 
+                    professorNames = new ArrayList<>();
                     for (int i = 0; i < professorIds.size(); i++) {
                         int profId = professorIds.get(i);
 
@@ -171,6 +172,7 @@ public class DeckEditFragment extends Fragment {
                         }
                     }
 
+                    categoryNames = new ArrayList<>();
                     for (int i = 0; i < categoryIds.size(); i++) {
                         int categoryId = categoryIds.get(i);
 
