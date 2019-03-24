@@ -229,24 +229,24 @@ public class DeckEditFragment extends Fragment {
      * This is NOT adding the flashcards just yet.
      */
     private void addDeckInfoToFirebase(String deckName, String owner, ArrayList<String> professor, int rating, String schoolName) {
-        deck = FirebaseFirestore.getInstance().collection("decks").document(deckName);
-        Map<String, Object> deckInfo = new HashMap<String, Object>();
-        deckInfo.put("owner", owner);
-        deckInfo.put("name", deckName);
-        deckInfo.put("professor", professor);
-        deckInfo.put("rating", rating);
-        deckInfo.put("school", schoolName);
-        deck.set(deckInfo).addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                Log.d("Success", "Document was successfully added");
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Log.w("Failed to save to firestore", e);
-            }
-        });
+//        deck = FirebaseFirestore.getInstance().collection("decks").document(deckName);
+//        Map<String, Object> deckInfo = new HashMap<String, Object>();
+//        deckInfo.put("owner", owner);
+//        deckInfo.put("name", deckName);
+//        deckInfo.put("professor", professor);
+//        deckInfo.put("rating", rating);
+//        deckInfo.put("school", schoolName);
+//        deck.set(deckInfo).addOnSuccessListener(new OnSuccessListener<Void>() {
+//            @Override
+//            public void onSuccess(Void aVoid) {
+//                Log.d("Success", "Document was successfully added");
+//            }
+//        }).addOnFailureListener(new OnFailureListener() {
+//            @Override
+//            public void onFailure(@NonNull Exception e) {
+//                Log.w("Failed to save to firestore", e);
+//            }
+//        });
     }
 
     /**
