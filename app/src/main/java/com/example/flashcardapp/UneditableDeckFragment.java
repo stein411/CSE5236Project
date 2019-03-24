@@ -50,6 +50,8 @@ public class UneditableDeckFragment extends Fragment {
                 }
             }
         });
+
+        // Display the correct deck name
         deckNameLabel = (TextView) v.findViewById(R.id.deck_name_label);
         if (deckName != null) {
             deckNameLabel.setText(deckName);

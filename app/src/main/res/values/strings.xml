@@ -69,4 +69,7 @@
     <string name="enter_term">Enter Term</string>
     <string name="enter_def">Enter Definition</string>
     <string name="study_flashcards">Study Flashcards</string>
+    <string name="ratings_label">Rate this Deck</string>
+    <string name="post_rating">Post Rating</string>
+    <string name="download_deck">Download Deck</string>
 </resources>

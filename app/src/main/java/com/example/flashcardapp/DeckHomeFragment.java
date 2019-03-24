@@ -19,6 +19,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -196,8 +197,6 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
                     mIntent = new Intent();
                     mIntent.putExtra(completedDeckKey, false);
                     getActivity().setResult(Activity.RESULT_OK, mIntent);
-                    updateDatabase(sourceIntent.getBooleanExtra(isNewDeckKey, true));
-                    Toast.makeText(getContext(), "Changes saved successfully", Toast.LENGTH_LONG).show();
 
                     getActivity().finish();
                 }
@@ -208,8 +207,12 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                String deckName1 = dName;
+                if (deckName != null) {
+                    deckName1 = deckName.getText().toString();
+                }
                 AlertDialog d = new AlertDialog.Builder(getContext()).setTitle("Flashcards")
-                    .setMessage("Are you sure you want to delete the deck " + dName + "?")
+                    .setMessage("Are you sure you want to delete the deck " + deckName1 + "?")
                     .setIcon(android.R.drawable.ic_dialog_alert)
                     .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int whichButton) {
@@ -328,6 +331,9 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
     private class ProfessorObserver implements Observer<List<Professor>> {
         @Override
         public void onChanged(@Nullable List<Professor> professors) {
+            if (professors.size() == 0) {
+                profName.setText(getString(R.string.prof_deck_home_prompt));
+            }
             for (Professor professor : professors) {
                 profNames.add(professor.getProfessorName());
             }
@@ -337,6 +343,9 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
     private class CategoryObserver implements Observer<List<Category>> {
         @Override
         public void onChanged(@Nullable List<Category> categories) {
+            if (categories.size() == 0) {
+                categoryName.setText(getString(R.string.category_deck_home_prompt));
+            }
             for (Category category : categories) {
                 categoryNames.add(category.getCategoryName());
             }
@@ -478,9 +487,15 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
             // Set the professor and category names based on the given strings
             if (extras.getStringArrayList(professorKey) != null) {
                 profNames = extras.getStringArrayList(professorKey);
+                if (profNames.size() == 0) {
+                    profName.setText(getString(R.string.prof_deck_home_prompt));
+                }
             }
             if (extras.getStringArrayList(categoryKey) != null) {
                 categoryNames = extras.getStringArrayList(categoryKey);
+                if (categoryNames.size() == 0) {
+                    categoryName.setText(getString(R.string.category_deck_home_prompt));
+                }
             }
 
         }
@@ -528,7 +543,7 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
             definition.setText(defTxt);
 
             ImageView deleteIcon = new ImageView(getContext());
-            deleteIcon.setImageResource(android.R.drawable.ic_delete);
+            deleteIcon.setImageResource(android.R.drawable.ic_menu_delete);
             ViewGroup.LayoutParams iconParams = new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             ((ConstraintLayout.LayoutParams) iconParams).setMargins(toDp(10), toDp(8), toDp(8), toDp(8));
             deleteIcon.setLayoutParams(iconParams);

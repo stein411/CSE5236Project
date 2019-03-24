@@ -16,6 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -39,6 +40,7 @@ public class DeckEditFragment extends Fragment {
     private Button saveChangesButton;
     private Button addProfessorButton;
     private Button addCategoryButton;
+    private Button backButton;
     private Intent mIntent;
     private Intent sourceIntent;
     private ArrayList<Integer> professorIds;
@@ -185,9 +187,15 @@ public class DeckEditFragment extends Fragment {
                     mIntent.putStringArrayListExtra(categoryKey, categoryNames);
                     addDeckInfoToFirebase(deckTitle, "owner", professorNames, 0, schoolTitle);
                     getActivity().setResult(Activity.RESULT_OK, mIntent);
-                    getActivity().finish();
                 }
                 Toast.makeText(getContext(), "Changes saved successfully", Toast.LENGTH_LONG).show();
+            }
+        });
+        backButton = (Button) getView().findViewById(R.id.back_button);
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                getActivity().finish();
             }
         });
 
@@ -251,7 +259,7 @@ public class DeckEditFragment extends Fragment {
      * @param context
      *          the context for the activity
      */
-    public void addProfOrCategoryButton(boolean isProf, View v, Context context) {
+    public void addProfOrCategoryButton(final boolean isProf, View v, Context context) {
         int linearLayoutId;
         int lblTxtKey;
         int hintTxtKey;
@@ -271,7 +279,7 @@ public class DeckEditFragment extends Fragment {
             // Create a new layout
             ConstraintLayout layout = new ConstraintLayout(context);
             layout.setLayoutParams(new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-            int layoutId = View.generateViewId();
+            final int layoutId = View.generateViewId();
             layout.setId(layoutId);
 
             // Setup the widgets
@@ -285,11 +293,40 @@ public class DeckEditFragment extends Fragment {
 
             EditText editText = new EditText(context);
             editText.setHint(hintTxtKey);
-            ViewGroup.LayoutParams layoutParams = new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            ((ConstraintLayout.LayoutParams) layoutParams).setMargins(toDp(16), toDp(8), toDp(16), 0);
+            ViewGroup.LayoutParams layoutParams = new ConstraintLayout.LayoutParams(toDp(312), ViewGroup.LayoutParams.WRAP_CONTENT);
+            ((ConstraintLayout.LayoutParams) layoutParams).setMargins(toDp(16), toDp(8), toDp(8), 0);
             editText.setLayoutParams(layoutParams);
-            int editTxtId = View.generateViewId();
+            final int editTxtId = View.generateViewId();
             editText.setId(editTxtId);
+
+            ImageView deleteIcon = new ImageView(getContext());
+            deleteIcon.setImageResource(android.R.drawable.ic_menu_delete);
+            ViewGroup.LayoutParams iconParams = new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            ((ConstraintLayout.LayoutParams) iconParams).setMargins(toDp(8), toDp(12), toDp(8), 0);
+            deleteIcon.setLayoutParams(iconParams);
+            int iconId = View.generateViewId();
+            deleteIcon.setId(iconId);
+            deleteIcon.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    ConstraintLayout cl = getView().findViewById(layoutId);
+                    LinearLayout container;
+                    if (isProf) {
+                        container = getView().findViewById(R.id.professor_container);
+                        professorIds.remove(professorIds.get(professorIds.indexOf(editTxtId)));
+                    } else {
+                        container = getView().findViewById(R.id.category_container);
+                        categoryIds.remove(categoryIds.get(categoryIds.indexOf(editTxtId)));
+                    }
+
+                    // Clear the constraint layout
+                    cl.removeAllViews();
+
+                    // Remove the constraint layout
+                    container.removeView(cl);
+                }
+            });
+            layout.addView(deleteIcon);
 
             if (isProf) {
                 professorIds.add(editTxtId);
@@ -309,8 +346,10 @@ public class DeckEditFragment extends Fragment {
             constraintSet.connect(lblId, ConstraintSet.START, layoutId, ConstraintSet.START);
             constraintSet.connect(editTxtId, ConstraintSet.BOTTOM, layoutId, ConstraintSet.BOTTOM);
             constraintSet.connect(editTxtId, ConstraintSet.START, layoutId, ConstraintSet.START);
-            constraintSet.connect(editTxtId, ConstraintSet.END, layoutId, ConstraintSet.END);
             constraintSet.connect(editTxtId, ConstraintSet.TOP, lblId, ConstraintSet.BOTTOM);
+            constraintSet.connect(iconId, ConstraintSet.TOP, lblId, ConstraintSet.BOTTOM);
+            constraintSet.connect(iconId, ConstraintSet.START, editTxtId, ConstraintSet.END);
+            constraintSet.connect(iconId, ConstraintSet.END, layoutId, ConstraintSet.END);
 
             // Apply constraints
             constraintSet.applyTo(layout);
