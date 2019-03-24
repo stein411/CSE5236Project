@@ -528,8 +528,6 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
     }
 
     public void addFlashcard(String termTxt, String defTxt) {
-
-
         LinearLayout ll = (LinearLayout) getView().findViewById(R.id.flashcards_container);
         if (ll != null) {
             // Create a new layout
