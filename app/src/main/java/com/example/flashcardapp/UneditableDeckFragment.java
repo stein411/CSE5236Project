@@ -22,6 +22,8 @@ import android.widget.Toast;
 import com.example.flashcardapp.Activities.StudyDeckActivity;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -48,6 +50,7 @@ public class UneditableDeckFragment extends Fragment {
     private TextView courseNameLabel;
     private TextView professorNameLabel;
     private TextView categoryNameLabel;
+    private TextView authorNameLabel;
     private ArrayList<String> profNames;
     private ArrayList<String> categoryNames;
     private List<String> terms;
@@ -124,6 +127,9 @@ public class UneditableDeckFragment extends Fragment {
                 }
             }
         });
+        authorNameLabel = (TextView) v.findViewById(R.id.author_name_label);
+
+
         ratingsButton = (Button) v.findViewById(R.id.post_rating);
 
         // TODO once ratings are working, modify this
@@ -185,6 +191,9 @@ public class UneditableDeckFragment extends Fragment {
                                     }
                                 }
                                 addFlashcardsToView();
+                            }
+                            if (documentSnapshot.get("owner") != null) {
+                                authorNameLabel.setText("Deck Made By: " + documentSnapshot.get("owner"));
                             }
                         }
                     }

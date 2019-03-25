@@ -1,5 +1,6 @@
 package com.example.flashcardapp;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -22,6 +23,7 @@ import android.widget.Toast;
 
 import com.example.flashcardapp.Activities.SearchActivity;
 import com.example.flashcardapp.Activities.UneditableDeckActivity;
+import com.example.flashcardapp.RoomDatabase.Deck;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
@@ -36,10 +38,10 @@ import java.util.Arrays;
 
 public class SearchFragment extends Fragment {
     private ListView decksList;
-    private ArrayAdapter<String> adapter;
+    private DeckAdapter adapter;
     private String deckKey;
     private CollectionReference decksCollection;
-    private ArrayList<String> decks;
+    private ArrayList<Deck> decks;
 
     @Nullable
     @Override
@@ -49,7 +51,8 @@ public class SearchFragment extends Fragment {
         decksList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                String text = decksList.getItemAtPosition(i).toString().trim();
+                Deck item = (Deck) decksList.getItemAtPosition(i);
+                String text = item.getName();
                 Intent intent = new Intent(getContext(), UneditableDeckActivity.class);
                 intent.putExtra(deckKey, text);
                 startActivity(intent);
@@ -64,7 +67,12 @@ public class SearchFragment extends Fragment {
                     Log.d("FirebaseTest101", "Accessing firebase");
                     for (QueryDocumentSnapshot document : task.getResult()) {
                         if (document != null && document.get("name") != null) {
-                            decks.add(document.get("name").toString());
+                            Deck deck = new Deck(document.get("name").toString());
+
+                            if (document.get("owner") != null) {
+                                deck.setOwnerEmail(document.get("owner").toString());
+                            }
+                            decks.add(deck);
                             decksList.requestLayout();
                         }
                     }
@@ -73,11 +81,50 @@ public class SearchFragment extends Fragment {
                 }
             }
         });
-        adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1, decks);
+        adapter = new DeckAdapter(getContext(), R.layout.deck_list_item, decks);
         decksList.setAdapter(adapter);
         setHasOptionsMenu(true);
         deckKey = getString(R.string.NameString);
         return v;
+    }
+
+    public class DeckAdapter extends ArrayAdapter<Deck> {
+        private ArrayList<Deck> items;
+        private DeckViewHolder deckHolder;
+
+        private class DeckViewHolder {
+            TextView name;
+            TextView ownerName;
+        }
+
+        public DeckAdapter(Context context, int resId, ArrayList<Deck> items) {
+            super(context, resId, items);
+            this.items = items;
+        }
+
+        @Override
+        public View getView(int pos, View convertView, ViewGroup parent) {
+            View v = convertView;
+            if (v == null) {
+                LayoutInflater vi = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                v = vi.inflate(R.layout.deck_list_item, null);
+                deckHolder = new DeckViewHolder();
+                deckHolder.name = (TextView) v.findViewById(R.id.deck_name);
+                deckHolder.ownerName = (TextView) v.findViewById(R.id.deck_owner_name);
+                v.setTag(deckHolder);
+            } else {
+                deckHolder = (DeckViewHolder) v.getTag();
+            }
+
+            Deck deck = items.get(pos);
+
+            if (deck != null) {
+                deckHolder.name.setText(deck.getName());
+                deckHolder.ownerName.setText("Made by " + deck.getOwnerEmail());
+            }
+
+            return v;
+        }
     }
 
     @Override
