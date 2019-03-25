@@ -25,6 +25,10 @@ public class DeckRepository {
         return mDeckDao.getDeckWithGivenName(dName);
     }
 
+    public LiveData<List<Deck>> getDecksByOwnerEmail(String email) {
+        return mDeckDao.getAllDecksByOwnerEmail(email);
+    }
+
     public void insert (Deck deck) {
         new insertAsyncTask(mDeckDao).execute(deck);
     }

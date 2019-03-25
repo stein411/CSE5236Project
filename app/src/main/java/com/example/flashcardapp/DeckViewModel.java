@@ -32,6 +32,10 @@ public class DeckViewModel extends AndroidViewModel {
         return mRepository.getDeckWithGivenName(name);
     }
 
+    LiveData<List<Deck>> getDecksByOwnerEmail(String email) {
+        return mRepository.getDecksByOwnerEmail(email);
+    }
+
     public void insert(Deck deck) {
         mRepository.insert(deck);
     }

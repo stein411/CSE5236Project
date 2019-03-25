@@ -35,6 +35,8 @@ import com.example.flashcardapp.RoomDatabase.Professor;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -196,7 +198,6 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
                     mIntent = new Intent();
                     mIntent.putExtra(completedDeckKey, false);
                     getActivity().setResult(Activity.RESULT_OK, mIntent);
-
                     getActivity().finish();
                 }
             }
@@ -221,7 +222,12 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
                             final Deck deck = new Deck(dName);
                             deck.setCourse(coName);
                             deck.setSchool(sName);
-
+                            String email = "guest";
+                            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                            if (user != null && user.getEmail() != null) {
+                                email = user.getEmail();
+                            }
+                            deck.setOwnerEmail(email);
                             mFlashcardViewModel.deleteAllFlashcardsInDeck(dName);
                             mDeckViewModel.delete(deck);
 
@@ -269,6 +275,35 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
 
         return v;
     }
+
+
+    /**
+     * Adding deck information to firebase.
+     * This is NOT adding the flashcards just yet.
+     */
+    private void addDeckInfoToFirebase(String deckName, String owner, ArrayList<String> professor, ArrayList<String> category, int rating, String courseName, String schoolName) {
+        deck = FirebaseFirestore.getInstance().collection("decks").document(deckName);
+        Map<String, Object> deckInfo = new HashMap<String, Object>();
+        deckInfo.put("owner", owner);
+        deckInfo.put("name", deckName);
+        deckInfo.put("professor", professor);
+        deckInfo.put("category", category);
+        deckInfo.put("rating", rating);
+        deckInfo.put("course", courseName);
+        deckInfo.put("school", schoolName);
+        deck.set(deckInfo).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Log.d("Success", "Document was successfully added");
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.w("Failed to save to firestore", e);
+            }
+        });
+    }
+
     /*
      * adds flashcards to firebase firestore
      */
@@ -362,6 +397,12 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
             final Deck deck = new Deck(dName);
             deck.setCourse(coName);
             deck.setSchool(sName);
+            String email = "guest";
+            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+            if (user != null && user.getEmail() != null) {
+                email = user.getEmail();
+            }
+            deck.setOwnerEmail(email);
 
             mDeckViewModel.getSelectDecks(dName).observe(this, new Observer<List<Deck>>() {
                 @Override
@@ -386,6 +427,12 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
             final Deck deck = new Deck(dName);
             deck.setCourse(coName);
             deck.setSchool(sName);
+            String email = "guest";
+            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+            if (user != null && user.getEmail() != null) {
+                email = user.getEmail();
+            }
+            deck.setOwnerEmail(email);
 
             mFlashcardViewModel.deleteAllFlashcardsInDeck(oldDeck.getName());
             mProfessorViewModel.deleteAllProfessorsInDeck(oldDeck.getName());
@@ -498,33 +545,6 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
             }
 
         }
-    }
-
-    /**
-     * Adding deck information to firebase.
-     * This is NOT adding the flashcards just yet.
-     */
-    private void addDeckInfoToFirebase(String deckName, String owner, ArrayList<String> professor, ArrayList<String> category, int rating, String sName, String cName) {
-        deck = FirebaseFirestore.getInstance().collection("decks").document(deckName);
-        Map<String, Object> deckInfo = new HashMap<String, Object>();
-        deckInfo.put("owner", owner);
-        deckInfo.put("name", deckName);
-        deckInfo.put("professor", professor);
-        deckInfo.put("category", category);
-        deckInfo.put("rating", rating);
-        deckInfo.put("school", sName);
-        deckInfo.put("course", cName);
-        deck.set(deckInfo).addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                Log.d("Success", "Document was successfully added");
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Log.w("Failed to save to firestore", e);
-            }
-        });
     }
 
     public void addFlashcard(String termTxt, String defTxt) {
