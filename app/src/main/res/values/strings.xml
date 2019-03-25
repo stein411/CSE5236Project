@@ -73,4 +73,5 @@
     <string name="post_rating">Post Rating</string>
     <string name="download_deck">Download Deck</string>
     <string name="sign_out_prompt">Sign Out</string>
+    <string name="is_firebase_deck_key">IsFirebaseDeck</string>
 </resources>

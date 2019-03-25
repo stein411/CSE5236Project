@@ -38,8 +38,11 @@ public class UneditableDeckFragment extends Fragment {
     private int mRating;
     private Button studyDeckButton;
     private Button backButton;
+    private Button ratingsButton;
+    private Button downloadDeckButton;
     private String deckKey;
     private String deckName;
+    private String isFirebaseDeckKey;
     private TextView deckNameLabel;
     private TextView schoolNameLabel;
     private TextView courseNameLabel;
@@ -61,6 +64,7 @@ public class UneditableDeckFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_uneditable_deck, container, false);
         deckKey = getString(R.string.NameString);
         deckName = getActivity().getIntent().getStringExtra(deckKey);
+        isFirebaseDeckKey = getString(R.string.is_firebase_deck_key);
         profNames = new ArrayList<>();
         categoryNames = new ArrayList<>();
         profIndex = 0;
@@ -75,7 +79,10 @@ public class UneditableDeckFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if (getActivity() != null) {
-                    getActivity().startActivity(new Intent(getContext(), StudyDeckActivity.class));
+                    Intent intent = new Intent(getContext(), StudyDeckActivity.class);
+                    intent.putExtra(deckKey, deckName);
+                    intent.putExtra(isFirebaseDeckKey, true);
+                    getActivity().startActivity(intent);
                 }
             }
         });
@@ -117,6 +124,16 @@ public class UneditableDeckFragment extends Fragment {
                 }
             }
         });
+        ratingsButton = (Button) v.findViewById(R.id.post_rating);
+
+        // TODO once ratings are working, modify this
+        ratingsButton.setEnabled(false);
+
+        downloadDeckButton = (Button) v.findViewById(R.id.download_deck);
+
+        // TODO once download decks is working, modify this. May need to create a migration to allow for non-unique deck names
+        downloadDeckButton.setEnabled(false);
+
         if (deckName != null) {
             setupLayout();
         }
@@ -156,6 +173,10 @@ public class UneditableDeckFragment extends Fragment {
                             }
                             if (documentSnapshot.get("flashcards") != null) {
                                 List<Map> f = (List<Map>) documentSnapshot.get("flashcards");
+                                // Disable studying if no flashcards currently
+                                if (f.size() == 0) {
+                                    studyDeckButton.setEnabled(false);
+                                }
                                 for (Map flashcard : f) {
                                     for (Object obj : flashcard.entrySet()) {
                                         Map.Entry<String, String> entry = (Map.Entry) obj;

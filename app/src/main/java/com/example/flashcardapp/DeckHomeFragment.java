@@ -72,6 +72,7 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
     private Intent mIntent;
     private Intent sourceIntent;
     private String isNewDeckKey;
+    private String isFirebaseDeckKey;
 
     private DocumentReference deck;
 
@@ -113,6 +114,7 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
         schoolKey = getResources().getString(R.string.SchoolString);
         professorKey = getResources().getString(R.string.ProfessorString);
         categoryKey = getResources().getString(R.string.CategoryString);
+        isFirebaseDeckKey = getString(R.string.is_firebase_deck_key);
         cardLayouts = new ArrayList<>();
         cardLabels = new ArrayList<>();
         profIndex = 0;
@@ -249,6 +251,7 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
             public void onClick(View v) {
                 Intent intent = new Intent(getContext(), StudyDeckActivity.class);
                 intent.putExtra(deckKey, deckName.getText().toString());
+                intent.putExtra(isFirebaseDeckKey, false);
                 getActivity().startActivity(intent);
             }
         });
