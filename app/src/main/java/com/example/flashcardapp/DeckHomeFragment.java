@@ -34,6 +34,8 @@ import com.example.flashcardapp.RoomDatabase.Professor;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -216,7 +218,12 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
                             final Deck deck = new Deck(dName);
                             deck.setCourse(coName);
                             deck.setSchool(sName);
-
+                            String email = "guest";
+                            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                            if (user != null && user.getEmail() != null) {
+                                email = user.getEmail();
+                            }
+                            deck.setOwnerEmail(email);
                             mFlashcardViewModel.deleteAllFlashcardsInDeck(dName);
                             mDeckViewModel.delete(deck);
 
@@ -351,6 +358,12 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
             final Deck deck = new Deck(dName);
             deck.setCourse(coName);
             deck.setSchool(sName);
+            String email = "guest";
+            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+            if (user != null && user.getEmail() != null) {
+                email = user.getEmail();
+            }
+            deck.setOwnerEmail(email);
 
             mDeckViewModel.getSelectDecks(dName).observe(this, new Observer<List<Deck>>() {
                 @Override
@@ -375,6 +388,12 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
             final Deck deck = new Deck(dName);
             deck.setCourse(coName);
             deck.setSchool(sName);
+            String email = "guest";
+            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+            if (user != null && user.getEmail() != null) {
+                email = user.getEmail();
+            }
+            deck.setOwnerEmail(email);
 
             mFlashcardViewModel.deleteAllFlashcardsInDeck(oldDeck.getName());
             mProfessorViewModel.deleteAllProfessorsInDeck(oldDeck.getName());

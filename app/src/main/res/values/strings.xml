@@ -21,7 +21,7 @@
     <string name="Deck2String">Deck 2</string>
     <string name="AddDeckString">+ Add Deck</string>
     <string name="BackButton">Back</string>
-    <string name="Username">Username\'s Decks</string>
+    <string name="Username">Guest\'s Decks</string>
     <string name="UserWelcome">Welcome to Our App!</string>
     <string name="MyDecksButton">My Decks</string>
     <string name="NearbyDecksButton">Find Nearby Decks</string>
