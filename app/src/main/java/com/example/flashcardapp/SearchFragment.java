@@ -61,12 +61,15 @@ public class SearchFragment extends Fragment {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
+                    Log.d("FirebaseTest101", "Accessing firebase");
                     for (QueryDocumentSnapshot document : task.getResult()) {
                         if (document != null && document.get("name") != null) {
                             decks.add(document.get("name").toString());
                             decksList.requestLayout();
                         }
                     }
+                } else {
+                    Log.d("FirebaseTest101", "Task was unsuccessful");
                 }
             }
         });

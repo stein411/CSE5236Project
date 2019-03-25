@@ -307,7 +307,7 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
         deck.update(flashcards).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
-                Log.d("Success", "Document was successfully added");
+                Log.d("Success", "Document with flashcards was successfully added");
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
