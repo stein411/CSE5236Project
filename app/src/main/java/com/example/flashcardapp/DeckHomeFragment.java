@@ -169,7 +169,13 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
 
                     //I used deckTitle2 since deckTitle is "Deck Name" permanently for some reason
                     final String deckTitle2 = deckName.getText().toString();
-                    addFlashcardToFirebase(deckTitle2);
+
+                    // Guests cannot add to Firebase
+                    FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                    if (user != null && user.getEmail() != null) {
+                        addDeckInfoToFirebase(deckTitle2, user.getEmail(), profNames, categoryNames, 0, courseName.getText().toString(), schoolName.getText().toString());
+                        addFlashcardToFirebase(deckTitle2);
+                    }
                     if (updatedDb) {
                         // TODO debug situation where adding new deck need to click twice
                         mIntent = new Intent();
@@ -186,7 +192,6 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
                         intent.putExtras(extras);
                         startActivity(intent);
                         getActivity().finish();
-                        addDeckInfoToFirebase(deckTitle, "owner", profNames, categoryNames, 0, schoolName.getText().toString(), courseName.getText().toString());
                     }
                 }
             }
