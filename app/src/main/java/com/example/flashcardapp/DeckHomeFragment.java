@@ -185,6 +185,7 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
                         intent.putExtras(extras);
                         startActivity(intent);
                         getActivity().finish();
+                        addDeckInfoToFirebase(deckTitle, "owner", profNames, categoryNames, 0, schoolName.getText().toString(), courseName.getText().toString());
                     }
                 }
             }
@@ -271,6 +272,35 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
 
         return v;
     }
+
+
+    /**
+     * Adding deck information to firebase.
+     * This is NOT adding the flashcards just yet.
+     */
+    private void addDeckInfoToFirebase(String deckName, String owner, ArrayList<String> professor, ArrayList<String> category, int rating, String courseName, String schoolName) {
+        deck = FirebaseFirestore.getInstance().collection("decks").document(deckName);
+        Map<String, Object> deckInfo = new HashMap<String, Object>();
+        deckInfo.put("owner", owner);
+        deckInfo.put("name", deckName);
+        deckInfo.put("professor", professor);
+        deckInfo.put("category", category);
+        deckInfo.put("rating", rating);
+        deckInfo.put("course", courseName);
+        deckInfo.put("school", schoolName);
+        deck.set(deckInfo).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Log.d("Success", "Document was successfully added");
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.w("Failed to save to firestore", e);
+            }
+        });
+    }
+
     /*
      * adds flashcards to firebase firestore
      */
