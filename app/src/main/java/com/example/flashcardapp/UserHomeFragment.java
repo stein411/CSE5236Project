@@ -16,6 +16,8 @@ import com.example.flashcardapp.Activities.SearchActivity;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 public class UserHomeFragment extends Fragment {
     private Button myDecksButton;
@@ -53,6 +55,7 @@ public class UserHomeFragment extends Fragment {
                 }
             }
         });
+
         signOutButton = (Button) v.findViewById(R.id.sign_out_button);
         signOutButton.setOnClickListener(new View.OnClickListener() {
             @Override
