@@ -1,17 +1,22 @@
 package com.example.flashcardapp;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.constraint.ConstraintSet;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -33,6 +38,8 @@ import com.example.flashcardapp.RoomDatabase.Deck;
 import com.example.flashcardapp.RoomDatabase.Flashcard;
 import com.example.flashcardapp.RoomDatabase.Professor;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -47,9 +54,11 @@ import java.util.List;
 import java.util.Map;
 
 public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
+    private static final int MY_PERMISSIONS_REQUEST_FINE_LOCATION = 100;
     private Button deckViewButton;
     private Button saveButton;
     private Button addFlashcardButton;
+    private Button postDeckButton;
     private int flashcardCount = 0;
     private List<Integer> cardLayouts;
     private List<Integer> cardLabels;
@@ -73,8 +82,10 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
     private Intent sourceIntent;
     private String isNewDeckKey;
     private String isFirebaseDeckKey;
+    private String ownerEmail;
 
     private DocumentReference deck;
+    private FusedLocationProviderClient fusedLocationClient;
 
     private DeckViewModel mDeckViewModel;
     private List<Integer> termIds;
@@ -102,6 +113,7 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
         mProfessorViewModel = ViewModelProviders.of(this).get(ProfessorViewModel.class);
         mCategoryViewModel = ViewModelProviders.of(this).get(CategoryViewModel.class);
         mFlashcardViewModel = ViewModelProviders.of(this).get(FlashcardViewModel.class);
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
     }
 
     @Override
@@ -128,6 +140,7 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
         mNeedToAddProfs = true;
         profNames = new ArrayList<>();
         categoryNames = new ArrayList<>();
+        ownerEmail = "guest";
 
         // Get references to text view widgets
         deckName = (TextView) v.findViewById(R.id.deck_name_label);
@@ -171,11 +184,12 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
                     final String deckTitle2 = deckName.getText().toString();
 
                     // Guests cannot add to Firebase
-                    FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                    if (user != null && user.getEmail() != null) {
-                        addDeckInfoToFirebase(deckTitle2, user.getEmail(), profNames, categoryNames, 0, courseName.getText().toString(), schoolName.getText().toString());
-                        addFlashcardToFirebase(deckTitle2);
-                    }
+//                    FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+//                    if (user != null && user.getEmail() != null) {
+//                        ownerEmail = user.getEmail();
+//                        addDeckInfoToFirebase(deckTitle2, ownerEmail, profNames, categoryNames, 0, courseName.getText().toString(), schoolName.getText().toString());
+//                        addFlashcardToFirebase(deckTitle2);
+//                    }
                     if (updatedDb) {
                         // TODO debug situation where adding new deck need to click twice
                         mIntent = new Intent();
@@ -219,34 +233,34 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
                     deckName1 = deckName.getText().toString();
                 }
                 AlertDialog d = new AlertDialog.Builder(getContext()).setTitle("Flashcards")
-                    .setMessage("Are you sure you want to delete the deck " + deckName1 + "?")
-                    .setIcon(android.R.drawable.ic_dialog_alert)
-                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int whichButton) {
-                            final String dName = deckName.getText().toString();
-                            String coName = courseName.getText().toString();
-                            String sName = schoolName.getText().toString();
-                            final Deck deck = new Deck(dName);
-                            deck.setCourse(coName);
-                            deck.setSchool(sName);
-                            String email = "guest";
-                            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                            if (user != null && user.getEmail() != null) {
-                                email = user.getEmail();
+                        .setMessage("Are you sure you want to delete the deck " + deckName1 + "?")
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                final String dName = deckName.getText().toString();
+                                String coName = courseName.getText().toString();
+                                String sName = schoolName.getText().toString();
+                                final Deck deck = new Deck(dName);
+                                deck.setCourse(coName);
+                                deck.setSchool(sName);
+                                String email = "guest";
+                                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                                if (user != null && user.getEmail() != null) {
+                                    email = user.getEmail();
+                                }
+                                deck.setOwnerEmail(email);
+                                mFlashcardViewModel.deleteAllFlashcardsInDeck(dName);
+                                mDeckViewModel.delete(deck);
+
+                                mIntent = new Intent();
+                                mIntent.putExtra(completedDeckKey, true);
+                                mIntent.putExtra(deckNameKey, deckName.getText());
+                                getActivity().setResult(Activity.RESULT_OK, mIntent);
+
+                                Toast.makeText(getContext(), "Deck was deleted successfully", Toast.LENGTH_LONG).show();
+                                getActivity().finish();
                             }
-                            deck.setOwnerEmail(email);
-                            mFlashcardViewModel.deleteAllFlashcardsInDeck(dName);
-                            mDeckViewModel.delete(deck);
-
-                            mIntent = new Intent();
-                            mIntent.putExtra(completedDeckKey, true);
-                            mIntent.putExtra(deckNameKey, deckName.getText());
-                            getActivity().setResult(Activity.RESULT_OK, mIntent);
-
-                            Toast.makeText(getContext(), "Deck was deleted successfully", Toast.LENGTH_LONG).show();
-                            getActivity().finish();
-                        }
-                    }).setNegativeButton(android.R.string.no, null).show();
+                        }).setNegativeButton(android.R.string.no, null).show();
             }
         });
 
@@ -260,6 +274,65 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
                 getActivity().startActivity(intent);
             }
         });
+
+        postDeckButton = v.findViewById(R.id.post_deck_button);
+        postDeckButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String deckName1 = dName;
+                if (deckName != null) {
+                    deckName1 = deckName.getText().toString();
+                }
+                AlertDialog d = new AlertDialog.Builder(getContext()).setTitle("Flashcards")
+                        .setMessage("Are you sure you want to post the deck " + deckName1 + " online? " +
+                                "You may be asked for your location")
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                String dName = deckName.getText().toString();
+                                String coName = courseName.getText().toString();
+                                String sName = schoolName.getText().toString();
+                                String email = "guest";
+                                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                                if (user != null && user.getEmail() != null) {
+                                    email = user.getEmail();
+                                }
+                                final String finalEmail = email;
+
+                                // Request location info
+                                if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION)
+                                        == PackageManager.PERMISSION_GRANTED) {
+                                    // Permission already granted: set location
+                                    fusedLocationClient.getLastLocation()
+                                            .addOnSuccessListener(getActivity(), new OnSuccessListener<Location>() {
+                                                @Override
+                                                public void onSuccess(Location location) {
+                                                    // Got last known location. In some rare situations this can be null.
+                                                    if (location != null) {
+                                                        // Logic to handle location object
+                                                        final String dName = deckName.getText().toString();
+                                                        final String coName = courseName.getText().toString();
+                                                        final String sName = schoolName.getText().toString();
+                                                        addDeckInfoToFirebaseWithLocation(dName, location, finalEmail, profNames, categoryNames, 0, coName, sName);
+                                                        addFlashcardToFirebase(dName);
+                                                    }
+                                                }
+                                            });
+                                    //Toast.makeText(getContext(), "Got location permission 1", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    // Request permission to access location
+                                    ActivityCompat.requestPermissions(getActivity(),
+                                            new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                                            MY_PERMISSIONS_REQUEST_FINE_LOCATION);
+                                }
+
+
+                                Toast.makeText(getContext(), "Deck was posted successfully", Toast.LENGTH_LONG).show();
+                            }
+                        }).setNegativeButton(android.R.string.no, null).show();
+            }
+        });
+
 
         boolean isNewDeck = sourceIntent.getBooleanExtra(isNewDeckKey, true);
         if (!isNewDeck) {
@@ -277,11 +350,60 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
         } else {
             deleteButton.setEnabled(false);
             studyDeckButton.setEnabled(false);
+            postDeckButton.setEnabled(false);
         }
 
 
-
         return v;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        if (requestCode == MY_PERMISSIONS_REQUEST_FINE_LOCATION) {
+            if (permissions.length == 1 &&
+                    permissions[0] == Manifest.permission.ACCESS_FINE_LOCATION &&
+                    grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            } else {
+                // Permission was denied. Display a message.
+                Toast.makeText(getContext(), "The location of the deck will not be shown at this time", Toast.LENGTH_LONG).show();
+                // Post deck without location
+                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                if (user != null && user.getEmail() != null)  {
+                    ownerEmail = user.getEmail();
+                }
+                addDeckInfoToFirebase(dName, ownerEmail, profNames, categoryNames, 0, courseName.getText().toString(), schoolName.getText().toString());
+                addFlashcardToFirebase(dName);
+            }
+        }
+    }
+
+
+    /**
+     * Adding deck information to firebase.
+     * This is NOT adding the flashcards just yet.
+     */
+    private void addDeckInfoToFirebaseWithLocation(String deckName, Location location, String owner, ArrayList<String> professor, ArrayList<String> category, int rating, String courseName, String schoolName) {
+        deck = FirebaseFirestore.getInstance().collection("decks").document(deckName);
+        Map<String, Object> deckInfo = new HashMap<String, Object>();
+        deckInfo.put("owner", owner);
+        deckInfo.put("location", location);
+        deckInfo.put("name", deckName);
+        deckInfo.put("professor", professor);
+        deckInfo.put("category", category);
+        deckInfo.put("rating", rating);
+        deckInfo.put("course", courseName);
+        deckInfo.put("school", schoolName);
+        deck.set(deckInfo).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Log.d("Success", "Document was successfully added");
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.w("Failed to save to firestore", e);
+            }
+        });
     }
 
 
