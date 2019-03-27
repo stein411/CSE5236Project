@@ -26,10 +26,20 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.TileOverlay;
 import com.google.android.gms.maps.model.TileOverlayOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.maps.android.heatmaps.HeatmapTileProvider;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,
         GoogleMap.OnMyLocationClickListener, GoogleMap.OnMyLocationButtonClickListener {
@@ -41,6 +51,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private TileOverlay mOverlay;
     private List<Marker> markers;
     private String deckKey;
+    private CollectionReference deckksWithNonnullLocations;
+    private ArrayList<String> decks;
+    private ArrayList<Map> locations;
+    private ArrayList<String> owners;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +72,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
         deckKey = getString(R.string.NameString);
+        decks = new ArrayList<>();
+        locations = new ArrayList<>();
+        owners = new ArrayList<>();
     }
 
     @Override
@@ -87,7 +104,28 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     MY_PERMISSIONS_REQUEST_FINE_LOCATION);
         }
-        addHeatMap();
+
+        // TODO pull all decks from online that have non-null location values
+        deckksWithNonnullLocations = FirebaseFirestore.getInstance().collection("decks");
+        deckksWithNonnullLocations.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    for (QueryDocumentSnapshot documentSnapshot : task.getResult()) {
+                        if (documentSnapshot != null && documentSnapshot.get("name") != null && documentSnapshot.get("location") != null) {
+                            String owner = "owner";
+                            if (documentSnapshot.get("owner") != null) {
+                                owner = documentSnapshot.get("owner").toString();
+                            }
+                            decks.add(documentSnapshot.get("name").toString());
+                            locations.add((Map) documentSnapshot.get("location"));
+                            owners.add(owner);
+                        }
+                    }
+                }
+                addHeatMap();
+            }
+        });
         //addClickableMarkers();
         mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
             @Override
@@ -130,59 +168,69 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private void addHeatMap() {
         List<LatLng> list = new ArrayList<>();
 
-        double lat = 40;
+        //double lat = 40;
+
+
+        for (int i = 0; i < locations.size(); i++) {
+            Map<String, Object> loc = locations.get(i);
+            double latitude = (Double) loc.get("latitude");
+            double longitude = (Double) loc.get("longitude");
+            list.add(new LatLng(latitude, longitude));
+        }
 
         // Populate with dummy data
-        for (int i = 0; i < 20; i++) {
-            for (int j = 0; j < 10; j++) {
-                list.add(new LatLng(lat + (i/10000.0), -83 + (i/10000.0)));
-            }
-        }
-        for (int i = 0; i < 20; i++) {
-            for (int j = 0; j < 10; j++) {
-                list.add(new LatLng(lat - (i/10000.0), -83 + (i/10000.0)));
-            }
-        }
+//        for (int i = 0; i < 20; i++) {
+//            for (int j = 0; j < 10; j++) {
+//                list.add(new LatLng(lat + (i/10000.0), -83 + (i/10000.0)));
+//            }
+//        }
+//        for (int i = 0; i < 20; i++) {
+//            for (int j = 0; j < 10; j++) {
+//                list.add(new LatLng(lat - (i/10000.0), -83 + (i/10000.0)));
+//            }
+//        }
+//
+//        for (int i = 0; i < 20; i++) {
+//            for (int j = 0; j < 10; j++) {
+//                list.add(new LatLng(lat + (i/10000.0), -83 - (i/10000.0)));
+//            }
+//        }
+//
+//        for (int i = 0; i < 20; i++) {
+//            for (int j = 0; j < 10; j++) {
+//                list.add(new LatLng(lat - (i/10000.0), -83 - (i/10000.0)));
+//            }
+//        }
+//
+//        for (int i = 0; i < 20; i++) {
+//            for (int j = 0; j < 10; j++) {
+//                list.add(new LatLng(lat - (i/10000.0), -83));
+//            }
+//        }
+//
+//        for (int i = 0; i < 20; i++) {
+//            for (int j = 0; j < 10; j++) {
+//                list.add(new LatLng(lat + (i/10000.0), -83));
+//            }
+//        }
+//
+//        for (int i = 0; i < 20; i++) {
+//            for (int j = 0; j < 10; j++) {
+//                list.add(new LatLng(lat, -83 - (i/10000.0)));
+//            }
+//        }
+//
+//        for (int i = 0; i < 20; i++) {
+//            for (int j = 0; j < 10; j++) {
+//                list.add(new LatLng(lat, -83 + (i/10000.0)));
+//            }
+//        }
 
-        for (int i = 0; i < 20; i++) {
-            for (int j = 0; j < 10; j++) {
-                list.add(new LatLng(lat + (i/10000.0), -83 - (i/10000.0)));
-            }
+
+        if (list.size() > 0) {
+            mProvider = new HeatmapTileProvider.Builder().data(list).build();
+            mOverlay = mMap.addTileOverlay(new TileOverlayOptions().tileProvider(mProvider));
         }
-
-        for (int i = 0; i < 20; i++) {
-            for (int j = 0; j < 10; j++) {
-                list.add(new LatLng(lat - (i/10000.0), -83 - (i/10000.0)));
-            }
-        }
-
-        for (int i = 0; i < 20; i++) {
-            for (int j = 0; j < 10; j++) {
-                list.add(new LatLng(lat - (i/10000.0), -83));
-            }
-        }
-
-        for (int i = 0; i < 20; i++) {
-            for (int j = 0; j < 10; j++) {
-                list.add(new LatLng(lat + (i/10000.0), -83));
-            }
-        }
-
-        for (int i = 0; i < 20; i++) {
-            for (int j = 0; j < 10; j++) {
-                list.add(new LatLng(lat, -83 - (i/10000.0)));
-            }
-        }
-
-        for (int i = 0; i < 20; i++) {
-            for (int j = 0; j < 10; j++) {
-                list.add(new LatLng(lat, -83 + (i/10000.0)));
-            }
-        }
-
-
-        mProvider = new HeatmapTileProvider.Builder().data(list).build();
-        mOverlay = mMap.addTileOverlay(new TileOverlayOptions().tileProvider(mProvider));
     }
 
     private void setMyLocation() {
@@ -193,12 +241,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void onMyLocationClick(@NonNull Location location) {
-        Toast.makeText(this, "Current location:\n" + location, Toast.LENGTH_LONG).show();
+
     }
 
     @Override
     public boolean onMyLocationButtonClick() {
-        Toast.makeText(this, "MyLocation button clicked", Toast.LENGTH_SHORT).show();
         // Return false so that we don't consume the event and the default behavior still occurs
         // (the camera animates to the user's current position).
         return false;
@@ -206,54 +253,66 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private void addClickableMarkers() {
         markers = new ArrayList<>();
+        for (int i = 0; i < decks.size(); i++) {
+            Map<String, Object> loc = locations.get(i);
+            String name = decks.get(i);
+            String owner = owners.get(i);
+            double latitude = (Double) loc.get("latitude");
+            double longitude = (Double) loc.get("longitude");
+            MarkerOptions m = new MarkerOptions()
+                    .position(new LatLng(latitude, longitude))
+                    .title(name);
+            Marker m1 = mMap.addMarker(m);
+            markers.add(m1);
+        }
 
         // Populate with dummy data
-        for (int i = 0; i < 20; i++) {
-            MarkerOptions m = new MarkerOptions().position(new LatLng(40 + (i/10000.0), -83 + (i/10000.0))).title("" + markers.size());
-            Marker m1 = mMap.addMarker(m);
-            markers.add(m1);
-        }
-        for (int i = 0; i < 20; i++) {
-            MarkerOptions m = new MarkerOptions().position(new LatLng(40 - (i/10000.0), -83 + (i/10000.0))).title("" + markers.size());
-            Marker m1 = mMap.addMarker(m);
-            markers.add(m1);
-        }
-
-        for (int i = 0; i < 20; i++) {
-            MarkerOptions m = new MarkerOptions().position(new LatLng(40 + (i/10000.0), -83 - (i/10000.0))).title("" + markers.size());
-            Marker m1 = mMap.addMarker(m);
-            markers.add(m1);
-        }
-
-        for (int i = 0; i < 20; i++) {
-            MarkerOptions m = new MarkerOptions().position(new LatLng(40 - (i/10000.0), -83 - (i/10000.0))).title("" + markers.size());
-            Marker m1 = mMap.addMarker(m);
-            markers.add(m1);
-        }
-
-        for (int i = 0; i < 20; i++) {
-            MarkerOptions m = new MarkerOptions().position(new LatLng(40 - (i/10000.0), -83)).title("" + markers.size());
-            Marker m1 = mMap.addMarker(m);
-            markers.add(m1);
-        }
-
-        for (int i = 0; i < 20; i++) {
-            MarkerOptions m = new MarkerOptions().position(new LatLng(40 + (i/10000.0), -83)).title("" + markers.size());
-            Marker m1 = mMap.addMarker(m);
-            markers.add(m1);
-        }
-
-        for (int i = 0; i < 20; i++) {
-            MarkerOptions m = new MarkerOptions().position(new LatLng(40, -83 - (i/10000.0))).title("" + markers.size());
-            Marker m1 = mMap.addMarker(m);
-            markers.add(m1);
-        }
-
-        for (int i = 0; i < 20; i++) {
-            MarkerOptions m = new MarkerOptions().position(new LatLng(40, -83 + (i/10000.0))).title("" + markers.size());
-            Marker m1 = mMap.addMarker(m);
-            markers.add(m1);
-        }
+//        for (int i = 0; i < 20; i++) {
+//            MarkerOptions m = new MarkerOptions().position(new LatLng(40 + (i/10000.0), -83 + (i/10000.0))).title("" + markers.size());
+//            Marker m1 = mMap.addMarker(m);
+//            markers.add(m1);
+//        }
+//        for (int i = 0; i < 20; i++) {
+//            MarkerOptions m = new MarkerOptions().position(new LatLng(40 - (i/10000.0), -83 + (i/10000.0))).title("" + markers.size());
+//            Marker m1 = mMap.addMarker(m);
+//            markers.add(m1);
+//        }
+//
+//        for (int i = 0; i < 20; i++) {
+//            MarkerOptions m = new MarkerOptions().position(new LatLng(40 + (i/10000.0), -83 - (i/10000.0))).title("" + markers.size());
+//            Marker m1 = mMap.addMarker(m);
+//            markers.add(m1);
+//        }
+//
+//        for (int i = 0; i < 20; i++) {
+//            MarkerOptions m = new MarkerOptions().position(new LatLng(40 - (i/10000.0), -83 - (i/10000.0))).title("" + markers.size());
+//            Marker m1 = mMap.addMarker(m);
+//            markers.add(m1);
+//        }
+//
+//        for (int i = 0; i < 20; i++) {
+//            MarkerOptions m = new MarkerOptions().position(new LatLng(40 - (i/10000.0), -83)).title("" + markers.size());
+//            Marker m1 = mMap.addMarker(m);
+//            markers.add(m1);
+//        }
+//
+//        for (int i = 0; i < 20; i++) {
+//            MarkerOptions m = new MarkerOptions().position(new LatLng(40 + (i/10000.0), -83)).title("" + markers.size());
+//            Marker m1 = mMap.addMarker(m);
+//            markers.add(m1);
+//        }
+//
+//        for (int i = 0; i < 20; i++) {
+//            MarkerOptions m = new MarkerOptions().position(new LatLng(40, -83 - (i/10000.0))).title("" + markers.size());
+//            Marker m1 = mMap.addMarker(m);
+//            markers.add(m1);
+//        }
+//
+//        for (int i = 0; i < 20; i++) {
+//            MarkerOptions m = new MarkerOptions().position(new LatLng(40, -83 + (i/10000.0))).title("" + markers.size());
+//            Marker m1 = mMap.addMarker(m);
+//            markers.add(m1);
+//        }
 
     }
 }
