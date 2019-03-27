@@ -8,7 +8,7 @@ import android.arch.persistence.room.migration.Migration;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
-@Database(entities = {Deck.class, Professor.class, Category.class,Flashcard.class}, version = 5)
+@Database(entities = {Deck.class, Professor.class, Category.class,Flashcard.class}, version = 6)
 public abstract class DeckRoomDatabase extends RoomDatabase {
     public abstract DeckDao deckDao();
     public abstract ProfessorDao professorDao();
@@ -24,7 +24,7 @@ public abstract class DeckRoomDatabase extends RoomDatabase {
                     // Create database here
                     INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
                             DeckRoomDatabase.class, "deck_database")
-                            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5).build();
+                            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6).build();
                 }
             }
         }
@@ -67,6 +67,13 @@ public abstract class DeckRoomDatabase extends RoomDatabase {
             database.execSQL("CREATE TABLE `category_table` (`category_name` TEXT NOT NULL, " +
                     "`deck_name` TEXT NOT NULL," + "`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," +
                     "FOREIGN KEY(`deck_name`) REFERENCES `deck_table`(`name`) ON DELETE CASCADE)");
+        }
+    };
+
+    static final Migration MIGRATION_5_6 = new Migration(5,6) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            database.execSQL("ALTER TABLE deck_table ADD COLUMN owner_email TEXT");
         }
     };
 }

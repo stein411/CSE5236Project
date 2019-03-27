@@ -21,7 +21,7 @@
     <string name="Deck2String">Deck 2</string>
     <string name="AddDeckString">+ Add Deck</string>
     <string name="BackButton">Back</string>
-    <string name="Username">Username\'s Decks</string>
+    <string name="Username">Guest\'s Decks</string>
     <string name="UserWelcome">Welcome to Our App!</string>
     <string name="MyDecksButton">My Decks</string>
     <string name="NearbyDecksButton">Find Nearby Decks</string>
@@ -69,4 +69,10 @@
     <string name="enter_term">Enter Term</string>
     <string name="enter_def">Enter Definition</string>
     <string name="study_flashcards">Study Flashcards</string>
+    <string name="ratings_label">Rate this Deck</string>
+    <string name="post_rating">Post Rating</string>
+    <string name="download_deck">Download Deck</string>
+    <string name="sign_out_prompt">Sign Out</string>
+    <string name="is_firebase_deck_key">IsFirebaseDeck</string>
+    <string name="post_deck_button">Post Deck</string>
 </resources>

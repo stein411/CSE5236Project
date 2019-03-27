@@ -18,6 +18,9 @@ public class Deck {
     @ColumnInfo(name = "school")
     private String mSchool;
 
+    @ColumnInfo(name = "owner_email")
+    private String mOwnerEmail;
+
     public Deck(String name) {
         this.mName = name;
     }
@@ -41,5 +44,13 @@ public class Deck {
 
     public void setSchool(String school) {
         mSchool = school;
+    }
+
+    public String getOwnerEmail() {
+        return mOwnerEmail;
+    }
+
+    public void setOwnerEmail(String ownerEmail) {
+        mOwnerEmail = ownerEmail;
     }
 }

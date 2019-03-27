@@ -18,10 +18,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.example.flashcardapp.Activities.DeckHomeActivity;
 import com.example.flashcardapp.Activities.UneditableDeckActivity;
 import com.example.flashcardapp.RoomDatabase.Deck;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import org.w3c.dom.Text;
 
 import java.util.List;
 
@@ -39,6 +45,9 @@ public class DeckMenuFragment extends Fragment {
     private DeckViewModel mDeckViewModel;
     private List<Deck> mAllDecks;
     private boolean mJustChanged;
+    private TextView usernameLabel;
+    private String email;
+    private FirebaseUser user;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -47,8 +56,15 @@ public class DeckMenuFragment extends Fragment {
 
         mJustChanged = false;
 
+        // TODO modify here with new query that selects by email
+        user = FirebaseAuth.getInstance().getCurrentUser();
+        email = "guest";
+        if (user != null && user.getEmail() != null) {
+            email = user.getEmail();
+        }
+
         mDeckViewModel = ViewModelProviders.of(this).get(DeckViewModel.class);
-        mDeckViewModel.getAllDecks().observe(this, new Observer<List<Deck>>() {
+        mDeckViewModel.getDecksByOwnerEmail(email).observe(this, new Observer<List<Deck>>() {
             @Override
             public void onChanged(@Nullable final List<Deck> decks) {
                 mAllDecks = decks;
@@ -88,6 +104,11 @@ public class DeckMenuFragment extends Fragment {
             }
         });
         decksContainer = (LinearLayout) v.findViewById(R.id.decks_container);
+
+        if (user != null && user.getDisplayName() != null) {
+            usernameLabel = (TextView) v.findViewById(R.id.username_label);
+            usernameLabel.setText(user.getDisplayName() + "\'s Decks");
+        }
         return v;
     }
 

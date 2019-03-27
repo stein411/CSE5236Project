@@ -15,8 +15,15 @@ import android.widget.Button;
 import com.example.flashcardapp.Activities.AnswerActivity;
 import com.example.flashcardapp.Activities.FlashcardsActivity;
 import com.example.flashcardapp.RoomDatabase.Flashcard;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class StudyDeckFragment extends Fragment {
     private Button backButton;
@@ -24,7 +31,9 @@ public class StudyDeckFragment extends Fragment {
     private Button flashcardsButton;
     private String deckKey;
     private String deckName;
+    private String isFirebaseDeckKey;
     private FlashcardViewModel mFlashcardViewModel;
+    private boolean isFirebaseDeck;
 
     @Nullable
     @Override
@@ -32,6 +41,8 @@ public class StudyDeckFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_study_deck, container, false);
         deckKey = getString(R.string.NameString);
         deckName = getActivity().getIntent().getStringExtra(deckKey);
+        isFirebaseDeckKey = getString(R.string.is_firebase_deck_key);
+        isFirebaseDeck = getActivity().getIntent().getBooleanExtra(isFirebaseDeckKey, true);
         backButton = (Button) v.findViewById(R.id.back_button);
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -49,6 +60,7 @@ public class StudyDeckFragment extends Fragment {
                 if (deckName != null) {
                     intent.putExtra(deckKey, deckName);
                 }
+                intent.putExtra(isFirebaseDeckKey, isFirebaseDeck);
                 getActivity().startActivity(intent);
             }
         });
@@ -60,6 +72,7 @@ public class StudyDeckFragment extends Fragment {
                 if (deckName != null) {
                     intent.putExtra(deckKey, deckName);
                 }
+                intent.putExtra(isFirebaseDeckKey, isFirebaseDeck);
                 getActivity().startActivity(intent);
             }
         });
@@ -70,16 +83,41 @@ public class StudyDeckFragment extends Fragment {
         }
 
         // Check if no flashcards (disable all studying activities if that's the case)
-        mFlashcardViewModel = ViewModelProviders.of(this).get(FlashcardViewModel.class);
-        mFlashcardViewModel.getAllFlashcardsFromDeck(deckName).observe(this, new Observer<List<Flashcard>>() {
-            @Override
-            public void onChanged(@Nullable List<Flashcard> flashcards) {
-                if (flashcards.size() == 0) {
-                    answerWithTermOrDefButton.setEnabled(false);
-                    flashcardsButton.setEnabled(false);
+        if (!isFirebaseDeck) {
+            mFlashcardViewModel = ViewModelProviders.of(this).get(FlashcardViewModel.class);
+            mFlashcardViewModel.getAllFlashcardsFromDeck(deckName).observe(this, new Observer<List<Flashcard>>() {
+                @Override
+                public void onChanged(@Nullable List<Flashcard> flashcards) {
+                    if (flashcards.size() == 0) {
+                        answerWithTermOrDefButton.setEnabled(false);
+                        flashcardsButton.setEnabled(false);
+                    }
                 }
+            });
+        } else {
+            // Get the firebase document
+            final DocumentReference deckDocument = FirebaseFirestore.getInstance().collection("decks").document(deckName);
+            if (deckDocument != null) {
+                deckDocument.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot documentSnapshot = task.getResult();
+                            if (documentSnapshot.exists()) {
+                                if (documentSnapshot.get("flashcards") != null) {
+                                    // Check if there are any flashcards (just in case)
+                                    List<Map> f = (List<Map>) documentSnapshot.get("flashcards");
+                                    if (f.size() == 0) {
+                                        answerWithTermOrDefButton.setEnabled(false);
+                                        flashcardsButton.setEnabled(false);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
             }
-        });
+        }
         return v;
     }
 }
