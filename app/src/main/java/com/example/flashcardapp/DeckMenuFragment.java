@@ -1,13 +1,17 @@
 package com.example.flashcardapp;
 
 import android.app.Activity;
+import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModel;
+import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,6 +26,7 @@ import com.example.flashcardapp.RoomDatabase.Deck;
 import java.util.List;
 
 public class DeckMenuFragment extends Fragment {
+    private static final String TAG = "DeckMenuFragment";
     private Button addDeckButton;
     private Button backButton;
     private Button deck1Button;
@@ -37,6 +42,7 @@ public class DeckMenuFragment extends Fragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        Log.d(TAG, "onCreate() called");
         super.onCreate(savedInstanceState);
 
         mJustChanged = false;
@@ -57,6 +63,7 @@ public class DeckMenuFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        Log.d(TAG, "onCreateView() called");
         View v = inflater.inflate(R.layout.fragment_deck_menu, container, false);
         completedDeckKey = getString(R.string.completed_deck_key);
         deckNameKey = getString(R.string.deck_name_key);
@@ -86,6 +93,7 @@ public class DeckMenuFragment extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        Log.d(TAG, "onViewCreated() called");
         addDeckButton = (Button) getView().findViewById(R.id.add_deck_button);
         addDeckButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -100,6 +108,7 @@ public class DeckMenuFragment extends Fragment {
     }
 
     private void populateDecks() {
+        Log.d(TAG, "populateDecks() called");
         if (mAllDecks != null) {
             for (Deck deck : mAllDecks) {
                 Button launchDeckButton = new Button(getContext());
@@ -172,4 +181,40 @@ public class DeckMenuFragment extends Fragment {
     public int toDp(int value) {
         return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value, getResources().getDisplayMetrics());
     }
+
+
+    /*
+     * Overriding lifestyle methods for logging.
+     */
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        Log.d(TAG, "onStart() called");
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.d(TAG, "onResume() called");
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Log.d(TAG, "onPause() called");
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        Log.d(TAG, "onStop() called");
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG, "onDestroy() called");
+    }
+
 }
