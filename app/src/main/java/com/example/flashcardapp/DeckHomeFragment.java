@@ -496,6 +496,7 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
                 for (Flashcard flashcard : flashcards) {
                     addFlashcard(flashcard.getTerm(), flashcard.getDefinition());
                 }
+                addFlashcardsToUI = false;
             }
         }
     }

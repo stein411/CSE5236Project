@@ -67,17 +67,25 @@ public class MainEmptyActivity extends AppCompatActivity {
         // Configure Google Sign In
         // TODO add google sign in support
 
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.default_web_client_id))
-                .requestEmail()
-                .build();
-        List<AuthUI.IdpConfig> providers = Arrays.asList(
-                new AuthUI.IdpConfig.EmailBuilder().build(),
-                new AuthUI.IdpConfig.AnonymousBuilder().build());
-        startActivityForResult(AuthUI.getInstance()
-            .createSignInIntentBuilder()
-            .setAvailableProviders(providers)
-            .build(), RC_SIGN_IN);
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) {
+            // No user signed in; direct them to sign in
+            GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                    .requestIdToken(getString(R.string.default_web_client_id))
+                    .requestEmail()
+                    .build();
+            List<AuthUI.IdpConfig> providers = Arrays.asList(
+                    new AuthUI.IdpConfig.EmailBuilder().build(),
+                    new AuthUI.IdpConfig.AnonymousBuilder().build());
+            startActivityForResult(AuthUI.getInstance()
+                    .createSignInIntentBuilder()
+                    .setAvailableProviders(providers)
+                    .build(), RC_SIGN_IN);
+        } else {
+            // User is signed in; take them to the user home activity
+            startActivity(new Intent(getApplicationContext(), UserHomeActivity.class));
+            finish();
+        }
 
         //startActivity(activityIntent);
         //finish();
