@@ -35,7 +35,6 @@ public class DeckMenuFragment extends Fragment {
     private static final String TAG = "DeckMenuFragment";
     private Button addDeckButton;
     private Button backButton;
-    private Button deck1Button;
     private Intent resultOfNewDeck;
     private String completedDeckKey;
     private String deckNameKey;
@@ -91,15 +90,6 @@ public class DeckMenuFragment extends Fragment {
             public void onClick(View v) {
                 if (getActivity() != null) {
                     getActivity().finish();
-                }
-            }
-        });
-        deck1Button = (Button) v.findViewById(R.id.deck_1_button);
-        deck1Button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (getActivity() != null) {
-                    getActivity().startActivity(new Intent(getContext(), UneditableDeckActivity.class));
                 }
             }
         });

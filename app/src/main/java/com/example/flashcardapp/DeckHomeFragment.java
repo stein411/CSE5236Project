@@ -94,6 +94,7 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
     private boolean updatedDb;
     private List<Deck> mSelectedDecks;
     private boolean mJustChanged;
+    private boolean addFlashcardsToUI;
     private Button mBackButton;
     private Deck mDeck;
     private Button deleteButton;
@@ -150,6 +151,8 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
         categoryName = (TextView) v.findViewById(R.id.category_name_label);
         dName = "";
 
+        addFlashcardsToUI = true;
+
         // Button click listeners
         deckViewButton = (Button) v.findViewById(R.id.LaunchDeckButton);
         deckViewButton.setOnClickListener(new View.OnClickListener() {
@@ -178,6 +181,7 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
             @Override
             public void onClick(View v) {
                 if (getActivity() != null) {
+                    addFlashcardsToUI = false;
                     updateDatabase(sourceIntent.getBooleanExtra(isNewDeckKey, true));
 
                     //I used deckTitle2 since deckTitle is "Deck Name" permanently for some reason
@@ -197,15 +201,17 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
                         mIntent.putExtra(deckNameKey, deckName.getText());
                         getActivity().setResult(Activity.RESULT_OK, mIntent);
                         Toast.makeText(getContext(), "Changes saved successfully", Toast.LENGTH_LONG).show();
-                        Intent intent = new Intent(getContext(), DeckHomeActivity.class);
-                        Bundle extras = sourceIntent.getExtras();
-                        extras.remove(deckNameKey);
-                        extras.putString(deckNameKey, deckName.getText().toString());
-                        extras.remove(isNewDeckKey);
-                        extras.putBoolean(isNewDeckKey, false);
-                        intent.putExtras(extras);
-                        startActivity(intent);
-                        getActivity().finish();
+//                        Intent intent = new Intent(getContext(), DeckHomeActivity.class);
+//                        Bundle extras = sourceIntent.getExtras();
+//                        extras.remove(deckNameKey);
+//                        extras.putString(deckNameKey, deckName.getText().toString());
+//                        extras.remove(isNewDeckKey);
+//                        extras.putBoolean(isNewDeckKey, false);
+                        //intent.putExtras(extras);
+                        //startActivity(intent);
+                        //getActivity().finish();
+                        getActivity().getIntent().removeExtra(isNewDeckKey);
+                        getActivity().getIntent().putExtra(isNewDeckKey, false);
                     }
                 }
             }
@@ -486,8 +492,10 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
     private class FlashcardObserver implements Observer<List<Flashcard>> {
         @Override
         public void onChanged(@Nullable List<Flashcard> flashcards) {
-            for (Flashcard flashcard : flashcards) {
-                addFlashcard(flashcard.getTerm(), flashcard.getDefinition());
+            if (addFlashcardsToUI) {
+                for (Flashcard flashcard : flashcards) {
+                    addFlashcard(flashcard.getTerm(), flashcard.getDefinition());
+                }
             }
         }
     }
