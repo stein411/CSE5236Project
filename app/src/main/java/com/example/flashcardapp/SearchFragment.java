@@ -16,6 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Filter;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.TextView;
@@ -35,13 +36,14 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class SearchFragment extends Fragment {
     private ListView decksList;
-    private DeckAdapter adapter;
+    private ArrayAdapter<String> adapter;
     private String deckKey;
     private CollectionReference decksCollection;
-    private ArrayList<Deck> decks;
+    private ArrayList<String> decks;
 
     @Nullable
     @Override
@@ -51,10 +53,9 @@ public class SearchFragment extends Fragment {
         decksList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Deck item = (Deck) decksList.getItemAtPosition(i);
-                String text = item.getName();
+                String item = decksList.getItemAtPosition(i).toString();
                 Intent intent = new Intent(getContext(), UneditableDeckActivity.class);
-                intent.putExtra(deckKey, text);
+                intent.putExtra(deckKey, item);
                 startActivity(intent);
             }
         });
@@ -67,12 +68,7 @@ public class SearchFragment extends Fragment {
                     Log.d("FirebaseTest101", "Accessing firebase");
                     for (QueryDocumentSnapshot document : task.getResult()) {
                         if (document != null && document.get("name") != null) {
-                            Deck deck = new Deck(document.get("name").toString());
-
-                            if (document.get("owner") != null) {
-                                deck.setOwnerEmail(document.get("owner").toString());
-                            }
-                            decks.add(deck);
+                            decks.add(document.get("name").toString());
                             decksList.requestLayout();
                         }
                     }
@@ -81,50 +77,11 @@ public class SearchFragment extends Fragment {
                 }
             }
         });
-        adapter = new DeckAdapter(getContext(), R.layout.deck_list_item, decks);
+        adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1, decks);
         decksList.setAdapter(adapter);
         setHasOptionsMenu(true);
         deckKey = getString(R.string.NameString);
         return v;
-    }
-
-    public class DeckAdapter extends ArrayAdapter<Deck> {
-        private ArrayList<Deck> items;
-        private DeckViewHolder deckHolder;
-
-        private class DeckViewHolder {
-            TextView name;
-            TextView ownerName;
-        }
-
-        public DeckAdapter(Context context, int resId, ArrayList<Deck> items) {
-            super(context, resId, items);
-            this.items = items;
-        }
-
-        @Override
-        public View getView(int pos, View convertView, ViewGroup parent) {
-            View v = convertView;
-            if (v == null) {
-                LayoutInflater vi = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                v = vi.inflate(R.layout.deck_list_item, null);
-                deckHolder = new DeckViewHolder();
-                deckHolder.name = (TextView) v.findViewById(R.id.deck_name);
-                deckHolder.ownerName = (TextView) v.findViewById(R.id.deck_owner_name);
-                v.setTag(deckHolder);
-            } else {
-                deckHolder = (DeckViewHolder) v.getTag();
-            }
-
-            Deck deck = items.get(pos);
-
-            if (deck != null) {
-                deckHolder.name.setText(deck.getName());
-                deckHolder.ownerName.setText("Made by " + deck.getOwnerEmail());
-            }
-
-            return v;
-        }
     }
 
     @Override
