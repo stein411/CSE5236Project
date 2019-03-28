@@ -525,7 +525,6 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
                 for (Flashcard flashcard : flashcards) {
                     addFlashcard(flashcard.getTerm(), flashcard.getDefinition());
                 }
-                addFlashcardsToUI = false;
             }
         }
     }
@@ -536,8 +535,10 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
             if (professors.size() == 0) {
                 profName.setText(getString(R.string.prof_deck_home_prompt));
             }
-            for (Professor professor : professors) {
-                profNames.add(professor.getProfessorName());
+            if (addFlashcardsToUI) {
+                for (Professor professor : professors) {
+                    profNames.add(professor.getProfessorName());
+                }
             }
         }
     }
@@ -548,8 +549,10 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
             if (categories.size() == 0) {
                 categoryName.setText(getString(R.string.category_deck_home_prompt));
             }
-            for (Category category : categories) {
-                categoryNames.add(category.getCategoryName());
+            if (addFlashcardsToUI) {
+                for (Category category : categories) {
+                    categoryNames.add(category.getCategoryName());
+                }
             }
         }
     }
