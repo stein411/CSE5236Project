@@ -23,7 +23,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.flashcardapp.Activities.StudyDeckActivity;
+import com.example.flashcardapp.RoomDatabase.Category;
 import com.example.flashcardapp.RoomDatabase.Deck;
+import com.example.flashcardapp.RoomDatabase.Flashcard;
+import com.example.flashcardapp.RoomDatabase.Professor;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -70,16 +73,20 @@ public class UneditableDeckFragment extends Fragment {
     private List<Integer> cardLabels;
     private FirebaseUser user;
     private DeckViewModel mDeckViewModel;
+    private ProfessorViewModel mProfessorViewModel;
+    private CategoryViewModel mCategoryViewModel;
+    private FlashcardViewModel mFlashcardViewModel;
+    private boolean mJustChanged;
+    private boolean mNeedToAddProfs;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         mDeckViewModel = ViewModelProviders.of(this).get(DeckViewModel.class);
-//        mProfessorViewModel = ViewModelProviders.of(this).get(ProfessorViewModel.class);
-//        mCategoryViewModel = ViewModelProviders.of(this).get(CategoryViewModel.class);
-//        mFlashcardViewModel = ViewModelProviders.of(this).get(FlashcardViewModel.class);
-//        fusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
+        mProfessorViewModel = ViewModelProviders.of(this).get(ProfessorViewModel.class);
+        mCategoryViewModel = ViewModelProviders.of(this).get(CategoryViewModel.class);
+        mFlashcardViewModel = ViewModelProviders.of(this).get(FlashcardViewModel.class);
     }
 
     @Nullable
@@ -97,6 +104,8 @@ public class UneditableDeckFragment extends Fragment {
         flashcardCount = 0;
         terms = new ArrayList<>();
         defs = new ArrayList<>();
+        mJustChanged = false;
+        mNeedToAddProfs = true;
         ratingsText = (TextView) v.findViewById(R.id.ratings_input);
         ratingsBar = (SeekBar) v.findViewById(R.id.ratings_bar);
         studyDeckButton = (Button) v.findViewById(R.id.study_deck_button);
@@ -220,19 +229,82 @@ public class UneditableDeckFragment extends Fragment {
         downloadDeckButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 final String dName = deckNameLabel.getText().toString();
-                final Deck deck = new Deck(dName);
-                deck.setCourse(courseNameLabel.getText().toString());
-                deck.setSchool(schoolNameLabel.getText().toString());
-                //String email = authorNameLabel.getText().toString();
-                //deck.setOwnerEmail(email);
-                String email = "guest";
-                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                if (user != null && user.getEmail() != null) {
-                    email = user.getEmail();
-                }
-                deck.setOwnerEmail(email);
-                mDeckViewModel.insert(deck);
+
+                mDeckViewModel.getSelectDecks(dName).observe(getActivity(), new Observer<List<Deck>>() {
+                    @Override
+                    public void onChanged(@Nullable List<Deck> decks) {
+
+                        final Deck deck = new Deck(dName);
+                        deck.setCourse(courseNameLabel.getText().toString());
+                        deck.setSchool(schoolNameLabel.getText().toString());
+                        String email = "guest";
+                        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                        if (user != null && user.getEmail() != null) {
+                            email = user.getEmail();
+                        }
+                        deck.setOwnerEmail(email);
+
+                        // download new deck
+                        if (decks != null && decks.size() == 0) {
+                            mNeedToAddProfs = true;
+                            mDeckViewModel.insert(deck);
+                            mJustChanged = true;
+
+                            Toast.makeText(getContext(), "Deck downloaded", Toast.LENGTH_LONG).show();
+
+                        // update deck
+                        } else if (!mJustChanged){
+                            mJustChanged = true;
+                            final Deck oldDeck = new Deck(dName);
+
+                            mFlashcardViewModel.deleteAllFlashcardsInDeck(oldDeck.getName());
+                            mProfessorViewModel.deleteAllProfessorsInDeck(oldDeck.getName());
+                            mCategoryViewModel.deleteAllCategoriesInDeck(oldDeck.getName());
+
+                            mDeckViewModel.update(deck, oldDeck);
+
+                            for (String prof : profNames) {
+                                final Professor professor = new Professor();
+                                professor.setProfessorName(prof);
+                                professor.setDeckName(dName);
+                                mProfessorViewModel.insert(professor);
+                            }
+
+                            for (String cat : categoryNames) {
+                                final Category category = new Category();
+                                category.setCategoryName(cat);
+                                category.setDeckName(dName);
+                                mCategoryViewModel.insert(category);
+                            }
+
+                            for (int i = 0; i < terms.size(); i++) {
+                                String termTxt = terms.get(i);
+                                String defTxt = defs.get(i);
+                                Flashcard flashcard = new Flashcard();
+                                flashcard.setDeckName(dName);
+                                flashcard.setTerm(termTxt);
+                                flashcard.setDefinition(defTxt);
+                                if (flashcard.getTerm().length() > 0) {
+                                    // Don't allow flashcards with empty terms
+                                    mFlashcardViewModel.insert(flashcard);
+                                }
+                            }
+
+                            Toast.makeText(getContext(), "Deck updated", Toast.LENGTH_LONG).show();
+
+                        }
+                    }
+                });
+
+
+
+
+
+
+
+
 
 
 
@@ -428,5 +500,35 @@ public class UneditableDeckFragment extends Fragment {
      */
     public int toDp(int value) {
         return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value, getResources().getDisplayMetrics());
+    }
+
+    private void onSelectedDeckUpdated(Deck deck, String dName) {
+        mDeckViewModel.insert(deck);
+        mJustChanged = true;
+
+        if (mNeedToAddProfs) {
+            for (String prof : profNames) {
+                final Professor professor = new Professor();
+                professor.setProfessorName(prof);
+                professor.setDeckName(dName);
+                mProfessorViewModel.insert(professor);
+            }
+            for (String cat : categoryNames) {
+                final Category category = new Category();
+                category.setCategoryName(cat);
+                category.setDeckName(dName);
+                mCategoryViewModel.insert(category);
+            }
+
+            for (int i = 0; i < terms.size(); i++) {
+                String termTxt = terms.get(i);
+                String defTxt = defs.get(i);
+                Flashcard flashcard = new Flashcard();
+                flashcard.setDeckName(dName);
+                flashcard.setTerm(termTxt);
+                flashcard.setDefinition(defTxt);
+                mFlashcardViewModel.insert(flashcard);
+            }
+        }
     }
 }
