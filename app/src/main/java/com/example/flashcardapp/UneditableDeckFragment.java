@@ -1,5 +1,8 @@
 package com.example.flashcardapp;
 
+import android.app.Activity;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -20,6 +23,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.flashcardapp.Activities.StudyDeckActivity;
+import com.example.flashcardapp.RoomDatabase.Deck;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -64,6 +69,18 @@ public class UneditableDeckFragment extends Fragment {
     private List<Integer> cardLayouts;
     private List<Integer> cardLabels;
     private FirebaseUser user;
+    private DeckViewModel mDeckViewModel;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        mDeckViewModel = ViewModelProviders.of(this).get(DeckViewModel.class);
+//        mProfessorViewModel = ViewModelProviders.of(this).get(ProfessorViewModel.class);
+//        mCategoryViewModel = ViewModelProviders.of(this).get(CategoryViewModel.class);
+//        mFlashcardViewModel = ViewModelProviders.of(this).get(FlashcardViewModel.class);
+//        fusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
+    }
 
     @Nullable
     @Override
@@ -195,7 +212,34 @@ public class UneditableDeckFragment extends Fragment {
         downloadDeckButton = (Button) v.findViewById(R.id.download_deck);
 
         // TODO once download decks is working, modify this. May need to create a migration to allow for non-unique deck names
-        downloadDeckButton.setEnabled(false);
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user.getEmail() == null) {
+            downloadDeckButton.setEnabled(false);
+        }
+
+        downloadDeckButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                final String dName = deckNameLabel.getText().toString();
+                final Deck deck = new Deck(dName);
+                deck.setCourse(courseNameLabel.getText().toString());
+                deck.setSchool(schoolNameLabel.getText().toString());
+                //String email = authorNameLabel.getText().toString();
+                //deck.setOwnerEmail(email);
+                String email = "guest";
+                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                if (user != null && user.getEmail() != null) {
+                    email = user.getEmail();
+                }
+                deck.setOwnerEmail(email);
+                mDeckViewModel.insert(deck);
+
+
+
+
+
+            }
+        });
 
         if (deckName != null) {
             setupLayout();
