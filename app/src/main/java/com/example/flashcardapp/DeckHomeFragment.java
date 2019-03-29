@@ -89,6 +89,7 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
     private String isFirebaseDeckKey;
     private String ownerEmail;
     private String ratingText;
+    private FirebaseUser user;
 
     private DocumentReference deck;
     private FusedLocationProviderClient fusedLocationClient;
@@ -119,6 +120,7 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
         mCategoryViewModel = ViewModelProviders.of(this).get(CategoryViewModel.class);
         mFlashcardViewModel = ViewModelProviders.of(this).get(FlashcardViewModel.class);
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
+        user = FirebaseAuth.getInstance().getCurrentUser();
     }
 
     @Override
@@ -226,7 +228,6 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
                                 deck.setCourse(coName);
                                 deck.setSchool(sName);
                                 String email = "guest";
-                                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                                 if (user != null && user.getEmail() != null) {
                                     email = user.getEmail();
                                 }
@@ -234,17 +235,30 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
                                 mFlashcardViewModel.deleteAllFlashcardsInDeck(dName);
                                 mDeckViewModel.delete(deck);
 
-                                // TODO delete deck from Firebase
-                                DocumentReference doc = FirebaseFirestore.getInstance().collection("decks").document(dName);
+                                // Delete deck from Firebase
+                                final DocumentReference doc = FirebaseFirestore.getInstance().collection("decks").document(dName);
                                 if (doc != null) {
-                                    Map<String, Object> updates = new HashMap<>();
-                                    updates.put("location", FieldValue.delete());
-                                    updates.put("flashcards", FieldValue.delete());
-                                    updates.put("professor", FieldValue.delete());
-                                    updates.put("category", FieldValue.delete());
-                                    updates.put("ratings_by_user", FieldValue.delete());
-                                    doc.update(updates);
-                                    doc.delete();
+                                    doc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                            if (task.isSuccessful()) {
+                                                DocumentSnapshot snapshot = task.getResult();
+                                                if (snapshot.exists()) {
+                                                    Object email = snapshot.get("email");
+                                                    if (email != null && email.toString().equals(user.getEmail())) {
+                                                        Map<String, Object> updates = new HashMap<>();
+                                                        updates.put("location", FieldValue.delete());
+                                                        updates.put("flashcards", FieldValue.delete());
+                                                        updates.put("professor", FieldValue.delete());
+                                                        updates.put("category", FieldValue.delete());
+                                                        updates.put("ratings_by_user", FieldValue.delete());
+                                                        doc.update(updates);
+                                                        doc.delete();
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    });
                                 }
 
                                 mIntent = new Intent();
@@ -353,6 +367,9 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
                                     if (snapshot.get("rating") != null) {
                                         ratingText = "Average Rating: " + snapshot.get("rating").toString();
                                         averageRating.setText(ratingText);
+                                    }
+                                    if (snapshot.get("owner") != null && !snapshot.get("owner").equals(user.getEmail())) {
+                                        postDeckButton.setEnabled(false);
                                     }
                                 }
                             }

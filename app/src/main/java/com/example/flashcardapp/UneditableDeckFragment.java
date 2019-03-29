@@ -235,7 +235,6 @@ public class UneditableDeckFragment extends Fragment {
                 mDeckViewModel.getSelectDecks(dName).observe(getActivity(), new Observer<List<Deck>>() {
                     @Override
                     public void onChanged(@Nullable List<Deck> decks) {
-
                         final Deck deck = new Deck(dName);
                         deck.setCourse(courseNameLabel.getText().toString());
                         deck.setSchool(schoolNameLabel.getText().toString());
@@ -251,7 +250,7 @@ public class UneditableDeckFragment extends Fragment {
                             mNeedToAddProfs = true;
                             mDeckViewModel.insert(deck);
                             mJustChanged = true;
-
+                            onSelectedDeckUpdated(deck, dName);
                             Toast.makeText(getContext(), "Deck downloaded", Toast.LENGTH_LONG).show();
 
                         // update deck
@@ -264,52 +263,40 @@ public class UneditableDeckFragment extends Fragment {
                             mCategoryViewModel.deleteAllCategoriesInDeck(oldDeck.getName());
 
                             mDeckViewModel.update(deck, oldDeck);
+                            onSelectedDeckUpdated(deck, dName);
 
-                            for (String prof : profNames) {
-                                final Professor professor = new Professor();
-                                professor.setProfessorName(prof);
-                                professor.setDeckName(dName);
-                                mProfessorViewModel.insert(professor);
-                            }
-
-                            for (String cat : categoryNames) {
-                                final Category category = new Category();
-                                category.setCategoryName(cat);
-                                category.setDeckName(dName);
-                                mCategoryViewModel.insert(category);
-                            }
-
-                            for (int i = 0; i < terms.size(); i++) {
-                                String termTxt = terms.get(i);
-                                String defTxt = defs.get(i);
-                                Flashcard flashcard = new Flashcard();
-                                flashcard.setDeckName(dName);
-                                flashcard.setTerm(termTxt);
-                                flashcard.setDefinition(defTxt);
-                                if (flashcard.getTerm().length() > 0) {
-                                    // Don't allow flashcards with empty terms
-                                    mFlashcardViewModel.insert(flashcard);
-                                }
-                            }
+//                            for (String prof : profNames) {
+//                                final Professor professor = new Professor();
+//                                professor.setProfessorName(prof);
+//                                professor.setDeckName(dName);
+//                                mProfessorViewModel.insert(professor);
+//                            }
+//
+//                            for (String cat : categoryNames) {
+//                                final Category category = new Category();
+//                                category.setCategoryName(cat);
+//                                category.setDeckName(dName);
+//                                mCategoryViewModel.insert(category);
+//                            }
+//
+//                            for (int i = 0; i < terms.size(); i++) {
+//                                String termTxt = terms.get(i);
+//                                String defTxt = defs.get(i);
+//                                Flashcard flashcard = new Flashcard();
+//                                flashcard.setDeckName(dName);
+//                                flashcard.setTerm(termTxt);
+//                                flashcard.setDefinition(defTxt);
+//                                if (flashcard.getTerm().length() > 0) {
+//                                    // Don't allow flashcards with empty terms
+//                                    mFlashcardViewModel.insert(flashcard);
+//                                }
+//                            }
 
                             Toast.makeText(getContext(), "Deck updated", Toast.LENGTH_LONG).show();
 
                         }
                     }
                 });
-
-
-
-
-
-
-
-
-
-
-
-
-
             }
         });
 
@@ -503,7 +490,7 @@ public class UneditableDeckFragment extends Fragment {
     }
 
     private void onSelectedDeckUpdated(Deck deck, String dName) {
-        mDeckViewModel.insert(deck);
+        //mDeckViewModel.insert(deck);
         mJustChanged = true;
 
         if (mNeedToAddProfs) {
