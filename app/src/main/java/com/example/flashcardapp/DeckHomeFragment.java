@@ -189,7 +189,6 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
                 if (getActivity() != null) {
                     addFlashcardsToUI = false;
                     updateDatabase(sourceIntent.getBooleanExtra(isNewDeckKey, true));
-                    updateDatabase(sourceIntent.getBooleanExtra(isNewDeckKey, true));
                     mIntent = new Intent();
                     mIntent.putExtra(completedDeckKey, true);
                     mIntent.putExtra(deckNameKey, deckName.getText());
