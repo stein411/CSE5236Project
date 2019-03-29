@@ -40,12 +40,15 @@ import com.example.flashcardapp.RoomDatabase.Professor;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
@@ -67,6 +70,7 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
     private TextView schoolName;
     private TextView profName;
     private TextView categoryName;
+    private TextView averageRating;
     private String deckKey;
     private String courseKey;
     private String schoolKey;
@@ -83,6 +87,7 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
     private String isNewDeckKey;
     private String isFirebaseDeckKey;
     private String ownerEmail;
+    private String ratingText;
 
     private DocumentReference deck;
     private FusedLocationProviderClient fusedLocationClient;
@@ -142,6 +147,7 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
         profNames = new ArrayList<>();
         categoryNames = new ArrayList<>();
         ownerEmail = "guest";
+        ratingText = "Average Rating: 0.0";
 
         // Get references to text view widgets
         deckName = (TextView) v.findViewById(R.id.deck_name_label);
@@ -150,6 +156,7 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
         profName = (TextView) v.findViewById(R.id.professor_name_label);
         categoryName = (TextView) v.findViewById(R.id.category_name_label);
         dName = "";
+        averageRating = (TextView) v.findViewById(R.id.rating);
 
         addFlashcardsToUI = true;
 
@@ -212,6 +219,9 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
                         //getActivity().finish();
                         getActivity().getIntent().removeExtra(isNewDeckKey);
                         getActivity().getIntent().putExtra(isNewDeckKey, false);
+
+                        // Enable posting
+                        postDeckButton.setEnabled(true);
                     }
                 }
             }
@@ -339,7 +349,6 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
             }
         });
 
-
         boolean isNewDeck = sourceIntent.getBooleanExtra(isNewDeckKey, true);
         if (!isNewDeck) {
             // Need to populate the text fields
@@ -352,6 +361,25 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
                 mProfessorViewModel.getAllProfessorsFromDeck(dName).observe(this, new ProfessorObserver());
                 mCategoryViewModel.getAllCategoriesFromDeck(dName).observe(this, new CategoryObserver());
                 mFlashcardViewModel.getAllFlashcardsFromDeck(dName).observe(this, new FlashcardObserver());
+
+                // Get the average rating from Firebase
+                DocumentReference documentReference = FirebaseFirestore.getInstance().collection("decks").document(dName);
+                if (documentReference != null) {
+                    documentReference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                            if (task.isSuccessful()) {
+                                DocumentSnapshot snapshot = task.getResult();
+                                if (snapshot.exists()) {
+                                    if (snapshot.get("rating") != null) {
+                                        ratingText = "Average Rating: " + snapshot.get("rating").toString();
+                                        averageRating.setText(ratingText);
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
             }
         } else {
             deleteButton.setEnabled(false);
@@ -359,6 +387,7 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
             postDeckButton.setEnabled(false);
         }
 
+        averageRating.setText(ratingText);
 
         return v;
     }
@@ -496,7 +525,6 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
                 for (Flashcard flashcard : flashcards) {
                     addFlashcard(flashcard.getTerm(), flashcard.getDefinition());
                 }
-                //addFlashcardsToUI = false;
             }
         }
     }

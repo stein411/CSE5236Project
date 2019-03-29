@@ -28,9 +28,11 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import org.w3c.dom.Document;
 import org.w3c.dom.Text;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -51,6 +53,7 @@ public class UneditableDeckFragment extends Fragment {
     private TextView professorNameLabel;
     private TextView categoryNameLabel;
     private TextView authorNameLabel;
+    private TextView averageRating;
     private ArrayList<String> profNames;
     private ArrayList<String> categoryNames;
     private List<String> terms;
@@ -60,6 +63,7 @@ public class UneditableDeckFragment extends Fragment {
     private int flashcardCount;
     private List<Integer> cardLayouts;
     private List<Integer> cardLabels;
+    private FirebaseUser user;
 
     @Nullable
     @Override
@@ -67,6 +71,7 @@ public class UneditableDeckFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_uneditable_deck, container, false);
         deckKey = getString(R.string.NameString);
         deckName = getActivity().getIntent().getStringExtra(deckKey);
+        user = FirebaseAuth.getInstance().getCurrentUser();
         isFirebaseDeckKey = getString(R.string.is_firebase_deck_key);
         profNames = new ArrayList<>();
         categoryNames = new ArrayList<>();
@@ -127,13 +132,65 @@ public class UneditableDeckFragment extends Fragment {
                 }
             }
         });
+        averageRating = (TextView) v.findViewById(R.id.average_rating);
         authorNameLabel = (TextView) v.findViewById(R.id.author_name_label);
-
-
         ratingsButton = (Button) v.findViewById(R.id.post_rating);
+        ratingsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                final DocumentReference deckDocumentReference = FirebaseFirestore.getInstance().collection("decks").document(deckName);
+                if (deckDocumentReference != null) {
+                    deckDocumentReference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                            if (task.isSuccessful()) {
+                                DocumentSnapshot snapshot = task.getResult();
+                                if (snapshot.exists()) {
+                                    Map<String, Object> deckInfo = snapshot.getData();
+                                    if (snapshot.get("ratings_by_user") == null) {
+                                        Map<String, Long> ratings = new HashMap<>();
+                                        if (user != null) {
+                                            ratings.put(user.getEmail(), (long) mRating);
+                                        }
+                                        deckInfo.put("ratings_by_user", ratings);
 
-        // TODO once ratings are working, modify this
-        ratingsButton.setEnabled(false);
+                                        // First rating in deck should be the average
+                                        deckInfo.replace("rating", mRating);
+
+                                        // Update textview
+                                        averageRating.setText("Average Rating: " + mRating);
+                                    } else {
+                                        if (user != null) {
+                                            Map<String, Long> ratings = (Map) snapshot.get("ratings_by_user");
+                                            if (ratings.containsKey(user.getEmail())) {
+                                                ratings.replace(user.getEmail(), (long) mRating);
+                                            } else {
+                                                ratings.put(user.getEmail(), (long) mRating);
+                                            }
+                                            deckInfo.replace("ratings_by_user", ratings);
+
+                                            // Recalculate average rating
+                                            double numRatings = ratings.size();
+                                            long sumRatings = 0;
+                                            for (Map.Entry<String, Long> rating : ratings.entrySet()) {
+                                                sumRatings += rating.getValue();
+                                            }
+                                            double avgRating = sumRatings / numRatings;
+
+                                            deckInfo.replace("rating", avgRating);
+
+                                            // Update textview
+                                            averageRating.setText("Average Rating: " + avgRating);
+                                        }
+                                    }
+                                    deckDocumentReference.set(deckInfo);
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+        });
 
         downloadDeckButton = (Button) v.findViewById(R.id.download_deck);
 
@@ -193,7 +250,22 @@ public class UneditableDeckFragment extends Fragment {
                                 addFlashcardsToView();
                             }
                             if (documentSnapshot.get("owner") != null) {
-                                authorNameLabel.setText("Deck Made By: " + documentSnapshot.get("owner"));
+                                String ownerEmail = documentSnapshot.get("owner").toString();
+                                authorNameLabel.setText("Deck Made By: " + ownerEmail);
+                                if (user.getEmail() == null || ownerEmail.equals(user.getEmail())) {
+                                    // Disable ratings
+                                    ratingsButton.setEnabled(false);
+                                }
+                            }
+                            if (documentSnapshot.get("rating") != null) {
+                                Object obj = documentSnapshot.get("rating");
+                                double avgRating = 0;
+                                try {
+                                    avgRating = Double.parseDouble(obj.toString());
+                                } catch (Exception e) {
+                                    Toast.makeText(getContext(), "Issue with ratings", Toast.LENGTH_SHORT).show();
+                                }
+                                averageRating.setText("Average Rating: " + avgRating);
                             }
                         }
                     }
