@@ -96,7 +96,6 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
     private List<Integer> termIds;
     private List<Integer> defIds;
     private String dName;
-    private boolean updatedDb;
     private List<Deck> mSelectedDecks;
     private boolean mJustChanged;
     private boolean addFlashcardsToUI;
@@ -105,7 +104,6 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
     private Button deleteButton;
     private ProfessorViewModel mProfessorViewModel;
     private boolean mNeedToAddProfs;
-    private boolean mNeedToUpdateProf;
     private CategoryViewModel mCategoryViewModel;
     private FlashcardViewModel mFlashcardViewModel;
     private Button studyDeckButton;
@@ -191,38 +189,20 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
                     addFlashcardsToUI = false;
                     updateDatabase(sourceIntent.getBooleanExtra(isNewDeckKey, true));
 
-                    //I used deckTitle2 since deckTitle is "Deck Name" permanently for some reason
-                    final String deckTitle2 = deckName.getText().toString();
+                //I used deckTitle2 since deckTitle is "Deck Name" permanently for some reason
+                final String deckTitle2 = deckName.getText().toString();
 
-                    // Guests cannot add to Firebase
-//                    FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-//                    if (user != null && user.getEmail() != null) {
-//                        ownerEmail = user.getEmail();
-//                        addDeckInfoToFirebase(deckTitle2, ownerEmail, profNames, categoryNames, 0, courseName.getText().toString(), schoolName.getText().toString());
-//                        addFlashcardToFirebase(deckTitle2);
-//                    }
-                    if (updatedDb) {
-                        // TODO debug situation where adding new deck need to click twice
-                        mIntent = new Intent();
-                        mIntent.putExtra(completedDeckKey, true);
-                        mIntent.putExtra(deckNameKey, deckName.getText());
-                        getActivity().setResult(Activity.RESULT_OK, mIntent);
-                        Toast.makeText(getContext(), "Changes saved successfully", Toast.LENGTH_LONG).show();
-//                        Intent intent = new Intent(getContext(), DeckHomeActivity.class);
-//                        Bundle extras = sourceIntent.getExtras();
-//                        extras.remove(deckNameKey);
-//                        extras.putString(deckNameKey, deckName.getText().toString());
-//                        extras.remove(isNewDeckKey);
-//                        extras.putBoolean(isNewDeckKey, false);
-                        //intent.putExtras(extras);
-                        //startActivity(intent);
-                        //getActivity().finish();
-                        getActivity().getIntent().removeExtra(isNewDeckKey);
-                        getActivity().getIntent().putExtra(isNewDeckKey, false);
+                    // TODO debug situation where adding new deck need to click twice
+                    mIntent = new Intent();
+                    mIntent.putExtra(completedDeckKey, true);
+                    mIntent.putExtra(deckNameKey, deckName.getText());
+                    getActivity().setResult(Activity.RESULT_OK, mIntent);
+                    Toast.makeText(getContext(), "Changes saved successfully", Toast.LENGTH_LONG).show();
+                    getActivity().getIntent().removeExtra(isNewDeckKey);
+                    getActivity().getIntent().putExtra(isNewDeckKey, false);
 
-                        // Enable posting
-                        postDeckButton.setEnabled(true);
-                    }
+                    // Enable posting
+                    postDeckButton.setEnabled(true);
                 }
             }
         });
@@ -637,15 +617,11 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
                     mFlashcardViewModel.insert(flashcard);
                 }
             }
-
-
-            updatedDb = true;
         }
     }
 
     private void onSelectedDeckUpdated(Deck deck, String dName) {
         mDeckViewModel.insert(deck);
-        updatedDb = true;
         mJustChanged = true;
 
         if (mNeedToAddProfs) {
