@@ -189,16 +189,6 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
                 if (getActivity() != null) {
                     addFlashcardsToUI = false;
                     updateDatabase(sourceIntent.getBooleanExtra(isNewDeckKey, true));
-                    mIntent = new Intent();
-                    mIntent.putExtra(completedDeckKey, true);
-                    mIntent.putExtra(deckNameKey, deckName.getText());
-                    getActivity().setResult(Activity.RESULT_OK, mIntent);
-                    Toast.makeText(getContext(), "Changes saved successfully", Toast.LENGTH_LONG).show();
-                    getActivity().getIntent().removeExtra(isNewDeckKey);
-                    getActivity().getIntent().putExtra(isNewDeckKey, false);
-
-                    // Enable posting
-                    postDeckButton.setEnabled(true);
                 }
             }
         });
@@ -571,9 +561,19 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
                     if (mSelectedDecks != null && mSelectedDecks.size() == 0) {
                         mNeedToAddProfs = true;
                         onSelectedDeckUpdated(deck, dName);
+                        mIntent = new Intent();
+                        mIntent.putExtra(completedDeckKey, true);
+                        mIntent.putExtra(deckNameKey, deckName.getText());
+                        getActivity().setResult(Activity.RESULT_OK, mIntent);
+                        getActivity().getIntent().removeExtra(isNewDeckKey);
+                        getActivity().getIntent().putExtra(isNewDeckKey, false);
+
+                        // Enable posting
+                        postDeckButton.setEnabled(true);
+                        Toast.makeText(getContext(), "Changes saved successfully", Toast.LENGTH_LONG).show();
                     } else if (!mJustChanged){
                         Toast.makeText(getContext(), "The deck with the name " + dName + " already "
-                                + "exists. Please choose a different name", Toast.LENGTH_LONG).show();
+                                + "exists. Please choose a different name.", Toast.LENGTH_LONG).show();
                         mNeedToAddProfs = false;
                         mJustChanged = false;
                     }
@@ -626,6 +626,16 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
                     mFlashcardViewModel.insert(flashcard);
                 }
             }
+            mIntent = new Intent();
+            mIntent.putExtra(completedDeckKey, true);
+            mIntent.putExtra(deckNameKey, deckName.getText());
+            getActivity().setResult(Activity.RESULT_OK, mIntent);
+            getActivity().getIntent().removeExtra(isNewDeckKey);
+            getActivity().getIntent().putExtra(isNewDeckKey, false);
+
+            // Enable posting
+            postDeckButton.setEnabled(true);
+            Toast.makeText(getContext(), "Changes saved successfully", Toast.LENGTH_LONG).show();
         }
     }
 
