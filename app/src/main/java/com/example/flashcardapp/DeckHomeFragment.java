@@ -43,6 +43,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import io.opencensus.tags.Tag;
+
 public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
     private Button deckViewButton;
     private Button saveButton;
@@ -71,6 +73,7 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
     private String isNewDeckKey;
 
     private DocumentReference deck;
+    private DocumentReference deleteDeck;
 
     private DeckViewModel mDeckViewModel;
     private List<Integer> termIds;
@@ -202,6 +205,7 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
         });
 
         deleteButton = v.findViewById(R.id.delete_button);
+
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -211,6 +215,7 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
                     .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int whichButton) {
                             final String dName = deckName.getText().toString();
+                            deleteFirestoreDeck(dName);
                             String coName = courseName.getText().toString();
                             String sName = schoolName.getText().toString();
                             final Deck deck = new Deck(dName);
@@ -263,6 +268,22 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
 
 
         return v;
+    }
+
+    private void deleteFirestoreDeck(String deckName){
+        deleteDeck = FirebaseFirestore.getInstance().collection("decks").document(deckName);
+        deleteDeck.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Log.d("TAG", "DocumentSnapshot successfully deleted!");
+            }
+        })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w("TAG", "Error deleting document", e);
+                    }
+                });
     }
     /*
      * adds flashcards to firebase firestore
