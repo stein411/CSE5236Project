@@ -25,6 +25,9 @@ public class Flashcard {
     @PrimaryKey(autoGenerate = true)
     public int id;
 
+    @ColumnInfo(name = "is_marked")
+    private boolean isMarked;
+
     @NonNull
     public String getDeckName() {
         return deckName;
@@ -50,5 +53,13 @@ public class Flashcard {
 
     public void setDefinition(@NonNull String definition) {
         this.definition = definition;
+    }
+
+    public boolean isMarked() {
+        return isMarked;
+    }
+
+    public void setMarked(boolean marked) {
+        isMarked = marked;
     }
 }

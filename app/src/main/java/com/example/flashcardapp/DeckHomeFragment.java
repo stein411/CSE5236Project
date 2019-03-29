@@ -23,6 +23,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -53,6 +55,7 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -77,6 +80,7 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
     private String schoolKey;
     private String professorKey;
     private String categoryKey;
+    private String markedCardsKey;
     private ArrayList<String> profNames;
     private ArrayList<String> categoryNames;
     private int profIndex;
@@ -97,6 +101,7 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
     private DeckViewModel mDeckViewModel;
     private List<Integer> termIds;
     private List<Integer> defIds;
+    private List<Integer> checkIds;
     private String dName;
     private List<Deck> mSelectedDecks;
     private boolean mJustChanged;
@@ -109,6 +114,8 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
     private CategoryViewModel mCategoryViewModel;
     private FlashcardViewModel mFlashcardViewModel;
     private Button studyDeckButton;
+
+    private ArrayList<String> markedCards;
 
 
     @Override
@@ -142,8 +149,11 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
         deckNameKey = getString(R.string.deck_name_key);
         sourceIntent = getActivity().getIntent();
         isNewDeckKey = getString(R.string.is_new_deck_key);
+        markedCardsKey = getString(R.string.marked_cards);
         termIds = new ArrayList<>();
         defIds = new ArrayList<>();
+        checkIds = new ArrayList<>();
+        markedCards = new ArrayList<>();
         mNeedToAddProfs = true;
         profNames = new ArrayList<>();
         categoryNames = new ArrayList<>();
@@ -280,6 +290,7 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
                 Intent intent = new Intent(getContext(), StudyDeckActivity.class);
                 intent.putExtra(deckKey, deckName.getText().toString());
                 intent.putExtra(isFirebaseDeckKey, false);
+                intent.putStringArrayListExtra(markedCardsKey, markedCards);
                 getActivity().startActivity(intent);
             }
         });
@@ -638,6 +649,11 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
                 flashcard.setDeckName(dName);
                 flashcard.setTerm(termTxt);
                 flashcard.setDefinition(defTxt);
+
+                // Get the flashcard checked value
+                CheckBox checkBox = (CheckBox) getView().findViewById(checkIds.get(i));
+                flashcard.setMarked(checkBox.isChecked());
+
                 if (flashcard.getTerm().length() > 0) {
                     // Don't allow flashcards with empty terms
                     mFlashcardViewModel.insert(flashcard);
@@ -681,6 +697,8 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
                 flashcard.setDeckName(dName);
                 flashcard.setTerm(termTxt);
                 flashcard.setDefinition(defTxt);
+                //flashcard.setMarked(false);
+                // TODO get marked value
                 mFlashcardViewModel.insert(flashcard);
             }
         }
@@ -742,16 +760,17 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
             // Setup the widgets
             TextView lbl = new TextView(getContext());
             lbl.setText(Integer.toString(++flashcardCount));
+            final String lblTxt = Integer.toString(Integer.parseInt(lbl.getText().toString()) - 1);
             ViewGroup.LayoutParams lblParams = new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             ((ConstraintLayout.LayoutParams) lblParams).setMargins(toDp(16), toDp(12), 0, 0);
             lbl.setLayoutParams(lblParams);
-            int lblId = View.generateViewId();
+            final int lblId = View.generateViewId();
             lbl.setId(lblId);
             cardLabels.add(lblId);
 
             EditText term = new EditText(getContext());
             term.setHint(R.string.TermString);
-            ViewGroup.LayoutParams termParams = new ConstraintLayout.LayoutParams(toDp(140), ViewGroup.LayoutParams.MATCH_PARENT);
+            ViewGroup.LayoutParams termParams = new ConstraintLayout.LayoutParams(toDp(110), ViewGroup.LayoutParams.MATCH_PARENT);
             ((ConstraintLayout.LayoutParams) termParams).setMargins(toDp(8), toDp(8), 0, toDp(8));
             term.setLayoutParams(termParams);
             int termId = View.generateViewId();
@@ -761,13 +780,39 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
 
             EditText definition = new EditText(getContext());
             definition.setHint(R.string.DefinitionString);
-            ViewGroup.LayoutParams defParams = new ConstraintLayout.LayoutParams(toDp(140), ViewGroup.LayoutParams.MATCH_PARENT);
+            ViewGroup.LayoutParams defParams = new ConstraintLayout.LayoutParams(toDp(110), ViewGroup.LayoutParams.MATCH_PARENT);
             ((ConstraintLayout.LayoutParams) defParams).setMargins(toDp(8), toDp(8), 0, toDp(8));
             definition.setLayoutParams(defParams);
             int defId = View.generateViewId();
             definition.setId(defId);
             defIds.add(defId);
             definition.setText(defTxt);
+
+            final CheckBox checkBox = new CheckBox(getContext());
+            ViewGroup.LayoutParams checkBoxParams = new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            ((ConstraintLayout.LayoutParams) checkBoxParams).setMargins(toDp(8), toDp(8), 0, toDp(8));
+            checkBox.setLayoutParams(checkBoxParams);
+            int checkboxId = View.generateViewId();
+            checkBox.setId(checkboxId);
+            checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                    // Add or remove from list of marked indexes
+                    if (b) {
+                        markedCards.add(lblTxt);
+                    } else {
+                        markedCards.remove(lblTxt);
+                    }
+                    markedCards.sort(new Comparator<String>() {
+                        @Override
+                        public int compare(String s, String t1) {
+                            int int1 = Integer.parseInt(s);
+                            int int2 = Integer.parseInt(t1);
+                            return int1 - int2;
+                        }
+                    });
+                }
+            });
 
             ImageView deleteIcon = new ImageView(getContext());
             deleteIcon.setImageResource(android.R.drawable.ic_menu_delete);
@@ -818,12 +863,13 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
             layout.addView(term);
             layout.addView(definition);
             layout.addView(deleteIcon);
+            layout.addView(checkBox);
 
             // Add constraints so widgets line up correctly
             ConstraintSet constraintSet = new ConstraintSet();
             constraintSet.clone(layout);
             // Set top and bottom layouts of all widgets
-            int[] idList = {lblId, termId, defId, iconId};
+            int[] idList = {lblId, termId, defId, iconId, checkboxId};
             for (int i = 0; i < idList.length; i++) {
                 constraintSet.connect(idList[i], ConstraintSet.TOP, layoutId, ConstraintSet.TOP);
                 constraintSet.connect(idList[i], ConstraintSet.BOTTOM, layoutId, ConstraintSet.BOTTOM);
@@ -832,7 +878,8 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
             constraintSet.connect(lblId, ConstraintSet.START, layoutId, ConstraintSet.START);
             constraintSet.connect(termId, ConstraintSet.START, lblId, ConstraintSet.END);
             constraintSet.connect(defId, ConstraintSet.START, termId, ConstraintSet.END);
-            constraintSet.connect(iconId, ConstraintSet.START, defId, ConstraintSet.END);
+            constraintSet.connect(checkboxId, ConstraintSet.START, defId, ConstraintSet.END);
+            constraintSet.connect(iconId, ConstraintSet.START, checkboxId, ConstraintSet.END);
             constraintSet.connect(iconId, ConstraintSet.END, layoutId, ConstraintSet.END);
 
             // Apply constraints

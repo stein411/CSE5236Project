@@ -39,12 +39,14 @@ public class AnswerFragment extends Fragment {
     private FlashcardViewModel mFlashcardViewModel;
     private String deckKey;
     private String deckName;
+    private String markedCardsKey;
     private List<Flashcard> mFlashcards;
     private int mCurrentIndex;
     private boolean answerWithDef;
     private String mAnswer;
     private String isFirebaseDeckKey;
     private boolean isFirebaseDeck;
+    private ArrayList<String> markedCards;
 
     @Nullable
     @Override
@@ -72,7 +74,7 @@ public class AnswerFragment extends Fragment {
         answerPrompt = (TextView) v.findViewById(R.id.answer_prompt);
         isFirebaseDeckKey = getString(R.string.is_firebase_deck_key);
         isFirebaseDeck = getActivity().getIntent().getBooleanExtra(isFirebaseDeckKey, true);
-
+        markedCardsKey = getString(R.string.marked_cards);
 
         // Get the list of flashcards from the deck name
         mFlashcardViewModel = ViewModelProviders.of(this).get(FlashcardViewModel.class);
@@ -80,7 +82,6 @@ public class AnswerFragment extends Fragment {
         deckName = getActivity().getIntent().getStringExtra(deckKey);
         mFlashcards = new ArrayList<>();
         if (isFirebaseDeck) {
-            // TODO Access Firebase
             final DocumentReference deckDocument = FirebaseFirestore.getInstance().collection("decks").document(deckName);
             if (deckDocument != null) {
                 deckDocument.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -100,7 +101,19 @@ public class AnswerFragment extends Fragment {
                                         mFlashcards.add(flashcard1);
                                     }
                                 }
+                                markedCards = getActivity().getIntent().getStringArrayListExtra(markedCardsKey);
+                                if (markedCards != null) {
+                                    // Remove non-marked terms
+                                    List<Flashcard> fl = new ArrayList<>();
+                                    for (int i = 0; i < mFlashcards.size(); i++) {
+                                        if (markedCards.contains(Integer.toString(i))) {
+                                            fl.add(mFlashcards.get(i));
+                                        }
+                                    }
+                                    mFlashcards = fl;
+                                }
                             }
+
                             if (mFlashcards.size() > 0) {
                                 setupUI();
                             }
@@ -123,6 +136,17 @@ public class AnswerFragment extends Fragment {
 
     private void onChangedCalled() {
         if (mFlashcards.size() > 0) {
+            markedCards = getActivity().getIntent().getStringArrayListExtra(markedCardsKey);
+            if (markedCards != null) {
+                // Remove non-marked terms
+                List<Flashcard> fl = new ArrayList<>();
+                for (int i = 0; i < mFlashcards.size(); i++) {
+                    if (markedCards.contains(Integer.toString(i))) {
+                        fl.add(mFlashcards.get(i));
+                    }
+                }
+                mFlashcards = fl;
+            }
             setupUI();
         } else {
             // Should be caught by study deck, but just in case

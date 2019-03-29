@@ -15,6 +15,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -40,6 +42,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Text;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,6 +58,7 @@ public class UneditableDeckFragment extends Fragment {
     private String deckKey;
     private String deckName;
     private String isFirebaseDeckKey;
+    private String markedCardsKey;
     private TextView deckNameLabel;
     private TextView schoolNameLabel;
     private TextView courseNameLabel;
@@ -71,6 +75,7 @@ public class UneditableDeckFragment extends Fragment {
     private int flashcardCount;
     private List<Integer> cardLayouts;
     private List<Integer> cardLabels;
+    private ArrayList<String> markedCards;
     private FirebaseUser user;
     private DeckViewModel mDeckViewModel;
     private ProfessorViewModel mProfessorViewModel;
@@ -97,8 +102,10 @@ public class UneditableDeckFragment extends Fragment {
         deckName = getActivity().getIntent().getStringExtra(deckKey);
         user = FirebaseAuth.getInstance().getCurrentUser();
         isFirebaseDeckKey = getString(R.string.is_firebase_deck_key);
+        markedCardsKey = getString(R.string.marked_cards);
         profNames = new ArrayList<>();
         categoryNames = new ArrayList<>();
+        markedCards = new ArrayList<>();
         profIndex = 0;
         categoryIndex = 0;
         flashcardCount = 0;
@@ -264,34 +271,6 @@ public class UneditableDeckFragment extends Fragment {
 
                             mDeckViewModel.update(deck, oldDeck);
                             onSelectedDeckUpdated(deck, dName);
-
-//                            for (String prof : profNames) {
-//                                final Professor professor = new Professor();
-//                                professor.setProfessorName(prof);
-//                                professor.setDeckName(dName);
-//                                mProfessorViewModel.insert(professor);
-//                            }
-//
-//                            for (String cat : categoryNames) {
-//                                final Category category = new Category();
-//                                category.setCategoryName(cat);
-//                                category.setDeckName(dName);
-//                                mCategoryViewModel.insert(category);
-//                            }
-//
-//                            for (int i = 0; i < terms.size(); i++) {
-//                                String termTxt = terms.get(i);
-//                                String defTxt = defs.get(i);
-//                                Flashcard flashcard = new Flashcard();
-//                                flashcard.setDeckName(dName);
-//                                flashcard.setTerm(termTxt);
-//                                flashcard.setDefinition(defTxt);
-//                                if (flashcard.getTerm().length() > 0) {
-//                                    // Don't allow flashcards with empty terms
-//                                    mFlashcardViewModel.insert(flashcard);
-//                                }
-//                            }
-
                             Toast.makeText(getContext(), "Deck updated", Toast.LENGTH_LONG).show();
 
                         }
@@ -395,6 +374,7 @@ public class UneditableDeckFragment extends Fragment {
                 // Setup the widgets
                 TextView lbl = new TextView(getContext());
                 lbl.setText(Integer.toString(++flashcardCount));
+                final String lblTxt = Integer.toString(Integer.parseInt(lbl.getText().toString()) - 1);
                 ViewGroup.LayoutParams lblParams = new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
                 ((ConstraintLayout.LayoutParams) lblParams).setMargins(toDp(16), toDp(8), 0, toDp(8));
                 lbl.setLayoutParams(lblParams);
@@ -403,7 +383,7 @@ public class UneditableDeckFragment extends Fragment {
                 cardLabels.add(lblId);
 
                 TextView term = new TextView(getContext());
-                ViewGroup.LayoutParams termParams = new ConstraintLayout.LayoutParams(toDp(160), ViewGroup.LayoutParams.MATCH_PARENT);
+                ViewGroup.LayoutParams termParams = new ConstraintLayout.LayoutParams(toDp(140), ViewGroup.LayoutParams.MATCH_PARENT);
                 ((ConstraintLayout.LayoutParams) termParams).setMargins(toDp(8), toDp(16), 0, toDp(8));
                 term.setLayoutParams(termParams);
                 int termId = View.generateViewId();
@@ -411,24 +391,50 @@ public class UneditableDeckFragment extends Fragment {
                 term.setText(termTxt);
 
                 TextView definition = new TextView(getContext());
-                ViewGroup.LayoutParams defParams = new ConstraintLayout.LayoutParams(toDp(160), ViewGroup.LayoutParams.MATCH_PARENT);
+                ViewGroup.LayoutParams defParams = new ConstraintLayout.LayoutParams(toDp(140), ViewGroup.LayoutParams.MATCH_PARENT);
                 ((ConstraintLayout.LayoutParams) defParams).setMargins(toDp(8), toDp(16), 0, toDp(8));
                 definition.setLayoutParams(defParams);
                 int defId = View.generateViewId();
                 definition.setId(defId);
                 definition.setText(defTxt);
 
+                CheckBox checkBox = new CheckBox(getContext());
+                ViewGroup.LayoutParams checkBoxParams = new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                ((ConstraintLayout.LayoutParams) checkBoxParams).setMargins(toDp(8), toDp(8), toDp(16), toDp(8));
+                checkBox.setLayoutParams(checkBoxParams);
+                int checkboxId = View.generateViewId();
+                checkBox.setId(checkboxId);
+                checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                        // Add or remove from list of marked indexes
+                        if (b) {
+                            markedCards.add(lblTxt);
+                        } else {
+                            markedCards.remove(lblTxt);
+                        }
+                        markedCards.sort(new Comparator<String>() {
+                            @Override
+                            public int compare(String s, String t1) {
+                                int int1 = Integer.parseInt(s);
+                                int int2 = Integer.parseInt(t1);
+                                return int1 - int2;
+                            }
+                        });
+                    }
+                });
 
                 // Add widgets to layout
                 layout.addView(lbl);
                 layout.addView(term);
                 layout.addView(definition);
+                layout.addView(checkBox);
 
                 // Add constraints so widgets line up correctly
                 ConstraintSet constraintSet = new ConstraintSet();
                 constraintSet.clone(layout);
                 // Set top and bottom layouts of all widgets
-                int[] idList = {lblId, termId, defId};
+                int[] idList = {lblId, termId, defId, checkboxId};
                 for (int i = 0; i < idList.length; i++) {
                     constraintSet.connect(idList[i], ConstraintSet.TOP, layoutId, ConstraintSet.TOP);
                     constraintSet.connect(idList[i], ConstraintSet.BOTTOM, layoutId, ConstraintSet.BOTTOM);
@@ -437,7 +443,8 @@ public class UneditableDeckFragment extends Fragment {
                 constraintSet.connect(lblId, ConstraintSet.START, layoutId, ConstraintSet.START);
                 constraintSet.connect(termId, ConstraintSet.START, lblId, ConstraintSet.END);
                 constraintSet.connect(defId, ConstraintSet.START, termId, ConstraintSet.END);
-                constraintSet.connect(defId, ConstraintSet.END, layoutId, ConstraintSet.END);
+                constraintSet.connect(checkboxId, ConstraintSet.START, defId, ConstraintSet.END);
+                constraintSet.connect(checkboxId, ConstraintSet.END, layoutId, ConstraintSet.END);
 
                 // Apply constraints
                 constraintSet.applyTo(layout);
@@ -514,6 +521,7 @@ public class UneditableDeckFragment extends Fragment {
                 flashcard.setDeckName(dName);
                 flashcard.setTerm(termTxt);
                 flashcard.setDefinition(defTxt);
+                flashcard.setMarked(false);
                 mFlashcardViewModel.insert(flashcard);
             }
         }

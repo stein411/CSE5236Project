@@ -29,11 +29,15 @@ public class StudyDeckFragment extends Fragment {
     private Button backButton;
     private Button answerWithTermOrDefButton;
     private Button flashcardsButton;
+    private Button markedStudyButton;
+    private Button markedAnswerButton;
     private String deckKey;
     private String deckName;
     private String isFirebaseDeckKey;
+    private String markedCardsKey;
     private FlashcardViewModel mFlashcardViewModel;
     private boolean isFirebaseDeck;
+    private ArrayList<String> markedCards;
 
     @Nullable
     @Override
@@ -43,6 +47,13 @@ public class StudyDeckFragment extends Fragment {
         deckName = getActivity().getIntent().getStringExtra(deckKey);
         isFirebaseDeckKey = getString(R.string.is_firebase_deck_key);
         isFirebaseDeck = getActivity().getIntent().getBooleanExtra(isFirebaseDeckKey, true);
+        markedCardsKey = getString(R.string.marked_cards);
+
+        if (getActivity().getIntent().getStringArrayListExtra(markedCardsKey) != null) {
+            markedCards = getActivity().getIntent().getStringArrayListExtra(markedCardsKey);
+        } else {
+            markedCards = new ArrayList<>();
+        }
         backButton = (Button) v.findViewById(R.id.back_button);
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -76,10 +87,43 @@ public class StudyDeckFragment extends Fragment {
                 getActivity().startActivity(intent);
             }
         });
+        markedStudyButton = (Button) v.findViewById(R.id.marked_study_button);
+        markedStudyButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getContext(), FlashcardsActivity.class);
+                if (deckName != null) {
+                    intent.putExtra(deckKey, deckName);
+                }
+                intent.putExtra(isFirebaseDeckKey, isFirebaseDeck);
+                intent.putStringArrayListExtra(markedCardsKey, markedCards);
+                getActivity().startActivity(intent);
+            }
+        });
+        markedAnswerButton = (Button) v.findViewById(R.id.marked_answer_button);
+        markedAnswerButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getContext(), AnswerActivity.class);
+                if (deckName != null) {
+                    intent.putExtra(deckKey, deckName);
+                }
+                intent.putExtra(isFirebaseDeckKey, isFirebaseDeck);
+                intent.putExtra(markedCardsKey, true);
+                intent.putStringArrayListExtra(markedCardsKey, markedCards);
+                getActivity().startActivity(intent);
+            }
+        });
 
         if (deckName == null) {
             answerWithTermOrDefButton.setEnabled(false);
             flashcardsButton.setEnabled(false);
+        }
+
+        if (markedCards.size() == 0) {
+            // Disable studying marked cards
+            markedAnswerButton.setEnabled(false);
+            markedStudyButton.setEnabled(false);
         }
 
         // Check if no flashcards (disable all studying activities if that's the case)

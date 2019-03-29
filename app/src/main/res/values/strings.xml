@@ -75,4 +75,7 @@
     <string name="sign_out_prompt">Sign Out</string>
     <string name="is_firebase_deck_key">IsFirebaseDeck</string>
     <string name="post_deck_button">Post Deck</string>
+    <string name="marked_cards">MarkedCards</string>
+    <string name="study_marked_cards">Study Marked Cards</string>
+    <string name="answer_marked_cards">Answer with Only Marked Cards</string>
 </resources>
