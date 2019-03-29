@@ -49,6 +49,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
@@ -188,11 +189,7 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
                 if (getActivity() != null) {
                     addFlashcardsToUI = false;
                     updateDatabase(sourceIntent.getBooleanExtra(isNewDeckKey, true));
-
-                //I used deckTitle2 since deckTitle is "Deck Name" permanently for some reason
-                final String deckTitle2 = deckName.getText().toString();
-
-                    // TODO debug situation where adding new deck need to click twice
+                    updateDatabase(sourceIntent.getBooleanExtra(isNewDeckKey, true));
                     mIntent = new Intent();
                     mIntent.putExtra(completedDeckKey, true);
                     mIntent.putExtra(deckNameKey, deckName.getText());
@@ -247,6 +244,19 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
                                 deck.setOwnerEmail(email);
                                 mFlashcardViewModel.deleteAllFlashcardsInDeck(dName);
                                 mDeckViewModel.delete(deck);
+
+                                // TODO delete deck from Firebase
+                                DocumentReference doc = FirebaseFirestore.getInstance().collection("decks").document(dName);
+                                if (doc != null) {
+                                    Map<String, Object> updates = new HashMap<>();
+                                    updates.put("location", FieldValue.delete());
+                                    updates.put("flashcards", FieldValue.delete());
+                                    updates.put("professor", FieldValue.delete());
+                                    updates.put("category", FieldValue.delete());
+                                    updates.put("ratings_by_user", FieldValue.delete());
+                                    doc.update(updates);
+                                    doc.delete();
+                                }
 
                                 mIntent = new Intent();
                                 mIntent.putExtra(completedDeckKey, true);
