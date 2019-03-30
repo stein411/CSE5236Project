@@ -530,7 +530,7 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
         public void onChanged(@Nullable List<Flashcard> flashcards) {
             if (addFlashcardsToUI) {
                 for (Flashcard flashcard : flashcards) {
-                    addFlashcard(flashcard.getTerm(), flashcard.getDefinition());
+                    addFlashcard(flashcard.getTerm(), flashcard.getDefinition(), flashcard.isMarked());
                 }
             }
         }
@@ -748,7 +748,7 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
         }
     }
 
-    public void addFlashcard(String termTxt, String defTxt) {
+    public void addFlashcard(String termTxt, String defTxt, boolean isMarked) {
         LinearLayout ll = (LinearLayout) getView().findViewById(R.id.flashcards_container);
         if (ll != null) {
             // Create a new layout
@@ -793,7 +793,9 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
             ((ConstraintLayout.LayoutParams) checkBoxParams).setMargins(toDp(8), toDp(8), 0, toDp(8));
             checkBox.setLayoutParams(checkBoxParams);
             int checkboxId = View.generateViewId();
+            checkIds.add(checkboxId);
             checkBox.setId(checkboxId);
+            checkBox.setChecked(isMarked);
             checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
@@ -904,7 +906,7 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
         addFlashcardButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(@NonNull View v) {
-                addFlashcard("", "");
+                addFlashcard("", "", false);
             }
         });
 

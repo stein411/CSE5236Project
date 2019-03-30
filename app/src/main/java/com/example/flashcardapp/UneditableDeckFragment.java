@@ -123,6 +123,7 @@ public class UneditableDeckFragment extends Fragment {
                     Intent intent = new Intent(getContext(), StudyDeckActivity.class);
                     intent.putExtra(deckKey, deckName);
                     intent.putExtra(isFirebaseDeckKey, true);
+                    intent.putStringArrayListExtra(markedCardsKey, markedCards);
                     getActivity().startActivity(intent);
                 }
             }
