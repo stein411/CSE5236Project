@@ -68,7 +68,7 @@ public class MainEmptyActivity extends AppCompatActivity {
         // TODO add google sign in support
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if (user == null) {
+        if (user == null || user.getEmail() == null || user.getEmail().length() == 0) {
             // No user signed in; direct them to sign in
             GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                     .requestIdToken(getString(R.string.default_web_client_id))
