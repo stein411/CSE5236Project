@@ -40,9 +40,6 @@
         <activity
             android:name=".Activities.MapsActivity"
             android:label="@string/title_activity_maps"></activity>
-        <activity
-            android:name=".SignupActivity"
-            android:label="@string/title_activity_signup" />
         <activity android:name=".Activities.MainEmptyActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -50,14 +47,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".LoginActivity"
-            android:label="@string/title_activity_login" />
         <activity android:name=".Activities.UserHomeActivity" />
         <activity android:name=".Activities.DeckEditActivity" />
         <activity android:name=".Activities.DeckMenuActivity" />
         <activity android:name=".Activities.DeckHomeActivity" />
-        <activity android:name=".Activities.ForgotPasswordActivity" />
         <activity android:name=".Activities.SearchActivity" />
         <activity android:name=".Activities.UneditableDeckActivity" />
         <activity android:name=".Activities.StudyDeckActivity" />

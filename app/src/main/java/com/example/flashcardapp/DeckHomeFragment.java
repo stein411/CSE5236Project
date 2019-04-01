@@ -423,6 +423,11 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
             postDeckButton.setEnabled(false);
         }
 
+        // Disable guest posting
+        if (user == null || user.getEmail() == null) {
+            postDeckButton.setEnabled(false);
+        }
+
         averageRating.setText(ratingText);
 
         return v;
@@ -649,7 +654,7 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
             deck.setCourse(coName);
             deck.setSchool(sName);
             String email = "guest";
-            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+            user = FirebaseAuth.getInstance().getCurrentUser();
             if (user != null && user.getEmail() != null) {
                 email = user.getEmail();
             }
@@ -670,7 +675,9 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
                         getActivity().getIntent().putExtra(isNewDeckKey, false);
 
                         // Enable posting
-                        postDeckButton.setEnabled(true);
+                        if (user != null && user.getEmail() != null) {
+                            postDeckButton.setEnabled(true);
+                        }
                         Toast.makeText(getContext(), "Changes saved successfully", Toast.LENGTH_LONG).show();
                     } else if (!mJustChanged){
                         Toast.makeText(getContext(), "The deck with the name " + dName + " already "
@@ -740,7 +747,9 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
             getActivity().getIntent().putExtra(isNewDeckKey, false);
 
             // Enable posting
-            postDeckButton.setEnabled(true);
+            if (user != null && user.getEmail() != null) {
+                postDeckButton.setEnabled(true);
+            }
             Toast.makeText(getContext(), "Changes saved successfully", Toast.LENGTH_LONG).show();
         }
     }
