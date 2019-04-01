@@ -60,76 +60,105 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * DeckHomeFragment.java.
+ * Logged-in user's perspective of a deck, where they can add flashcards, edit the deck metadata, and
+ * study the terms they have entered.
+ */
 public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
-    private static final int MY_PERMISSIONS_REQUEST_FINE_LOCATION = 100;
-    private Button deckViewButton;
-    private Button saveButton;
-    private Button addFlashcardButton;
-    private Button postDeckButton;
-    private int flashcardCount = 0;
-    private List<Integer> cardLayouts;
-    private List<Integer> cardLabels;
-    private TextView deckName;
-    private TextView courseName;
-    private TextView schoolName;
-    private TextView profName;
-    private TextView categoryName;
-    private TextView averageRating;
+    // INTENT KEYS----------------------------------------------------------------------------------
     private String deckKey;
     private String courseKey;
     private String schoolKey;
     private String professorKey;
     private String categoryKey;
     private String markedCardsKey;
-    private ArrayList<String> profNames;
-    private ArrayList<String> categoryNames;
-    private int profIndex;
-    private int categoryIndex;
-    private String completedDeckKey;
-    private String deckNameKey;
-    private Intent mIntent;
-    private Intent sourceIntent;
     private String isNewDeckKey;
     private String isFirebaseDeckKey;
-    private String ownerEmail;
-    private String ratingText;
-    private FirebaseUser user;
+    private String completedDeckKey;
+    private String deckNameKey;
 
-    private DocumentReference deck;
-    private FusedLocationProviderClient fusedLocationClient;
+    // BUTTONS--------------------------------------------------------------------------------------
+    private Button deckViewButton;
+    private Button saveButton;
+    private Button addFlashcardButton;
+    private Button mBackButton;
+    private Button deleteButton;
+    private Button postDeckButton;
+    private Button studyDeckButton;
 
-    private DeckViewModel mDeckViewModel;
+    // TEXT VIEWS-----------------------------------------------------------------------------------
+    private TextView deckName;
+    private TextView courseName;
+    private TextView schoolName;
+    private TextView profName;
+    private TextView categoryName;
+    private TextView averageRating;
+
+    // LISTS----------------------------------------------------------------------------------------
+    private List<Integer> cardLayouts;
+    private List<Integer> cardLabels;
     private List<Integer> termIds;
     private List<Integer> defIds;
     private List<Integer> checkIds;
-    private String dName;
     private List<Deck> mSelectedDecks;
-    private boolean mJustChanged;
-    private boolean addFlashcardsToUI;
-    private Button mBackButton;
-    private Deck mDeck;
-    private Button deleteButton;
-    private ProfessorViewModel mProfessorViewModel;
-    private boolean mNeedToAddProfs;
+    private ArrayList<String> markedCards;
+    private ArrayList<String> profNames;
+    private ArrayList<String> categoryNames;
+
+    // VIEW MODELS----------------------------------------------------------------------------------
+    private DeckViewModel mDeckViewModel;
     private CategoryViewModel mCategoryViewModel;
     private FlashcardViewModel mFlashcardViewModel;
-    private Button studyDeckButton;
+    private ProfessorViewModel mProfessorViewModel;
 
-    private ArrayList<String> markedCards;
+    // OTHER FIELDS---------------------------------------------------------------------------------
+    private static final int MY_PERMISSIONS_REQUEST_FINE_LOCATION = 100;
+    private int flashcardCount = 0;
+    private int profIndex;
+    private int categoryIndex;
+    private Intent mIntent;
+    private Intent sourceIntent;
+    private String dName;
+    private String ownerEmail;
+    private String ratingText;
+    private FirebaseUser user;
+    private DocumentReference deck;
+    private FusedLocationProviderClient fusedLocationClient;
+    private boolean mJustChanged;
+    private boolean addFlashcardsToUI;
+    private boolean mNeedToAddProfs;
+    private Deck mDeck;
 
 
+    /**
+     * OnCreate method.
+     * @param savedInstanceState
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // Initialize view models
         mDeckViewModel = ViewModelProviders.of(this).get(DeckViewModel.class);
         mProfessorViewModel = ViewModelProviders.of(this).get(ProfessorViewModel.class);
         mCategoryViewModel = ViewModelProviders.of(this).get(CategoryViewModel.class);
         mFlashcardViewModel = ViewModelProviders.of(this).get(FlashcardViewModel.class);
+
+        // Setup location client
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
+
+        // Get the logged-in user
         user = FirebaseAuth.getInstance().getCurrentUser();
     }
 
+    /**
+     * OnCreateView method.
+     * @param inflater
+     * @param container
+     * @param savedInstanceState
+     * @return view with layout elements initialized with event listeners
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_deck_home, container, false);
@@ -399,6 +428,12 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
         return v;
     }
 
+    /**
+     * OnRequestPermissionsResult method.
+     * @param requestCode
+     * @param permissions
+     * @param grantResults
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         if (requestCode == MY_PERMISSIONS_REQUEST_FINE_LOCATION) {
@@ -419,22 +454,43 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
         }
     }
 
+    /**
+     * Setup the deck info map.
+     * @param deckName
+     * @param owner
+     * @param professor
+     * @param category
+     * @param rating
+     * @param courseName
+     * @param schoolName
+     * @return hashmap with all the deck metadata
+     */
+    private Map<String, Object> setupDeckInfoForFirebase(String deckName, String owner, ArrayList<String> professor, ArrayList<String> category, int rating, String courseName, String schoolName) {
+        Map<String, Object> deckInfo = new HashMap<>();
+        deckInfo.put("owner", owner);
+        deckInfo.put("name", deckName);
+        deckInfo.put("professor", professor);
+        deckInfo.put("category", category);
+        deckInfo.put("rating", rating);
+        deckInfo.put("course", courseName);
+        return deckInfo;
+    }
 
     /**
-     * Adding deck information to firebase.
-     * This is NOT adding the flashcards just yet.
+     * Add deck information to firebase, minus flashcards and with location info.
+     * @param deckName
+     * @param location
+     * @param owner
+     * @param professor
+     * @param category
+     * @param rating
+     * @param courseName
+     * @param schoolName
      */
     private void addDeckInfoToFirebaseWithLocation(String deckName, Location location, String owner, ArrayList<String> professor, ArrayList<String> category, int rating, String courseName, String schoolName) {
         deck = FirebaseFirestore.getInstance().collection("decks").document(deckName);
-        Map<String, Object> deckInfo = new HashMap<String, Object>();
-        deckInfo.put("owner", owner);
+        Map<String, Object> deckInfo = setupDeckInfoForFirebase(deckName, owner, professor, category, rating, courseName, schoolName);
         deckInfo.put("location", location);
-        deckInfo.put("name", deckName);
-        deckInfo.put("professor", professor);
-        deckInfo.put("category", category);
-        deckInfo.put("rating", rating);
-        deckInfo.put("course", courseName);
-        deckInfo.put("school", schoolName);
         deck.set(deckInfo).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
@@ -450,19 +506,18 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
 
 
     /**
-     * Adding deck information to firebase.
-     * This is NOT adding the flashcards just yet.
+     * Add deck information to firebase, minus flashcards.
+     * @param deckName
+     * @param owner
+     * @param professor
+     * @param category
+     * @param rating
+     * @param courseName
+     * @param schoolName
      */
     private void addDeckInfoToFirebase(String deckName, String owner, ArrayList<String> professor, ArrayList<String> category, int rating, String courseName, String schoolName) {
         deck = FirebaseFirestore.getInstance().collection("decks").document(deckName);
-        Map<String, Object> deckInfo = new HashMap<String, Object>();
-        deckInfo.put("owner", owner);
-        deckInfo.put("name", deckName);
-        deckInfo.put("professor", professor);
-        deckInfo.put("category", category);
-        deckInfo.put("rating", rating);
-        deckInfo.put("course", courseName);
-        deckInfo.put("school", schoolName);
+        Map<String, Object> deckInfo = setupDeckInfoForFirebase(deckName, owner, professor, category, rating, courseName, schoolName);
         deck.set(deckInfo).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
@@ -476,8 +531,10 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
         });
     }
 
-    /*
-     * adds flashcards to firebase firestore
+    /**
+     * Add flashcards to Firebase Firestore.
+     * @param deckTitle
+     *          name of the deck to add the list of flashcards to
      */
     private void addFlashcardToFirebase(String deckTitle){
         //getting the deck reference
@@ -525,6 +582,12 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
 
     }
 
+    // Observer classes used to get all multivalued attributes for the portrayed deck.
+
+    /**
+     * FlashcardObserver class.
+     * Determines when there was a change to the flashcard table.
+     */
     private class FlashcardObserver implements Observer<List<Flashcard>> {
         @Override
         public void onChanged(@Nullable List<Flashcard> flashcards) {
@@ -536,6 +599,10 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
         }
     }
 
+    /**
+     * ProfessorObserver class.
+     * Determines when there was a change to the professor table.
+     */
     private class ProfessorObserver implements Observer<List<Professor>> {
         @Override
         public void onChanged(@Nullable List<Professor> professors) {
@@ -550,6 +617,10 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
         }
     }
 
+    /**
+     * CategoryObserver class.
+     * Determines when there was a change to the category table.
+     */
     private class CategoryObserver implements Observer<List<Category>> {
         @Override
         public void onChanged(@Nullable List<Category> categories) {
@@ -566,6 +637,8 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
 
     /**
      * Updates the local database by either inserting a new deck or updating the existing deck.
+     * @param isNewDeck
+     *          true if deck is new, false otherwise
      */
     public void updateDatabase(boolean isNewDeck) {
         if (isNewDeck) {
@@ -899,6 +972,11 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
         }
     }
 
+    /**
+     * OnViewCreated method. Needed since some view elements aren't ready to have listeners added until now.
+     * @param view
+     * @param savedInstanceState
+     */
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
 
