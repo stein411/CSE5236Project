@@ -39,39 +39,15 @@ public class MainEmptyActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //Intent activityIntent;
-
-        //TODO replace with login token logic
-        //if (Util.getToken() != null) {
-        //activityIntent = new Intent(this, UserHomeActivity.class);
-        //} else {
-        //activityIntent = new Intent(this, LoginActivity.class);
-        //}
-        // Configure Google Sign In
-        // TODO add google sign in support
-
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user == null || user.getEmail() == null || user.getEmail().length() == 0) {
             // No user signed in; direct them to sign in
-            GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                    .requestIdToken(getString(R.string.default_web_client_id))
-                    .requestEmail()
-                    .build();
-            List<AuthUI.IdpConfig> providers = Arrays.asList(
-                    new AuthUI.IdpConfig.EmailBuilder().build(),
-                    new AuthUI.IdpConfig.AnonymousBuilder().build());
-            startActivityForResult(AuthUI.getInstance()
-                    .createSignInIntentBuilder()
-                    .setAvailableProviders(providers)
-                    .build(), RC_SIGN_IN);
+            doLogin();
         } else {
             // User is signed in; take them to the user home activity
             startActivity(new Intent(getApplicationContext(), UserHomeActivity.class));
             finish();
         }
-
-        //startActivity(activityIntent);
-        //finish();
     }
 
     //old onActivityResult
@@ -79,15 +55,26 @@ public class MainEmptyActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == RC_SIGN_IN) {
-            IdpResponse response = IdpResponse.fromResultIntent(data);
+            //IdpResponse response = IdpResponse.fromResultIntent(data);
             if (resultCode == RESULT_OK) {
-                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                //FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                 startActivity(new Intent(getApplicationContext(), UserHomeActivity.class));
                 finish();
             } else {
-                Toast.makeText(getApplicationContext(), "Issue", Toast.LENGTH_LONG).show();
+                // Retry login
+                doLogin();
             }
         }
+    }
+
+    private void doLogin() {
+        List<AuthUI.IdpConfig> providers = Arrays.asList(
+                new AuthUI.IdpConfig.EmailBuilder().build(),
+                new AuthUI.IdpConfig.AnonymousBuilder().build());
+        startActivityForResult(AuthUI.getInstance()
+                .createSignInIntentBuilder()
+                .setAvailableProviders(providers)
+                .build(), RC_SIGN_IN);
     }
 
     //email verification

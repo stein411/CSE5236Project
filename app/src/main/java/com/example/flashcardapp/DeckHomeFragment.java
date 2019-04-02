@@ -26,20 +26,17 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.flashcardapp.Activities.DeckEditActivity;
-import com.example.flashcardapp.Activities.DeckHomeActivity;
 import com.example.flashcardapp.Activities.StudyDeckActivity;
 import com.example.flashcardapp.RoomDatabase.Category;
 import com.example.flashcardapp.RoomDatabase.Deck;
 import com.example.flashcardapp.RoomDatabase.Flashcard;
 import com.example.flashcardapp.RoomDatabase.Professor;
-
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -48,7 +45,6 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
@@ -595,6 +591,8 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
         @Override
         public void onChanged(@Nullable List<Flashcard> flashcards) {
             if (addFlashcardsToUI) {
+                studyDeckButton.setEnabled(flashcards.size() != 0);
+
                 for (Flashcard flashcard : flashcards) {
                     addFlashcard(flashcard.getTerm(), flashcard.getDefinition(), flashcard.isMarked());
                 }
@@ -672,9 +670,13 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
                         getActivity().getIntent().removeExtra(isNewDeckKey);
                         getActivity().getIntent().putExtra(isNewDeckKey, false);
 
-                        // Enable posting
+                        // Enable posting, studying, deleting
                         if (user != null && user.getEmail() != null) {
                             postDeckButton.setEnabled(true);
+                            if (termIds.size() > 0) {
+                                studyDeckButton.setEnabled(true);
+                            }
+                            deleteButton.setEnabled(true);
                         }
                         Toast.makeText(getContext(), "Changes saved successfully", Toast.LENGTH_LONG).show();
                     } else if (!mJustChanged){
@@ -707,7 +709,6 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
             mCategoryViewModel.deleteAllCategoriesInDeck(oldDeck.getName());
 
             mDeckViewModel.update(deck, oldDeck);
-            //onSelectedDeckUpdated(deck, dName2, false);
 
             for (String prof : profNames) {
                 final Professor professor = new Professor();
@@ -829,6 +830,15 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
         }
     }
 
+    /**
+     * Adds the given flashcard to the view.
+     * @param termTxt
+     *          term of the flashcard to add
+     * @param defTxt
+     *          definition of the flashcard to add
+     * @param isMarked
+     *          previous marked status of the current flashcard (false for new cards)
+     */
     public void addFlashcard(String termTxt, String defTxt, boolean isMarked) {
         LinearLayout ll = (LinearLayout) getView().findViewById(R.id.flashcards_container);
         if (ll != null) {
@@ -849,6 +859,7 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
             lbl.setId(lblId);
             cardLabels.add(lblId);
 
+            // Term edit text
             EditText term = new EditText(getContext());
             term.setHint(R.string.TermString);
             ViewGroup.LayoutParams termParams = new ConstraintLayout.LayoutParams(toDp(110), ViewGroup.LayoutParams.MATCH_PARENT);
@@ -859,6 +870,7 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
             termIds.add(termId);
             term.setText(termTxt);
 
+            // Definition edit text
             EditText definition = new EditText(getContext());
             definition.setHint(R.string.DefinitionString);
             ViewGroup.LayoutParams defParams = new ConstraintLayout.LayoutParams(toDp(110), ViewGroup.LayoutParams.MATCH_PARENT);
@@ -869,6 +881,7 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
             defIds.add(defId);
             definition.setText(defTxt);
 
+            // Is marked checkbox
             final CheckBox checkBox = new CheckBox(getContext());
             ViewGroup.LayoutParams checkBoxParams = new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             ((ConstraintLayout.LayoutParams) checkBoxParams).setMargins(toDp(8), toDp(8), 0, toDp(8));
@@ -897,6 +910,7 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
                 }
             });
 
+            // Delete icon
             ImageView deleteIcon = new ImageView(getContext());
             deleteIcon.setImageResource(android.R.drawable.ic_menu_delete);
             ViewGroup.LayoutParams iconParams = new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
