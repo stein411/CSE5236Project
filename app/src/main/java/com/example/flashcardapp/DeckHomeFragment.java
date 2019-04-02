@@ -698,7 +698,7 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
             deck.setCourse(coName);
             deck.setSchool(sName);
             String email = "guest";
-            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+            user = FirebaseAuth.getInstance().getCurrentUser();
             if (user != null && user.getEmail() != null) {
                 email = user.getEmail();
             }
@@ -750,7 +750,27 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
 
             // Enable posting
             if (user != null && user.getEmail() != null) {
-                postDeckButton.setEnabled(true);
+                // Only enable posting if original owner (or document doesn't exist yet)
+                //postDeckButton.setEnabled(false);
+                final DocumentReference doc = FirebaseFirestore.getInstance().collection("decks").document(dName);
+                if (doc != null) {
+                    doc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                            if (task.isSuccessful()) {
+                                DocumentSnapshot snapshot = task.getResult();
+                                if (snapshot.exists()) {
+                                    Object email = snapshot.get("email");
+                                    if (email != null) {
+                                        postDeckButton.setEnabled(email.toString().equals(user.getEmail()));
+                                    }
+                                } else {
+                                    postDeckButton.setEnabled(true);
+                                }
+                            }
+                        }
+                    });
+                }
             }
             Toast.makeText(getContext(), "Changes saved successfully", Toast.LENGTH_LONG).show();
             dName = dName2;

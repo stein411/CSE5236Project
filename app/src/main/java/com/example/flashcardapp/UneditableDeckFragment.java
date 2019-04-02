@@ -66,6 +66,7 @@ public class UneditableDeckFragment extends Fragment {
     private TextView categoryNameLabel;
     private TextView authorNameLabel;
     private TextView averageRating;
+    private TextView ratingsLabel;
     private ArrayList<String> profNames;
     private ArrayList<String> categoryNames;
     private List<String> terms;
@@ -168,6 +169,7 @@ public class UneditableDeckFragment extends Fragment {
         });
         averageRating = (TextView) v.findViewById(R.id.average_rating);
         authorNameLabel = (TextView) v.findViewById(R.id.author_name_label);
+        ratingsLabel = (TextView) v.findViewById(R.id.ratings_label);
         ratingsButton = (Button) v.findViewById(R.id.post_rating);
         ratingsButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -338,6 +340,8 @@ public class UneditableDeckFragment extends Fragment {
                                 if (user.getEmail() == null || ownerEmail.equals(user.getEmail())) {
                                     // Disable ratings
                                     ratingsButton.setEnabled(false);
+                                    ratingsBar.setEnabled(false);
+                                    ratingsLabel.setText("Sign up to Rate and Download this Deck");
                                 }
                             }
                             if (documentSnapshot.get("rating") != null) {
