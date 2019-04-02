@@ -127,7 +127,6 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
     private FusedLocationProviderClient fusedLocationClient;
     private boolean mJustChanged;
     private boolean addFlashcardsToUI;
-    private boolean mNeedToAddProfs;
     private Deck mDeck;
 
 
@@ -183,7 +182,6 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
         defIds = new ArrayList<>();
         checkIds = new ArrayList<>();
         markedCards = new ArrayList<>();
-        mNeedToAddProfs = true;
         profNames = new ArrayList<>();
         categoryNames = new ArrayList<>();
         ownerEmail = "guest";
@@ -645,7 +643,7 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
      * @param isNewDeck
      *          true if deck is new, false otherwise
      */
-    public void updateDatabase(boolean isNewDeck) {
+    public void updateDatabase(final boolean isNewDeck) {
         if (isNewDeck) {
             final String dName = deckName.getText().toString();
             String coName = courseName.getText().toString();
@@ -665,8 +663,8 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
                 public void onChanged(@Nullable List<Deck> decks) {
                     mSelectedDecks = decks;
                     if (mSelectedDecks != null && mSelectedDecks.size() == 0) {
-                        mNeedToAddProfs = true;
-                        onSelectedDeckUpdated(deck, dName);
+                        mDeckViewModel.insert(deck);
+                        onSelectedDeckUpdated(dName);
                         mIntent = new Intent();
                         mIntent.putExtra(completedDeckKey, true);
                         mIntent.putExtra(deckNameKey, deckName.getText());
@@ -682,17 +680,19 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
                     } else if (!mJustChanged){
                         Toast.makeText(getContext(), "The deck with the name " + dName + " already "
                                 + "exists. Please choose a different name.", Toast.LENGTH_LONG).show();
-                        mNeedToAddProfs = false;
                         mJustChanged = false;
                     }
                 }
             });
         } else {
+            if (dName.length() == 0) {
+                dName = deckName.getText().toString();
+            }
             final Deck oldDeck = new Deck(dName);
-            final String dName = deckName.getText().toString();
+            final String dName2 = deckName.getText().toString();
             String coName = courseName.getText().toString();
             String sName = schoolName.getText().toString();
-            final Deck deck = new Deck(dName);
+            final Deck deck = new Deck(dName2);
             deck.setCourse(coName);
             deck.setSchool(sName);
             String email = "guest";
@@ -707,18 +707,19 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
             mCategoryViewModel.deleteAllCategoriesInDeck(oldDeck.getName());
 
             mDeckViewModel.update(deck, oldDeck);
+            //onSelectedDeckUpdated(deck, dName2, false);
 
             for (String prof : profNames) {
                 final Professor professor = new Professor();
                 professor.setProfessorName(prof);
-                professor.setDeckName(dName);
+                professor.setDeckName(dName2);
                 mProfessorViewModel.insert(professor);
             }
 
             for (String cat : categoryNames) {
                 final Category category = new Category();
                 category.setCategoryName(cat);
-                category.setDeckName(dName);
+                category.setDeckName(dName2);
                 mCategoryViewModel.insert(category);
             }
             //edmond look here
@@ -726,7 +727,7 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
                 String termTxt = ((TextView) getView().findViewById(termIds.get(i))).getText().toString();
                 String defTxt = ((TextView) getView().findViewById(defIds.get(i))).getText().toString();
                 Flashcard flashcard = new Flashcard();
-                flashcard.setDeckName(dName);
+                flashcard.setDeckName(dName2);
                 flashcard.setTerm(termTxt);
                 flashcard.setDefinition(defTxt);
 
@@ -751,38 +752,36 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
                 postDeckButton.setEnabled(true);
             }
             Toast.makeText(getContext(), "Changes saved successfully", Toast.LENGTH_LONG).show();
+            dName = dName2;
         }
     }
 
-    private void onSelectedDeckUpdated(Deck deck, String dName) {
-        mDeckViewModel.insert(deck);
+    private void onSelectedDeckUpdated(String dName) {
         mJustChanged = true;
 
-        if (mNeedToAddProfs) {
-            for (String prof : profNames) {
-                final Professor professor = new Professor();
-                professor.setProfessorName(prof);
-                professor.setDeckName(dName);
-                mProfessorViewModel.insert(professor);
-            }
-            for (String cat : categoryNames) {
-                final Category category = new Category();
-                category.setCategoryName(cat);
-                category.setDeckName(dName);
-                mCategoryViewModel.insert(category);
-            }
+        for (String prof : profNames) {
+            final Professor professor = new Professor();
+            professor.setProfessorName(prof);
+            professor.setDeckName(dName);
+            mProfessorViewModel.insert(professor);
+        }
+        for (String cat : categoryNames) {
+            final Category category = new Category();
+            category.setCategoryName(cat);
+            category.setDeckName(dName);
+            mCategoryViewModel.insert(category);
+        }
 
-            for (int i = 0; i < termIds.size(); i++) {
-                String termTxt = ((TextView) getView().findViewById(termIds.get(i))).getText().toString();
-                String defTxt = ((TextView) getView().findViewById(defIds.get(i))).getText().toString();
-                Flashcard flashcard = new Flashcard();
-                flashcard.setDeckName(dName);
-                flashcard.setTerm(termTxt);
-                flashcard.setDefinition(defTxt);
-                //flashcard.setMarked(false);
-                // TODO get marked value
-                mFlashcardViewModel.insert(flashcard);
-            }
+        for (int i = 0; i < termIds.size(); i++) {
+            String termTxt = ((TextView) getView().findViewById(termIds.get(i))).getText().toString();
+            String defTxt = ((TextView) getView().findViewById(defIds.get(i))).getText().toString();
+            Flashcard flashcard = new Flashcard();
+            flashcard.setDeckName(dName);
+            flashcard.setTerm(termTxt);
+            flashcard.setDefinition(defTxt);
+            //flashcard.setMarked(false);
+            // TODO get marked value
+            mFlashcardViewModel.insert(flashcard);
         }
     }
 
