@@ -17,9 +17,6 @@ import java.util.Collections;
  * The user can also cycle through and shuffle the deck.
  */
 public class FlashcardsFragment extends StudyFragment {
-    private int mCurrentIndex;
-    private boolean answerWithDef;
-
     /**
      * OnCreateView method.
      * @param inflater
