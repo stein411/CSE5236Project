@@ -78,4 +78,8 @@
     <string name="marked_cards">MarkedCards</string>
     <string name="study_marked_cards">Study Marked Cards</string>
     <string name="answer_marked_cards">Answer with Only Marked Cards</string>
+    <string name="title_activity_bottom_nav">BottomNavActivity</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
 </resources>

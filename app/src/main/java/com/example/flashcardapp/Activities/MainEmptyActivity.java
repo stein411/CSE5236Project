@@ -33,7 +33,7 @@ public class MainEmptyActivity extends AppCompatActivity {
             doLogin();
         } else {
             // User is signed in; take them to the user home activity
-            startActivity(new Intent(getApplicationContext(), UserHomeActivity.class));
+            startActivity(new Intent(getApplicationContext(), BottomNavActivity.class));
             finish();
         }
     }
