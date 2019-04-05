@@ -6,7 +6,10 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.menu.MenuView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -80,13 +83,12 @@ public class SearchFragment extends Fragment {
         adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1, decks);
         decksList.setAdapter(adapter);
         setHasOptionsMenu(true);
-        deckKey = getString(R.string.NameString);
         return v;
     }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.search_menu, menu);
+        getActivity().getMenuInflater().inflate(R.menu.search_menu, menu);
         MenuItem item = menu.findItem(R.id.search_decks);
         SearchView searchView = (SearchView) item.getActionView();
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -101,6 +103,6 @@ public class SearchFragment extends Fragment {
                 return false;
             }
         });
-        super.onCreateOptionsMenu(menu, inflater);
+        super.onCreateOptionsMenu(menu, getActivity().getMenuInflater());
     }
 }
