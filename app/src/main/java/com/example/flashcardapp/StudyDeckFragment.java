@@ -54,15 +54,6 @@ public class StudyDeckFragment extends Fragment {
         } else {
             markedCards = new ArrayList<>();
         }
-        backButton = (Button) v.findViewById(R.id.back_button);
-        backButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (getActivity() != null) {
-                    getActivity().finish();
-                }
-            }
-        });
         answerWithTermOrDefButton = (Button) v.findViewById(R.id.answer_term_def_button);
         answerWithTermOrDefButton.setOnClickListener(new View.OnClickListener() {
             @Override
