@@ -1,5 +1,6 @@
 package com.example.flashcardapp.Activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -9,6 +10,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
@@ -17,6 +19,9 @@ import com.example.flashcardapp.DeckMenuFragment;
 import com.example.flashcardapp.MapsFragment;
 import com.example.flashcardapp.R;
 import com.example.flashcardapp.SearchFragment;
+import com.firebase.ui.auth.AuthUI;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
@@ -27,7 +32,7 @@ public class BottomNavActivity extends AppCompatActivity {
     private Fragment active;
     private Toolbar mToolbar;
     private final Fragment fragment1 = new DeckMenuFragment();
-    private final Fragment fragment2 = new MapsFragment(); // TODO convert maps to fragment
+    private final Fragment fragment2 = new MapsFragment();
     private final Fragment fragment3 = new SearchFragment();
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
@@ -39,19 +44,19 @@ public class BottomNavActivity extends AppCompatActivity {
                 case R.id.navigation_home:
                     fm.beginTransaction().hide(active).show(fragment1).commit();
                     active = fragment1;
-                    mToolbar.setTitle("Your Decks");
+                    mToolbar.setTitle(getString(R.string.MyDecksString));
                     return true;
 
                 case R.id.navigation_dashboard:
                     fm.beginTransaction().hide(active).show(fragment2).commit();
                     active = fragment2;
-                    mToolbar.setTitle("Nearby Decks");
+                    mToolbar.setTitle(getString(R.string.NearbyDecks));
                     return true;
 
                 case R.id.navigation_notifications:
                     fm.beginTransaction().hide(active).show(fragment3).commit();
                     active = fragment3;
-                    mToolbar.setTitle("Search");
+                    mToolbar.setTitle(R.string.SearchDecksString);
                     return true;
             }
             return false;
@@ -83,5 +88,26 @@ public class BottomNavActivity extends AppCompatActivity {
             mToolbar.setTitle("Your Decks");
         }
         setSupportActionBar(mToolbar);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.logout) {
+            AuthUI.getInstance().signOut(getApplicationContext()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    startActivity(new Intent(getApplicationContext(), MainEmptyActivity.class));
+                    finish();
+                }
+            });
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.account_menu, menu);
+        return true;
     }
 }

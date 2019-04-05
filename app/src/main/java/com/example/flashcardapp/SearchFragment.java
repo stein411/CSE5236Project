@@ -52,6 +52,7 @@ public class SearchFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_search, container, false);
+        deckKey = getString(R.string.NameString);
         decksList = (ListView) v.findViewById(R.id.decks_list);
         decksList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override

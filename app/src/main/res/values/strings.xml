@@ -23,9 +23,9 @@
     <string name="BackButton">Back</string>
     <string name="Username">Guest\'s Decks</string>
     <string name="UserWelcome">Welcome to Our App!</string>
-    <string name="MyDecksButton">My Decks</string>
-    <string name="NearbyDecksButton">Find Nearby Decks</string>
-    <string name="SearchDecksString">Search for Decks</string>
+    <string name="MyDecksString">My Decks</string>
+    <string name="NearbyDecks">Nearby Decks</string>
+    <string name="SearchDecksString">Search Decks</string>
     <string name="DeckNameString">Deck Name</string>
     <string name="SearchString">Search</string>
     <string name="SearchResultsString">Search Results</string>
@@ -82,4 +82,5 @@
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
+    <string name="change_password">Reset Password</string>
 </resources>
