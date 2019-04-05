@@ -12,6 +12,7 @@ import android.view.MenuItem;
 import android.widget.TextView;
 
 import com.example.flashcardapp.DeckMenuFragment;
+import com.example.flashcardapp.MapsFragment;
 import com.example.flashcardapp.R;
 import com.example.flashcardapp.SearchFragment;
 
@@ -23,7 +24,7 @@ public class BottomNavActivity extends AppCompatActivity {
     private FragmentManager fm;
     private Fragment active;
     private final Fragment fragment1 = new DeckMenuFragment();
-    private final Fragment fragment2 = new DeckMenuFragment(); // TODO convert maps to fragment
+    private final Fragment fragment2 = new MapsFragment(); // TODO convert maps to fragment
     private final Fragment fragment3 = new SearchFragment();
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
