@@ -9,6 +9,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -45,7 +46,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         GoogleMap.OnMyLocationClickListener, GoogleMap.OnMyLocationButtonClickListener {
 
     private GoogleMap mMap;
-    private Button backButton;
+    private Toolbar mToolbar;
     private final int MY_PERMISSIONS_REQUEST_FINE_LOCATION = 100;
     private HeatmapTileProvider mProvider;
     private TileOverlay mOverlay;
@@ -60,17 +61,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+        setupToolbar();
 
         SupportMapFragment mapFragment =
                 (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-        backButton = findViewById(R.id.back_button);
-        backButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                finish();
-            }
-        });
         deckKey = getString(R.string.NameString);
         decks = new ArrayList<>();
         locations = new ArrayList<>();
@@ -163,6 +158,22 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }
             }
         });
+    }
+
+    protected void setupToolbar(){
+        mToolbar = findViewById(R.id.map_toolbar);
+        if (mToolbar != null){
+            mToolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
+            mToolbar.setTitle("Nearby Decks");
+            //setSupportActionBar(mToolbar);
+            mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    finish();
+                }
+            });
+        }
+
     }
 
     private void addHeatMap() {
