@@ -46,7 +46,7 @@ public class MainEmptyActivity extends AppCompatActivity {
             //IdpResponse response = IdpResponse.fromResultIntent(data);
             if (resultCode == RESULT_OK) {
                 //FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                startActivity(new Intent(getApplicationContext(), UserHomeActivity.class));
+                startActivity(new Intent(getApplicationContext(), BottomNavActivity.class));
                 finish();
             } else {
                 // Retry login
