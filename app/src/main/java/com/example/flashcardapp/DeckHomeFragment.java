@@ -216,7 +216,7 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
                 }
             }
         });
-        saveButton = (Button) v.findViewById(R.id.save_changes_button);
+        saveButton = (Button) v.findViewById(R.id.save_deck_metadata);
         final String deckTitle = deckName.getText().toString();
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v4.widget.NestedScrollView
+<ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_height="match_parent"
-    android:layout_width="match_parent">
+    android:layout_width="match_parent"
+    android:id="@+id/deck_edit_scrollview">
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -141,7 +142,7 @@
             app:layout_constraintTop_toBottomOf="@+id/category_container" />
 
         <Button
-            android:id="@+id/save_changes_button"
+            android:id="@+id/save_deck_metadata"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
@@ -165,7 +166,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/save_changes_button" />
+            app:layout_constraintTop_toBottomOf="@+id/save_deck_metadata" />
 
     </android.support.constraint.ConstraintLayout>
-</android.support.v4.widget.NestedScrollView>
+</ScrollView>

@@ -102,7 +102,7 @@
             app:layout_constraintTop_toBottomOf="@+id/flashcards_container" />
 
         <Button
-            android:id="@+id/save_changes_button"
+            android:id="@+id/save_deck_metadata"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
@@ -161,7 +161,7 @@
             android:text="@string/post_deck_button"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/save_changes_button" />
+            app:layout_constraintTop_toBottomOf="@+id/save_deck_metadata" />
 
         <TextView
             android:id="@+id/rating"
