@@ -3,17 +3,13 @@ package com.example.flashcardapp.Activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.TextView;
 
 import com.example.flashcardapp.DeckMenuFragment;
 import com.example.flashcardapp.MapsFragment;
@@ -23,10 +19,6 @@ import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
-import java.io.FileDescriptor;
-import java.io.PrintWriter;
-import java.util.List;
-
 public class BottomNavActivity extends AppCompatActivity {
     private FragmentManager fm;
     private Fragment active;
@@ -34,6 +26,7 @@ public class BottomNavActivity extends AppCompatActivity {
     private final Fragment fragment1 = new DeckMenuFragment();
     private final Fragment fragment2 = new MapsFragment();
     private final Fragment fragment3 = new SearchFragment();
+    private int activeNo;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -44,18 +37,21 @@ public class BottomNavActivity extends AppCompatActivity {
                 case R.id.navigation_home:
                     fm.beginTransaction().hide(active).show(fragment1).commit();
                     active = fragment1;
+                    activeNo = 1;
                     mToolbar.setTitle(getString(R.string.MyDecksString));
                     return true;
 
-                case R.id.navigation_dashboard:
+                case R.id.navigation_maps:
                     fm.beginTransaction().hide(active).show(fragment2).commit();
                     active = fragment2;
+                    activeNo = 2;
                     mToolbar.setTitle(getString(R.string.NearbyDecks));
                     return true;
 
-                case R.id.navigation_notifications:
+                case R.id.navigation_search:
                     fm.beginTransaction().hide(active).show(fragment3).commit();
                     active = fragment3;
+                    activeNo = 3;
                     mToolbar.setTitle(R.string.SearchDecksString);
                     return true;
             }
@@ -71,18 +67,19 @@ public class BottomNavActivity extends AppCompatActivity {
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
         active = fragment1;
+        activeNo = 1;
 
         // Fragment manager
         fm = getSupportFragmentManager();
         fm.beginTransaction().add(R.id.main_container, fragment3, "3").hide(fragment3).commit();
         fm.beginTransaction().add(R.id.main_container, fragment2, "2").hide(fragment2).commit();
-        fm.beginTransaction().add(R.id.main_container,fragment1, "1").commit();
+        fm.beginTransaction().add(R.id.main_container, fragment1, "1").commit();
 
         setupToolbar();
     }
 
 
-    protected void setupToolbar(){
+    protected void setupToolbar() {
         mToolbar = findViewById(R.id.toolbar);
         if (mToolbar != null) {
             mToolbar.setTitle("Your Decks");
@@ -109,5 +106,16 @@ public class BottomNavActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.account_menu, menu);
         return true;
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (activeNo == 1) {
+            ((BottomNavigationView) findViewById(R.id.navigation)).setSelectedItemId(R.id.navigation_search);
+        } else if (activeNo == 2) {
+            ((BottomNavigationView) findViewById(R.id.navigation)).setSelectedItemId(R.id.navigation_home);
+        } else if (activeNo == 3) {
+            ((BottomNavigationView) findViewById(R.id.navigation)).setSelectedItemId(R.id.navigation_maps);
+        }
     }
 }
