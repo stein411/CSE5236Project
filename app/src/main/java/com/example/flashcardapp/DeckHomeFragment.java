@@ -277,7 +277,7 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
                                             if (task.isSuccessful()) {
                                                 DocumentSnapshot snapshot = task.getResult();
                                                 if (snapshot.exists()) {
-                                                    Object email = snapshot.get("email");
+                                                    Object email = snapshot.get("owner");
                                                     if (email != null && email.toString().equals(user.getEmail())) {
                                                         Map<String, Object> updates = new HashMap<>();
                                                         updates.put("location", FieldValue.delete());
@@ -296,7 +296,7 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
 
                                 mIntent = new Intent();
                                 mIntent.putExtra(completedDeckKey, true);
-                                mIntent.putExtra(deckNameKey, deckName.getText());
+                                mIntent.putExtra(deckNameKey, dName);
                                 getActivity().setResult(Activity.RESULT_OK, mIntent);
 
                                 Toast.makeText(getContext(), "Deck was deleted successfully", Toast.LENGTH_LONG).show();
@@ -472,6 +472,7 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
         deckInfo.put("category", category);
         deckInfo.put("rating", rating);
         deckInfo.put("course", courseName);
+        deckInfo.put("school", schoolName);
         return deckInfo;
     }
 

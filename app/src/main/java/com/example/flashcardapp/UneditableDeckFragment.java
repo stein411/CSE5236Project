@@ -341,7 +341,15 @@ public class UneditableDeckFragment extends Fragment {
                                     // Disable ratings
                                     ratingsButton.setEnabled(false);
                                     ratingsBar.setEnabled(false);
-                                    ratingsLabel.setText("Sign up to Rate and Download this Deck");
+
+                                    // Disable downloading
+                                    downloadDeckButton.setEnabled(false);
+
+                                    String displayText = "Sign up to Rate and Download this Deck";
+                                    if (ownerEmail.equals(user.getEmail())) {
+                                        displayText = "This is your deck";
+                                    }
+                                    ratingsLabel.setText(displayText);
                                 }
                             }
                             if (documentSnapshot.get("rating") != null) {
