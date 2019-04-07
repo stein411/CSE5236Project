@@ -261,7 +261,7 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
                                 deck.setCourse(coName);
                                 deck.setSchool(sName);
                                 String email = "guest";
-                                if (user != null && user.getEmail() != null) {
+                                if (user != null && user.getEmail() != null && user.getEmail().length() != 0) {
                                     email = user.getEmail();
                                 }
                                 deck.setOwnerEmail(email);
@@ -337,7 +337,7 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
                                 String sName = schoolName.getText().toString();
                                 String email = "guest";
                                 FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                                if (user != null && user.getEmail() != null) {
+                                if (user != null && user.getEmail() != null && user.getEmail().length() != 0) {
                                     email = user.getEmail();
                                 }
                                 final String finalEmail = email;
@@ -418,7 +418,7 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
         }
 
         // Disable guest posting
-        if (user == null || user.getEmail() == null) {
+        if (user == null || user.getEmail() == null || user.getEmail().length() == 0) {
             postDeckButton.setEnabled(false);
         }
 
@@ -444,7 +444,7 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
                 Toast.makeText(getContext(), "The location of the deck will not be shown at this time", Toast.LENGTH_LONG).show();
                 // Post deck without location
                 FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                if (user != null && user.getEmail() != null)  {
+                if (user != null && user.getEmail() != null && user.getEmail().length() != 0)  {
                     ownerEmail = user.getEmail();
                 }
                 addDeckInfoToFirebase(dName, ownerEmail, profNames, categoryNames, 0, courseName.getText().toString(), schoolName.getText().toString());
@@ -652,7 +652,7 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
             deck.setSchool(sName);
             String email = "guest";
             user = FirebaseAuth.getInstance().getCurrentUser();
-            if (user != null && user.getEmail() != null) {
+            if (user != null && user.getEmail() != null && user.getEmail().length() != 0) {
                 email = user.getEmail();
             }
             deck.setOwnerEmail(email);
@@ -672,7 +672,7 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
                         getActivity().getIntent().putExtra(isNewDeckKey, false);
 
                         // Enable posting, studying, deleting
-                        if (user != null && user.getEmail() != null) {
+                        if (user != null && user.getEmail() != null && user.getEmail().length() != 0) {
                             postDeckButton.setEnabled(true);
                             if (termIds.size() > 0) {
                                 studyDeckButton.setEnabled(true);
@@ -700,7 +700,7 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
             deck.setSchool(sName);
             String email = "guest";
             user = FirebaseAuth.getInstance().getCurrentUser();
-            if (user != null && user.getEmail() != null) {
+            if (user != null && user.getEmail() != null && user.getEmail().length() != 0) {
                 email = user.getEmail();
             }
             deck.setOwnerEmail(email);
@@ -750,7 +750,7 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
             getActivity().getIntent().putExtra(isNewDeckKey, false);
 
             // Enable posting
-            if (user != null && user.getEmail() != null) {
+            if (user != null && user.getEmail() != null && user.getEmail().length() != 0) {
                 // Only enable posting if original owner (or document doesn't exist yet)
                 //postDeckButton.setEnabled(false);
                 final DocumentReference doc = FirebaseFirestore.getInstance().collection("decks").document(dName);

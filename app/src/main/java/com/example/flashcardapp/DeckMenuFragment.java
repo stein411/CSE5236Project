@@ -57,7 +57,7 @@ public class DeckMenuFragment extends Fragment {
         // TODO modify here with new query that selects by email
         user = FirebaseAuth.getInstance().getCurrentUser();
         email = "guest";
-        if (user != null && user.getEmail() != null) {
+        if (user != null && user.getEmail() != null && user.getEmail().length() != 0) {
             email = user.getEmail();
         }
 
@@ -86,7 +86,11 @@ public class DeckMenuFragment extends Fragment {
 
         if (user != null && user.getDisplayName() != null) {
             usernameLabel = (TextView) v.findViewById(R.id.username_label);
-            usernameLabel.setText(user.getDisplayName() + "\'s Decks");
+            String name = user.getDisplayName();
+            if (name.length() == 0) {
+                name = "Guest";
+            }
+            usernameLabel.setText(name + "\'s Decks");
         }
         return v;
     }
