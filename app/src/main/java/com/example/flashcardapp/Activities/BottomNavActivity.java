@@ -145,6 +145,14 @@ public class BottomNavActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        if (active != null) {
+            fm.beginTransaction().show(active).commit();
+        }
+    }
+
+    @Override
     protected void onSaveInstanceState(Bundle outState) {
         fm.beginTransaction().hide(active).commit();
         outState.putInt(activeNoKey, activeNo);
