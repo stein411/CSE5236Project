@@ -2,6 +2,7 @@ package com.example.flashcardapp.Activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
@@ -27,6 +28,7 @@ public class BottomNavActivity extends AppCompatActivity {
     private final Fragment fragment2 = new MapsFragment();
     private final Fragment fragment3 = new SearchFragment();
     private int activeNo;
+    private String activeNoKey;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -63,21 +65,44 @@ public class BottomNavActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bottom_nav);
+        activeNoKey = getString(R.string.active_number_key);
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
-        active = fragment1;
-        activeNo = 1;
-
-        // Fragment manager
         fm = getSupportFragmentManager();
-        fm.beginTransaction().add(R.id.main_container, fragment3, "3").hide(fragment3).commit();
-        fm.beginTransaction().add(R.id.main_container, fragment2, "2").hide(fragment2).commit();
-        fm.beginTransaction().add(R.id.main_container, fragment1, "1").commit();
-
         setupToolbar();
-    }
 
+        if (savedInstanceState != null && savedInstanceState.get(activeNoKey) != null) {
+            activeNo = savedInstanceState.getInt(activeNoKey);
+
+            if (activeNo == 1) {
+                active = fragment1;
+            } else if (activeNo == 2) {
+                active = fragment2;
+            } else if (activeNo == 3) {
+                active = fragment3;
+            }
+
+            fm.beginTransaction().add(R.id.main_container, fragment1, "1").hide(fragment1).commit();
+            fm.beginTransaction().add(R.id.main_container, fragment2, "2").hide(fragment2).commit();
+            fm.beginTransaction().add(R.id.main_container, fragment3, "3").hide(fragment3).commit();
+
+            if (activeNo == 1) {
+                ((BottomNavigationView) findViewById(R.id.navigation)).setSelectedItemId(R.id.navigation_home);
+            } else if (activeNo == 2) {
+                ((BottomNavigationView) findViewById(R.id.navigation)).setSelectedItemId(R.id.navigation_maps);
+            } else if (activeNo == 3) {
+                ((BottomNavigationView) findViewById(R.id.navigation)).setSelectedItemId(R.id.navigation_search);
+            }
+        } else {
+            active = fragment1;
+            activeNo = 1;
+
+            fm.beginTransaction().add(R.id.main_container, fragment3, "3").hide(fragment3).commit();
+            fm.beginTransaction().add(R.id.main_container, fragment2, "2").hide(fragment2).commit();
+            fm.beginTransaction().add(R.id.main_container, fragment1, "1").commit();
+        }
+    }
 
     protected void setupToolbar() {
         mToolbar = findViewById(R.id.toolbar);
@@ -117,5 +142,12 @@ public class BottomNavActivity extends AppCompatActivity {
         } else if (activeNo == 3) {
             ((BottomNavigationView) findViewById(R.id.navigation)).setSelectedItemId(R.id.navigation_maps);
         }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        fm.beginTransaction().hide(active).commit();
+        outState.putInt(activeNoKey, activeNo);
+        super.onSaveInstanceState(outState);
     }
 }
