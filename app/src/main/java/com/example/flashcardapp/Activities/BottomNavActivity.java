@@ -107,7 +107,7 @@ public class BottomNavActivity extends AppCompatActivity {
     protected void setupToolbar() {
         mToolbar = findViewById(R.id.toolbar);
         if (mToolbar != null) {
-            mToolbar.setTitle("Your Decks");
+            mToolbar.setTitle("My Decks");
         }
         setSupportActionBar(mToolbar);
     }
