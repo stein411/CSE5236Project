@@ -594,8 +594,12 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
             if (addFlashcardsToUI) {
                 studyDeckButton.setEnabled(flashcards.size() != 0);
 
-                for (Flashcard flashcard : flashcards) {
+                for (int i = 0; i < flashcards.size(); i++) {
+                    Flashcard flashcard = flashcards.get(i);
                     addFlashcard(flashcard.getTerm(), flashcard.getDefinition(), flashcard.isMarked());
+                    if (flashcard.isMarked()) {
+                        markedCards.add(Integer.toString(i));
+                    }
                 }
             }
         }
