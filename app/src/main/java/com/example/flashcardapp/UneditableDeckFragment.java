@@ -337,7 +337,7 @@ public class UneditableDeckFragment extends Fragment {
                             if (documentSnapshot.get("owner") != null) {
                                 String ownerEmail = documentSnapshot.get("owner").toString();
                                 authorNameLabel.setText("Deck Made By: " + ownerEmail);
-                                if (user.getEmail() == null || ownerEmail.equals(user.getEmail())) {
+                                if (user.getEmail() == null || ownerEmail.equals(user.getEmail()) || user.getEmail().length() == 0) {
                                     // Disable ratings
                                     ratingsButton.setEnabled(false);
                                     ratingsBar.setEnabled(false);

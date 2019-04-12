@@ -676,11 +676,9 @@ public class DeckHomeFragment extends Fragment implements Observer<List<Deck>> {
                         getActivity().getIntent().putExtra(isNewDeckKey, false);
 
                         // Enable posting, studying, deleting
-                        if (user != null && user.getEmail() != null && user.getEmail().length() != 0) {
-                            postDeckButton.setEnabled(true);
-                            if (termIds.size() > 0) {
-                                studyDeckButton.setEnabled(true);
-                            }
+                        if (user != null) {
+                            postDeckButton.setEnabled(user.getEmail() != null && user.getEmail().length() != 0);
+                            studyDeckButton.setEnabled(termIds.size() > 0);
                             deleteButton.setEnabled(true);
                         }
                         Toast.makeText(getContext(), "Changes saved successfully", Toast.LENGTH_LONG).show();

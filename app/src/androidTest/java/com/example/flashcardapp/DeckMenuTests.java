@@ -1,6 +1,7 @@
 package com.example.flashcardapp;
 
 import android.support.test.espresso.NoMatchingViewException;
+import android.support.test.espresso.action.ViewActions;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -21,6 +22,7 @@ import static android.support.test.espresso.assertion.ViewAssertions.doesNotExis
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.RootMatchers.isDialog;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static android.support.test.espresso.matcher.ViewMatchers.isRoot;
 import static android.support.test.espresso.matcher.ViewMatchers.withHint;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
@@ -182,6 +184,65 @@ public class DeckMenuTests  {
             onView(withText(terms[i])).check(matches(isDisplayed()));
             onView(withText(defs[i])).check(matches(isDisplayed()));
         }
+
+        // Delete the deck
+        onView(withId(R.id.delete_button)).perform(scrollTo(), click());
+        onView(withText("OK")).inRoot(isDialog()).check(matches(isDisplayed())).perform(click());
+
+        // Check that delete was successful
+        onView(withText(deckName)).check(doesNotExist());
+    }
+
+    /**
+     * Test study cards functionality.
+     */
+    @Test
+    public void testStudyCards() {
+        String deckName = "Deck Name";
+        String[] terms = {"t1", "t2", "t3", "t4", "t5"};
+        String[] defs = {"d1", "d2", "d3", "d4", "d5"};
+
+        // Add a new deck
+        onView(withId(R.id.add_deck_button)).perform(scrollTo(), click());
+
+        // Add the flashcards
+        for (int i = 0; i < terms.length; i++) {
+            onView(withId(R.id.add_flashcard_button)).perform(scrollTo(), click());
+            onView(allOf(withHint(R.string.TermString), withText(""))).perform(typeText(terms[i]));
+            closeSoftKeyboard();
+            onView(allOf(withHint(R.string.DefinitionString), withText(""))).perform(typeText(defs[i]));
+            closeSoftKeyboard();
+        }
+
+        // Save deck
+        onView(withId(R.id.save_deck_metadata)).perform(scrollTo(), click());
+
+        // Click "Back"
+        onView(withId(R.id.back_button)).perform(scrollTo(), click());
+
+        // Re-open the deck
+        onView(withText(deckName)).perform(scrollTo(), click());
+
+        // Start studying
+        onView(withId(R.id.study_deck_button)).perform(scrollTo(), click());
+        onView(withId(R.id.flashcards_button)).perform(click());
+
+        // Check that the flashcards match
+        for (int i = 0; i < terms.length; i++) {
+            // Check term
+            onView(withId(R.id.answer_prompt)).check(matches(withText(terms[i])));
+
+            // Check definition
+            onView(withId(R.id.flip_card_button)).perform(click());
+            onView(withId(R.id.answer_prompt)).check(matches(withText(defs[i])));
+            onView(withId(R.id.flip_card_button)).perform(click());
+
+            onView(withId(R.id.next_card_button)).perform(click());
+        }
+
+        // Go back and delete
+        onView(withId(R.id.back_button)).perform(click());
+        onView(isRoot()).perform(ViewActions.pressBack());
 
         // Delete the deck
         onView(withId(R.id.delete_button)).perform(scrollTo(), click());
